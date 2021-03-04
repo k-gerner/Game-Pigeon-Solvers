@@ -1,9 +1,9 @@
 # Game Pigeon Solvers  
 Created by Kyle Gerner  
 ### What is this?  
-This repo contains tools that will make it easy to win at the Game Pigeon games specified. You'll be practically unbeatable! Each game will contain its own README for further information.
+This repo contains tools that will make it easy to win at the Game Pigeon games specified. You'll be practically unbeatable! 
 ### What is Game Pigeon?
-Game Pigeon is a mobile gaming app for iOS devices. The app allows iMessage users to play each other in minigames such as chess, mancala, anagrams, battleship and more.  
+[Game Pigeon](https://en.wikipedia.org/wiki/GamePigeon) is a mobile gaming app for iOS devices. The app allows iMessage users to play each other in minigames such as chess, mancala, anagrams, battleship and more.  
 
 ### Why did I make this?
 My friend and I are pretty competitive, and one way we compete is in these Game Pigeon games. Each game we bet $1 on the outcome. Some of these games rely on strategy and recognition, which means you can write programs to give you the upper hand.  
