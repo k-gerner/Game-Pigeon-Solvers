@@ -15,8 +15,8 @@ Next, you will be prompted about which display mode you would like to use: `Diag
 #### Diagram Mode
 Diagram mode will display each word one at a time, along with a visual representation of the board which shows the user the path they should take to connect the letters. Longer words will be displayed first.  
 <img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Word%20Hunt/sampleDiagramMode2.png" alt = "sample diagram mode" width = "30%" align = "left">  
-  
+    
 #### List Mode
 List mode will display every possible word on the board all at once, along with the index on the board at which the first letter is located. Longer words will be displayed first.  
 
-<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Word%20Hunt/sampleListMode.png" alt = "sample list mode" align = "left" width = "40%">  
+<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Word%20Hunt/sampleListMode.png" alt = "sample list mode" align = "left" width = "30%">  
