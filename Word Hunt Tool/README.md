@@ -4,5 +4,7 @@ In Word Hunt, players are presented with a 4x4 board of letter tiles. In order t
 <img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/sampleWordHuntBoard.jpeg" alt =  "sample board" width="375" height="569" align = "right">  
 ### How to use
 First, download the `wordHuntTool.py`, `classes.py`, and `letters10.txt` files and place them all in the same directory. You can invoke the tool by running  
-`> python3 wordHuntTool.py`  
+```
+> python3 wordHuntTool.py
+```
 Once you do this, 
