@@ -8,7 +8,7 @@ from functools import cmp_to_key
 # Direction Constants #
 UPLEFT = 0 	# _____________
 UP = 1 		# |_0_|_1_|_2_|	<-- direction layout
-UPRIGHT = 2 # |_7_|_X_|_3_|
+UPRIGHT = 2	# |_7_|_X_|_3_|
 RIGHT = 3 	# |_6_|_5_|_4_|
 DOWNRIGHT = 4
 DOWN = 5
@@ -214,7 +214,7 @@ def main():
 	try :
 		inputFile = open(filename, 'r')
 	except:
-		print("\nCould not open the file. Please make sure %s is in the current directory.\n" % filename)
+		print("\nCould not open the file. Please make sure %s is in the current directory, and run this file from inside the current directory.\n" % filename)
 		exit(0)
 	trueCount = 0
 	falseCount = 0
