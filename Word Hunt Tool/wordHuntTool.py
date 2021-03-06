@@ -216,8 +216,6 @@ def main():
 	except:
 		print("\nCould not open the file. Please make sure %s is in the current directory, and run this file from inside the current directory.\n" % filename)
 		exit(0)
-	trueCount = 0
-	falseCount = 0
 	for word in inputFile:
 		strippedWord = word.rstrip() #removes newline char
 		if len(strippedWord) > MAX_LENGTH:
