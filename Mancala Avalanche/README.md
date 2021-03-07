@@ -7,6 +7,7 @@ Mancala Avalanche is a version of Mancala. Players each have 6 pits and a bank. 
 
 ### Python Version  
 *Note*: This code is likely not as optimized as it could be, as I wrote it as an exercise to refamiliarize myself with Python.  
+#### How to use
 First, go into the [Python Version](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Mancala%20Avalanche/Python%20Version) directory and download the `AvalancheRunner.py`, `AvalancheSolver.py`, `AvalancheBoard.py`, and `Player.py` files. Then, run the following command:  
 ```
 > python3 AvalancheRunner.py
