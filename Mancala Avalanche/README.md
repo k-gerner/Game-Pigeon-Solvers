@@ -1,12 +1,20 @@
 # Mancala (Avalanche)  
 
+<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Mancala%20Avalanche/sampleMancalaBoard.jpeg" alt = "sample board" width="40%" align = "right"> 
+
+### The Basics  
+Mancala Avalanche is a version of Mancala. Players each have 6 pits and a bank. Each pit starts out with a certain number of pieces. The objective of the game is to end up with more pieces in your bank than your opponent. To play your turn, you choose a pit on your side of the board, and pick up all the pieces in that pit. You go down the board, placing one piece in each pit that you pass. You place pieces in your bank, but not your opponents. If your last piece from that turn ends in your bank, you get another turn. If the last piece ends in another pit, you pick up every piece from that pit, and repeat the process (unless the pit was empty, in which case your turn is over). For further explanation, see [this website](https://allthings.how/how-to-play-mancala-on-imessage/).  
+
+### Python Version  
+STILL NEEDS TO BE WRITTEN  
+
 ### Java Version  
 #### How to use
-First, go into the `Java Version` directory and download the `MancalaAvalanche.java` and `MancalaBoard.java` files. Then, run the following command:  
+First, go into the [Java Version](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Mancala%20Avalanche/Java%20Version) directory and download the `MancalaAvalanche.java` and `MancalaBoard.java` files. Then, run the following command:  
 ```
 > javac MancalaAvalanche.java
 ```  
-Once you have run the above command once, you won't have to run it again, unless you make changes to either one of the `.java` files. Now, to run the program, run the following command:  
+This compiles the code. Once you have done this once, you won't have to do it again, unless you make changes to either one of the `.java` files. Now, to run the program, run the following command:  
 ```
 > java MancalaAvalanche
 ```  
