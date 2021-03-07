@@ -1,3 +1,4 @@
+# Kyle Gerner    7.9.2020
 # class that represents the Player (of which, there are 2)
 class Player(object):
     score = 0

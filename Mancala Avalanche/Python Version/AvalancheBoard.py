@@ -1,13 +1,22 @@
+# Kyle Gerner    7.9.2020
+# Contains the AvalancheBoard class
 from Player import Player
 
+BANK = 0
+EMPTY_PIT = 1
+PIT_WITH_PIECES = 2
+
+# Class that represents the board object.
 class AvalancheBoard(object):
 
+    # constructor
     def __init__(self, pebblesInEach, player1, player2, playerOneTurn):
         self.pebblesList = pebblesInEach.copy()
         self.p1 = player1
         self.p2 = player2
         self.p1Turn = playerOneTurn
 
+    # Performs the moves on the board by calling the performMove function for each move given
     def performMoveSet(self, moveList):
         continueMoves = True
         moveNumber = 1
@@ -21,6 +30,7 @@ class AvalancheBoard(object):
         self.switchTurn()
         return self.p1.score, self.p2.score
 
+    # Performs the move on the board
     def performMove(self, position):
         currBankIndex, enemyBankIndex = self.getBankIndexes()
         currPlayer = self.p1 if self.p1Turn else self.p2
@@ -29,9 +39,11 @@ class AvalancheBoard(object):
         turnEndedInPlayerBank = False
         while True:
             if numPebbles == 0:
-                endOfMove = self.isEndOfCurrentMove(position, currBankIndex)
-                if (endOfMove[0]):
-                    turnEndedInPlayerBank = endOfMove[1]
+                endOfMove = self.endOfCurrentMove(position, currBankIndex)
+                # if (endOfMove[0]):
+                if(endOfMove != PIT_WITH_PIECES):
+                    # turnEndedInPlayerBank = endOfMove[1]
+                    turnEndedInPlayerBank = True if endOfMove == BANK else False
                     break
                 else:
                     numPebbles = self.pebblesList[position]
@@ -41,27 +53,35 @@ class AvalancheBoard(object):
             numPebbles -= 1
         return turnEndedInPlayerBank
 
-    def isEndOfCurrentMove(self, pos, currBankIndex):
+    # checks which spot the last piece was placed
+    def endOfCurrentMove(self, pos, currBankIndex):
         # note if this method is called, we already know numPebbles = 0
         if pos == currBankIndex:
-            return True, True
+            return BANK
         elif self.pebblesList[pos] == 1:
-            return True, False
+            return EMPTY_PIT
         else:
-            return False, False
+            return PIT_WITH_PIECES
 
+    # places a piece in the specified spot, and increments score if applicable
     def addPebbleToLocation(self, index, currBankIndex, currPlayer):
         self.pebblesList[index] += 1
         if index == currBankIndex:
             currPlayer.incrementScore()
 
+    # get the player and opponent bank indexes
     def getBankIndexes(self):
         if self.p1Turn:
             return 6,13
         else:
             return 13,6
 
+    # prints the board in a horizontal fashion
     def printBoardHorizontal(self):
+        # E  |12 |11 |10 | 9 | 8 | 7 |
+        #13  -------------------------  6
+        #    | 0 | 1 | 2 | 3 | 4 | 5 |  P
+        #     Enemy winning 13 to 6
         if self.p2.score == self.p1.score:
             scoreStr = "\t  The score is tied at %d\n" % self.p2.score
         else:
@@ -71,17 +91,14 @@ class AvalancheBoard(object):
                 scoreStr = "\t  You're winning %d to %d\n" % (self.p1.score, self.p2.score)
         print(str(self) + scoreStr)
 
-      # E  |12 |11 |10 | 9 | 8 | 7 |
-      #13  -------------------------  6
-      #    | 0 | 1 | 2 | 3 | 4 | 5 |  P
-      #     Enemy winning 13 to 6
-
+    # string representation of the board
     def __str__(self):
         enemyRow = "E\t|" + self.scoreRowToStrHoriz(12, 6, -1) + "\n"
         bankRow = "%d\t-------------------------\t%d\n" % (self.p2.score, self.p1.score)
         playerRow = "\t|" + self.scoreRowToStrHoriz(0, 6, 1) + "\tP\n"
         return enemyRow + bankRow + playerRow
 
+    # string representation of one side of the board
     def scoreRowToStrHoriz(self, start, end, direction):
         scoresStr = ""
         for i in range(start, end, direction): # loop thru indexes of side
@@ -91,5 +108,6 @@ class AvalancheBoard(object):
             scoresStr += thisSpotStr
         return scoresStr
 
+    # switches whose turn it is
     def switchTurn(self):
         self.p1Turn = not self.p1Turn
