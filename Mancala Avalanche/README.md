@@ -3,10 +3,10 @@
 <img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Mancala%20Avalanche/sampleMancalaBoard.jpeg" alt = "sample board" width="40%" align = "right"> 
 
 ### The Basics  
-Mancala Avalanche is a version of Mancala. Players each have 6 pits and a bank. Each pit starts out with a certain number of pieces. The objective of the game is to end up with more pieces in your bank than your opponent. To play your turn, you choose a pit on your side of the board, and pick up all the pieces in that pit. You go down the board, placing one piece in each pit that you pass. You place pieces in your bank, but not your opponents. If your last piece from that turn ends in your bank, you get another turn. If the last piece ends in another pit, you pick up every piece from that pit, and repeat the process (unless the pit was empty, in which case your turn is over). For further explanation, see [this website](https://allthings.how/how-to-play-mancala-on-imessage/).  
+Mancala Avalanche is a version of Mancala. Players each have 6 pits and a bank. Each pit starts out with a certain number of pieces. The objective of the game is to end up with more pieces in your bank than your opponent. To play your turn, you choose a pit on your side of the board, and pick up all the pieces in that pit. You go down the board, placing one piece in each pit that you pass. You place pieces in your bank, but not your opponent's. If your last piece from that turn ends in your bank, you get another turn. If the last piece ends in another pit, you pick up every piece from that pit, and repeat the process (unless the pit was empty, in which case your turn is over). For further explanation, see [this website](https://allthings.how/how-to-play-mancala-on-imessage/).  
 
 ### Python Version  
-*Note*: This code is likely not as optimized as it could be, as I wrote it as an exercise to refamiliarize myself with Python.  
+*Note*: This code is likely not as optimized as it could be, as I wrote it as an exercise to refamiliarize myself with Python.
 #### How to use
 First, go into the [Python Version](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Mancala%20Avalanche/Python%20Version) directory and download the `AvalancheRunner.py`, `AvalancheSolver.py`, `AvalancheBoard.py`, and `Player.py` files. Then, run the following command:  
 ```
