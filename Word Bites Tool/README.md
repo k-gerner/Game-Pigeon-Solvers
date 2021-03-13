@@ -1,6 +1,6 @@
 # Word Bites  
 
-<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Word%20Bites/sampleWordBytesBoard.jpeg" alt = "sample board" width="40%" align = "right">     
+<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Word%20Bites/sampleWordBitesBoard.jpeg" alt = "sample board" width="40%" align = "right">     
 
 ### The Basics  
 In Word Bytes, players are presented with a 9x8 board of open space. Scattered around the board are several letter tiles, which can be either 1 or 2 letters long, and be oriented vertically or horizontally. In order to earn points, players must connect pieces on the board to form English words. The longer the word, the more points the player earns. Whoever scores more points in 80 seconds wins.
