@@ -179,7 +179,7 @@ def printOutput(words):
 							above, cur, below = "  ", piece[0] + " ", piece[1] + " "
 						else:
 							# bottom letter in word
-							above, cur, below = piece[0], piece[1], " "
+							above, cur, below = piece[0] + " ", piece[1] + " ", " "
 						indexInWord += 1
 					elif piece in horizPiecesCopy:
 						# if the piece is a horizontal piece
@@ -189,12 +189,12 @@ def printOutput(words):
 					else:
 						# piece is a single letter
 						singePiecesCopy.remove(piece)
-						above, cur, below = "  ", piece  +" ", "  "
+						above, cur, below = "  ", piece  + " ", "  "
 						indexInWord += 1
 					lineAbove += above
 					line += cur 
 					lineBelow += below
-				afterWordTabs = "\t\t" if len(line) > 8 else "\t\t\t"
+				afterWordTabs = "\t" * (3 - int(len(line)/8))
 				print("%s\n%s%s%s\n%s\n" % (lineAbove, line, afterWordTabs, wordWithNumber,lineBelow))
 			else:
 				# if word is vertical
