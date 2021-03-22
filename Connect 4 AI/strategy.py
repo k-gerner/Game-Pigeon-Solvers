@@ -96,7 +96,7 @@ class Strategy(object):
 		# input("Press enter for the AI to perform its move.")
 		col = input("It's the AI's turn, press enter for it to play.\t")
 		move, score = -123, -123
-		for i in range(1, MAX_DEPTH): # iterative deepening
+		for i in range(1, MAX_DEPTH + 1): # iterative deepening
 			# this will prioritize game winning movesets that occur with less total moves
 			move, score = self.minimax(board, 0, MAX, -math.inf, math.inf, i)
 			if score == WIN_SCORE:
@@ -120,7 +120,7 @@ class Strategy(object):
 		Returns the column in [0] and score of the board in [1]
 		'''
 		validMoves = self.getValidMoves(board)
-		# random.shuffle(validMoves)
+		random.shuffle(validMoves)
 		gameOver, winner = self.isTerminal(board)
 		if gameOver:
 			if winner == self.AI_COLOR:
@@ -144,6 +144,8 @@ class Strategy(object):
 					score = updatedScore
 					bestMove = move
 				alpha = max(alpha, score)
+				# if depth == 0:
+				# 	print("Score for slot %d = %d. Max depth = %d" % (move, updatedScore, localMaxDepth))
 				if alpha >= beta:
 					break # pruning
 			return bestMove, score
@@ -190,9 +192,9 @@ class Strategy(object):
 		score = 0
 
 		# Give a slight bonus to pieces in the center column
-		# for r in range(NUM_ROWS):
-		# 	if board[r][NUM_COLS//2] == color:
-		# 		score += 2
+		for r in range(NUM_ROWS):
+			if board[r][NUM_COLS//2] == color:
+				score += 2
 
 		# Check horizontal
 		for c in range(NUM_COLS-3):
