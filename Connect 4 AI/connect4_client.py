@@ -49,6 +49,7 @@ def main():
 		print("You will be yellow!")
 	else:
 		print("Invalid input. You'll be yellow!")
+	print("You: %s\tAI: %s" % (playerColor, ai.opponentOf(playerColor)))
 	ai.setPlayerColor(playerColor)
 	turn = RED
 	while not ai.GAME_OVER:
@@ -57,7 +58,7 @@ def main():
 			getPlayerMove()
 		else:
 			ai_move = ai.playBestMove(gameBoard)
-			print("AI played in spot %d" % (ai_move + 1))
+			print("\nAI played in spot %d" % (ai_move + 1))
 		turn = ai.opponentOf(turn) # switch the turn
 
 	winner = "RED" if ai.opponentOf(turn) == RED else "YELLOW"

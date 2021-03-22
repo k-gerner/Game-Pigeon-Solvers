@@ -28,40 +28,44 @@ class Strategy(object):
 		Returns a tuple, with [0] being the True or False value
 		[1] being the winning color (None if neither color wins)
 		'''
-		if self.isWinner(board, RED):
-			return True, RED
-		elif self.isWinner(board, YELLOW):
-			return True, YELLOW
+		winner = self.findWinner(board)
+		if winner != None:
+			return True, winner
 		elif len(self.getValidMoves(board)) == 0:
 			return True, None
 		else:
 			return False, None
 
-	def isWinner(self, board, color):
-		'''Checks if the given color has won'''
+	def findWinner(self, board):
+		'''
+		Checks if there is a winner
+		returns the color of the winner if there is one, otherwise None
+		'''
 		# Check horizontal
 		for c in range(NUM_COLS-3):
 			for r in range(NUM_ROWS):
-				if board[r][c] == color and board[r][c+1] == color and board[r][c+2] == color and board[r][c+3] == color:
-					return True
+				if board[r][c] == board[r][c+1] == board[r][c+2] == board[r][c+3] != EMPTY:
+					return board[r][c]
 
 		# Check vertical
 		for c in range(NUM_COLS):
 			for r in range(NUM_ROWS-3):
-				if board[r][c] == color and board[r+1][c] == color and board[r+2][c] == color and board[r+3][c] == color:
-					return True
+				if board[r][c] == board[r+1][c] == board[r+2][c] == board[r+3][c] != EMPTY:
+					return board[r][c]
 
 		# Check diagonal from bottom left to top right
 		for c in range(NUM_COLS-3):
 			for r in range(NUM_ROWS-3):
-				if board[r][c] == color and board[r+1][c+1] == color and board[r+2][c+2] == color and board[r+3][c+3] == color:
-					return True
+				if board[r][c] == board[r+1][c+1] == board[r+2][c+2] == board[r+3][c+3] != EMPTY:
+					return board[r][c]
 
 		# Check diagonal from bottom right to top left
 		for c in range(NUM_COLS-3):
 			for r in range(3, NUM_ROWS):
-				if board[r][c] == color and board[r-1][c+1] == color and board[r-2][c+2] == color and board[r-3][c+3] == color:
-					return True
+				if board[r][c] == board[r-1][c+1] == board[r-2][c+2] == board[r-3][c+3] != EMPTY:
+					return board[r][c]
+
+		return None
 
 
 	def rowOfPlacement(self, board, col):
@@ -92,10 +96,10 @@ class Strategy(object):
 		board[self.rowOfPlacement(board, col)][col] = color
 
 	def playBestMove(self, board):
-		'''Calculates and performs the best move for the given board'''
+		'''Calculates and performs the best move for the AI for the given board'''
 		# input("Press enter for the AI to perform its move.")
 		col = input("It's the AI's turn, press enter for it to play.\t")
-		move, score = -123, -123
+		move, score = -123, -123 # placeholders
 		for i in range(1, MAX_DEPTH + 1): # iterative deepening
 			# this will prioritize game winning movesets that occur with less total moves
 			move, score = self.minimax(board, 0, MAX, -math.inf, math.inf, i)
