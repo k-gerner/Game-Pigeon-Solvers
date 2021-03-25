@@ -1,0 +1,316 @@
+# Contains AI strategy and board manipulation methods
+
+import math # for infinities
+import random # for randomizing valid moves list in minimax
+
+EMPTY, BLACK, WHITE = '.', 'X', 'O'
+BLACK_HASH_ROW_NUM, WHITE_HASH_ROW_NUM = 0, 1
+MAX_DEPTH = 3 # max number of moves ahead to calculate
+MAX, MIN = True, False # to be used in minimax
+WIN_SCORE = 1000000000 # large enough to always be the preferred outcome
+
+# class for the A.I.
+class Strategy(object):
+
+	def __init__(self, boardDimension, humanColor):
+		'''Initializes the board attributes'''
+		self.GAME_OVER = False
+		self.HUMAN_COLOR = humanColor
+		self.AI_COLOR = self.opponentOf(humanColor)
+		self.BOARD_WIDTH = boardDimension 
+		self.BOARD_HEIGHT = boardDimension 
+		# RANDOM_HASH_TABLE will be used for Zobrist Hashing.
+		# Table has DIM * DIM * 2 entries, with each being a random number that will 
+		# represent a number for if a certain piece is played in a certain position 
+		# on the board. This will be used for XORing in the Zobrist Hashing.
+		self.RANDOM_HASH_TABLE = self.createHashTable(boardDimension)
+		# BOARD_STATE_DICT will be a map that maps board-state hashes to a list containing
+		# important information about the board at that board-state
+		# NOTE this transposition table will be cleared between different depth searches.
+		# This is because I'm not quite sure how to know which boards to not explore if the 
+		# depth increases. This should still help with pruning, but not as much as it would 
+		# otherwise.
+		self.BOARD_STATE_DICT = {} 
+
+	def createHashTable(self, dimension):
+		'''Fills a 2 by dimension board with random 64 bit integers'''
+		table = [] # 2D
+		for color in range(2):
+			colorLocationList = []
+			for boardPos in range(dimension * dimension):
+				colorLocationList.append(random.getrandbits(64))
+			table.append(colorLocationList)
+		return table
+
+	def createZobristValueForBoardState(self, board):
+		'''Creates the Zobrist Hashing value for a boardstate'''
+		totalXOR = 0
+		for row in range(self.BOARD_HEIGHT):
+			for col in range(self.BOARD_WIDTH):
+				piece = board[row][col]
+				if piece != EMPTY:
+					hash_row = BLACK_HASH_ROW_NUM if piece == BLACK else WHITE_HASH_ROW_NUM
+					hash_val = self.RANDOM_HASH_TABLE[hash_row][row*self.BOARD_WIDTH + col]
+					totalXOR = totalXOR ^ hash_val # ^ = XOR operator
+		return totalXOR
+
+	def opponentOf(self, color):
+		'''Get the opposing color'''
+		return WHITE if color == BLACK else BLACK
+
+	def checkGameState(self, board):
+		'''Sets the GAME_OVER var to True if there is a winner'''
+		if self.isTerminal(board)[0]: 
+		 	self.GAME_OVER = True
+
+	def isValidMove(self, board, row, col):
+		'''Checks if the column is full'''
+		return board[row][col] == EMPTY
+
+	def getValidMoves(self, board):
+		'''Returns a list of valid moves'''
+		validLocations = []
+		# for r in range(len(board)):
+		# 	for c in range(len(board)):
+		# 		if self.isValidMove(board, r, c):
+		# 			validLocations.append([r, c])
+		filledLocations = [] # list of spots that have been played
+		for r in range(self.BOARD_HEIGHT):
+			for c in range(self.BOARD_WIDTH):
+				if board[r][c] != EMPTY:
+					filledLocations.append([r,c])
+		# updated this function to only consider spots within 5 of another already played piece
+		for r in range(self.BOARD_HEIGHT):
+			for c in range(self.BOARD_WIDTH):
+				foundOtherPieceInRange = False
+				if board[r][c] == EMPTY:
+					for r2 in range(max(0, r - 4), min(self.BOARD_HEIGHT, r + 4)):
+						for c2 in range(max(0, c - 4), min(self.BOARD_WIDTH, c + 4)):
+							if board[r2][c2] != EMPTY:
+								validLocations.append([r, c])
+								foundOtherPieceInRange = True
+								break
+					if foundOtherPieceInRange:
+						break
+
+		return validLocations
+
+	def performMove(self, board, row, col, color):
+		'''Performs a given move on the board'''
+		board[row][col] = color
+
+	def isTerminal(self, board):
+		'''
+		Checks if the current board state is Game Over
+		Returns a tuple, with [0] being the True or False value
+		[1] being the winning color (None if neither color wins)
+		'''
+		winner = self.findWinner(board)
+		if winner != None:
+			return True, winner
+		elif len(self.getValidMoves(board)) == 0:
+			return True, None
+		else:
+			return False, None
+
+	def findWinner(self, board):
+		'''
+		Checks if there is a winner
+		returns the color of the winner if there is one, otherwise None
+		'''
+		# Check horizontal
+		for row in board:
+			for col in range(self.BOARD_WIDTH - 4):
+				if row[col] == row[col+1] == row[col+2] == row[col+3] == row[col+4] != EMPTY:
+					return row[col]
+
+		# Check vertical
+		for c in range(self.BOARD_WIDTH):
+			for r in range(self.BOARD_HEIGHT - 4):
+				if board[r][c] == board[r+1][c] == board[r+2][c] == board[r+3][c] == board[r+4][c] != EMPTY:
+					return board[r][c]
+
+		# Check diagonal from bottom left to top right
+		for c in range(self.BOARD_WIDTH - 4):
+			for r in range(self.BOARD_HEIGHT - 4):
+				if board[r][c] == board[r+1][c+1] == board[r+2][c+2] == board[r+3][c+3] == board[r+4][c+4]!= EMPTY:
+					return board[r][c]
+
+		# Check diagonal from bottom right to top left
+		for c in range(self.BOARD_WIDTH - 4):
+			for r in range(4, self.BOARD_HEIGHT):
+				if board[r][c] == board[r-1][c+1] == board[r-2][c+2] == board[r-3][c+3] == board[r-4][c+4] != EMPTY:
+					return board[r][c]
+
+		return None
+
+	def playBestMove(self, board):
+		'''Calculates and performs the best move for the AI for the given board'''
+		input("It's the AI's turn, press enter for it to play.\t")
+		moveRow, moveCol, score = -123, -123, -123 # placeholders
+		for i in range(1, MAX_DEPTH + 1): # iterative deepening
+			# this will prioritize game winning movesets that occur with less total moves
+			moveRow, moveCol, score = self.minimax(board, 0, MAX, -math.inf, math.inf, i)
+			self.BOARD_STATE_DICT.clear() # clear the dict after every depth increase
+			if score >= WIN_SCORE:
+				break
+			# ^ ideally I shouldn't do this, but I don't know how to implement it otherwise yet
+		self.performMove(board, moveRow, moveCol, self.AI_COLOR)
+		self.checkGameState(board)
+		self.BOARD_STATE_DICT = {} 
+		return moveRow, moveCol
+
+	def minimax(self, board, depth, maxOrMin, alpha, beta, localMaxDepth):
+		'''
+		Recursively finds the best move for a given board
+		Returns the row in [0], column in [1], and score of the board in [2]
+		'''
+		validMoves = self.getValidMoves(board)
+		random.shuffle(validMoves)
+		gameOver, winner = self.isTerminal(board)
+		if gameOver:
+			if winner == self.AI_COLOR:
+				return None, None, WIN_SCORE
+			elif winner == self.HUMAN_COLOR:
+				return None, None, -1 * WIN_SCORE
+			else:
+				# no winner
+				return None, None, 0
+		if depth == localMaxDepth:
+			return None, None, self.scoreBoard(board, self.AI_COLOR)
+		if maxOrMin == MAX:
+			# want to maximize this move
+			score = -math.inf
+			bestMove = validMoves[0] # default best move
+			for move in validMoves:
+				boardCopy = list(map(list, board)) # copies board
+				dictValOfBoard = self.createZobristValueForBoardState(boardCopy)
+				self.performMove(boardCopy, move[0], move[1], self.AI_COLOR)
+				updatedScore = 0 # placeholder
+				if dictValOfBoard in self.BOARD_STATE_DICT:
+					updatedScore = self.BOARD_STATE_DICT[dictValOfBoard]
+				else:
+					_, __, updatedScore = self.minimax(boardCopy, depth + 1, MIN, alpha, beta, localMaxDepth)
+					self.BOARD_STATE_DICT[dictValOfBoard] = updatedScore
+				if updatedScore > score:
+					score = updatedScore
+					bestMove = move
+				alpha = max(alpha, score)
+				# if depth == 0:
+				# 	print("Score for slot %d = %d. Max depth = %d" % (move, updatedScore, localMaxDepth))
+				if alpha >= beta:
+					break # pruning
+			return bestMove[0], bestMove[1], score
+		else:
+			# want to minimize this move
+			score = math.inf
+			bestMoveForHuman = validMoves[0]
+			for move in validMoves:
+				boardCopy = list(map(list, board)) # copies board
+				self.performMove(boardCopy, move[0], move[1], self.HUMAN_COLOR)
+				_, __, updatedScore = self.minimax(boardCopy, depth + 1, MAX, alpha, beta, localMaxDepth)
+				if updatedScore < score:
+					score = updatedScore
+					bestMoveForHuman = move
+				beta = min(beta, score)
+				if beta <= alpha:
+					break # pruning
+			return bestMoveForHuman[0], bestMoveForHuman[1], score
+
+	def longestSequenceOfPiece(self, section, color):
+		'''Finds the longest consecutive sub-sequence of a piece in a section'''
+		maxStreak = 0
+		streak = 0
+		for spot in section:
+			if spot == color:
+				streak += 1
+				maxStreak = max(maxStreak, streak)
+			else:
+				streak = 0
+		return maxStreak
+
+	def scoreSection(self, section, color):
+		'''Looks at the given length 5 section and scores it'''
+		opponentColor = self.opponentOf(color)
+		numMyColor = section.count(color)
+		numOppColor = section.count(opponentColor)
+		numEmpty = section.count(EMPTY)
+
+		if numMyColor == 5:
+			return WIN_SCORE
+		elif numMyColor == 4:
+			if numEmpty == 1:
+				return 30 * self.longestSequenceOfPiece(section, color)
+			else:
+				return 35
+		elif numMyColor == 3 and numEmpty == 2:
+			if section[0] == section[4] == EMPTY:
+				# if unbounded on both sides
+				return 20 * self.longestSequenceOfPiece(section, color)
+			else:
+				return 17
+		elif numMyColor == 2 and numEmpty == 3:
+			return 5 * self.longestSequenceOfPiece(section, color)
+		elif numOppColor == 4:
+			if numEmpty == 1:
+				return -30 * self.longestSequenceOfPiece(section, opponentColor)
+			else:
+				return -35
+		elif numOppColor == 3 and numEmpty == 2:
+			if section[0] == section[4] == EMPTY:
+				return -20 * self.longestSequenceOfPiece(section, opponentColor)
+			else:
+				return -17
+		elif numOppColor == 2 and numEmpty == 3:
+			return -5 * self.longestSequenceOfPiece(section, opponentColor)
+		else:
+			return 0
+
+	def scoreBoard(self, board, color):
+		'''Scores the entire board'''
+		score = 0
+
+		# Give a slight bonus to pieces in the middle area
+		for r in range(self.BOARD_WIDTH//4, self.BOARD_WIDTH - self.BOARD_WIDTH//4):
+			for c in range(self.BOARD_HEIGHT//4, self.BOARD_HEIGHT - self.BOARD_HEIGHT//4):
+				if board[r][c] == color:
+					score += 2
+
+		# Give another bonus for piece in the center
+		if board[self.BOARD_WIDTH//2][self.BOARD_HEIGHT//2] == color:
+			score += 4
+
+		# Check horizontal
+		for c in range(self.BOARD_WIDTH - 4):
+			for r in range(self.BOARD_HEIGHT):
+				score += self.scoreSection(board[r][c:c + 5], color)
+				
+
+		# Check vertical
+		for c in range(self.BOARD_WIDTH):
+			for r in range(self.BOARD_HEIGHT - 4):
+				section = []
+				for i in range(5):
+					section.append(board[r + i][c])
+				score += self.scoreSection(section, color)
+
+		# Check diagonal from bottom left to top right
+		for c in range(self.BOARD_WIDTH - 4):
+			for r in range(self.BOARD_HEIGHT - 4):
+				section = []
+				for i in range(5):
+					section.append(board[r + i][c + i])
+				score += self.scoreSection(section, color)
+		
+		# Check diagonal from bottom right to top left
+		for c in range(self.BOARD_WIDTH - 4):
+			for r in range(4, self.BOARD_HEIGHT):
+				section = []
+				for i in range(5):
+					section.append(board[r - i][c + i])
+				score += self.scoreSection(section, color)
+
+		return score
+
+
+
