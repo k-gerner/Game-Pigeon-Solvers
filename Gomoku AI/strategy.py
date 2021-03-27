@@ -146,15 +146,18 @@ class Strategy(object):
 
 	def playBestMove(self, board):
 		'''Calculates and performs the best move for the AI for the given board'''
-		input("It's the AI's turn, press enter for it to play.\t")
+		x = input("It's the AI's turn, press enter for it to play.\t").strip().lower()
+		if x == 'q':
+			print("\nThanks for playing!\n")
+			exit(0)
 		moveRow, moveCol, score = -123, -123, -123 # placeholders
 		for i in range(1, MAX_DEPTH + 1): # iterative deepening
 			# this will prioritize game winning movesets that occur with less total moves
 			moveRow, moveCol, score = self.minimax(board, 0, MAX, -math.inf, math.inf, i)
 			self.BOARD_STATE_DICT.clear() # clear the dict after every depth increase
+			# ^ ideally I shouldn't do this, but I don't know how to implement it otherwise yet
 			if score >= WIN_SCORE:
 				break
-			# ^ ideally I shouldn't do this, but I don't know how to implement it otherwise yet
 		self.performMove(board, moveRow, moveCol, self.AI_COLOR)
 		self.checkGameState(board)
 		self.BOARD_STATE_DICT = {} 
