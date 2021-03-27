@@ -5,7 +5,7 @@ import random # for randomizing valid moves list in minimax
 
 EMPTY, BLACK, WHITE = '.', 'X', 'O'
 BLACK_HASH_ROW_NUM, WHITE_HASH_ROW_NUM = 0, 1
-MAX_DEPTH = 3 # max number of moves ahead to calculate
+MAX_DEPTH = 2 # max number of moves ahead to calculate
 MAX, MIN = True, False # to be used in minimax
 WIN_SCORE = 1000000000 # large enough to always be the preferred outcome
 
@@ -14,6 +14,7 @@ class Strategy(object):
 
 	def __init__(self, boardDimension, humanColor):
 		'''Initializes the board attributes'''
+		print("THIS PRINT IS IN INIT. CURRENT MAX DEPTH = %d%s" % (MAX_DEPTH, '--------'*80))
 		self.GAME_OVER = False
 		self.HUMAN_COLOR = humanColor
 		self.AI_COLOR = self.opponentOf(humanColor)
@@ -31,6 +32,51 @@ class Strategy(object):
 		# depth increases. This should still help with pruning, but not as much as it would 
 		# otherwise.
 		self.BOARD_STATE_DICT = {} 
+		self.createThreatSequencesDictionary()
+		self.createBoardPositionWeights(boardDimension)
+
+	def createThreatSequencesDictionary(self):
+		'''Creates the dictionaries that will help score board sections'''
+		self.blackThreatsScores = {
+			'.XXXX.' : 10000,	# 4 double open, next move guaranteed win
+			'.XXXX'  : 100,		# 4 single open
+			'XXXX.'	 : 100, 	# 4 single open
+			'X.XXX'	 : 90,		# 1-3 single open
+			'XX.XX'	 : 85,		# 2-2 single open
+			'XXX.X'	 : 90,		# 1-3 single open
+			'.XXX.'	 : 30,		# 3 double open
+			'OXXXX.' : 80,		# 4 single open
+			'.XXXXO' : 80,		# 4 single open
+			'.X.XX.' : 25,		# broken 3
+			'.XX.X.' : 25		# broken 3
+		}
+		self.whiteThreatsScores = {
+			'.OOOO.' : 10000,	# 4 double open, next move guaranteed win
+			'.OOOO'  : 100,		# 4 single open
+			'OOOO.'	 : 100, 	# 4 single open
+			'O.OOO'	 : 90,		# 1-3 single open
+			'OO.OO'	 : 85,		# 2-2 single open
+			'OOO.O'	 : 90,		# 1-3 single open
+			'.OOO.'	 : 30,		# 3 double open
+			'XOOOO.' : 80,		# 4 single open
+			'.OOOOX' : 80,		# 4 single open
+			'.O.OO.' : 25,		# broken 3
+			'.OO.O.' : 25		# broken 3
+		}
+
+	def createBoardPositionWeights(self, dim):
+		'''
+		Create the position weights matrix for a board of dimension `dim`
+		Center weighted heavier
+		'''
+		self.positionWeightsMatrix = []
+		for i in range(dim):
+			self.positionWeightsMatrix.append([0]*dim) # create dim x dim matrix of 0s
+		centerIndex = dim//2
+		for i in range(dim//2):
+			for row in range(centerIndex - i, centerIndex + i + 1):
+				for col in range(centerIndex - i, centerIndex + i + 1):
+					self.positionWeightsMatrix[row][col] += 3
 
 	def createHashTable(self, dimension):
 		'''Fills a 2 by dimension board with random 64 bit integers'''
@@ -52,6 +98,7 @@ class Strategy(object):
 					hash_row = BLACK_HASH_ROW_NUM if piece == BLACK else WHITE_HASH_ROW_NUM
 					hash_val = self.RANDOM_HASH_TABLE[hash_row][row*self.BOARD_WIDTH + col]
 					totalXOR = totalXOR ^ hash_val # ^ = XOR operator
+		# print("totalXOR = %d" % totalXOR)
 		return totalXOR
 
 	def opponentOf(self, color):
@@ -70,28 +117,28 @@ class Strategy(object):
 	def getValidMoves(self, board):
 		'''Returns a list of valid moves'''
 		validLocations = []
-		# for r in range(len(board)):
-		# 	for c in range(len(board)):
-		# 		if self.isValidMove(board, r, c):
-		# 			validLocations.append([r, c])
-		filledLocations = [] # list of spots that have been played
-		for r in range(self.BOARD_HEIGHT):
-			for c in range(self.BOARD_WIDTH):
-				if board[r][c] != EMPTY:
-					filledLocations.append([r,c])
-		# updated this function to only consider spots within 5 of another already played piece
-		for r in range(self.BOARD_HEIGHT):
-			for c in range(self.BOARD_WIDTH):
-				foundOtherPieceInRange = False
-				if board[r][c] == EMPTY:
-					for r2 in range(max(0, r - 4), min(self.BOARD_HEIGHT, r + 4)):
-						for c2 in range(max(0, c - 4), min(self.BOARD_WIDTH, c + 4)):
-							if board[r2][c2] != EMPTY:
-								validLocations.append([r, c])
-								foundOtherPieceInRange = True
-								break
-					if foundOtherPieceInRange:
-						break
+		for r in range(len(board)):
+			for c in range(len(board)):
+				if self.isValidMove(board, r, c):
+					validLocations.append([r, c])
+		# filledLocations = [] # list of spots that have been played
+		# for r in range(self.BOARD_HEIGHT):
+		# 	for c in range(self.BOARD_WIDTH):
+		# 		if board[r][c] != EMPTY:
+		# 			filledLocations.append([r,c])
+		# # updated this function to only consider spots within 5 of another already played piece
+		# for r in range(self.BOARD_HEIGHT):
+		# 	for c in range(self.BOARD_WIDTH):
+		# 		foundOtherPieceInRange = False
+		# 		if board[r][c] == EMPTY:
+		# 			for r2 in range(max(0, r - 4), min(self.BOARD_HEIGHT, r + 4)):
+		# 				for c2 in range(max(0, c - 4), min(self.BOARD_WIDTH, c + 4)):
+		# 					if board[r2][c2] != EMPTY:
+		# 						validLocations.append([r, c])
+		# 						foundOtherPieceInRange = True
+		# 						break
+		# 			if foundOtherPieceInRange:
+		# 				break
 
 		return validLocations
 
@@ -158,6 +205,7 @@ class Strategy(object):
 			# ^ ideally I shouldn't do this, but I don't know how to implement it otherwise yet
 			if score >= WIN_SCORE:
 				break
+		print("score for move: %d" % score)
 		self.performMove(board, moveRow, moveCol, self.AI_COLOR)
 		self.checkGameState(board)
 		self.BOARD_STATE_DICT = {} 
@@ -180,21 +228,30 @@ class Strategy(object):
 				# no winner
 				return None, None, 0
 		if depth == localMaxDepth:
-			return None, None, self.scoreBoard(board, self.AI_COLOR)
+			return None, None, self.scoreBoard(board, self.AI_COLOR) - self.scoreBoard(board, self.HUMAN_COLOR)
 		if maxOrMin == MAX:
 			# want to maximize this move
 			score = -math.inf
 			bestMove = validMoves[0] # default best move
+			# print("valid moves: "+str(validMoves))
 			for move in validMoves:
+				
 				boardCopy = list(map(list, board)) # copies board
 				dictValOfBoard = self.createZobristValueForBoardState(boardCopy)
-				self.performMove(boardCopy, move[0], move[1], self.AI_COLOR)
 				updatedScore = 0 # placeholder
 				if dictValOfBoard in self.BOARD_STATE_DICT:
-					updatedScore = self.BOARD_STATE_DICT[dictValOfBoard]
+					# print("move = %s" % str(move))
+					# if we've already evaluated the score of this board state
+					# updatedScore = self.BOARD_STATE_DICT[dictValOfBoard]
+					self.performMove(boardCopy, move[0], move[1], self.AI_COLOR)
+					_, __, updatedScore = self.minimax(boardCopy, depth + 1, MIN, alpha, beta, localMaxDepth)
+					
 				else:
+					self.performMove(boardCopy, move[0], move[1], self.AI_COLOR)
 					_, __, updatedScore = self.minimax(boardCopy, depth + 1, MIN, alpha, beta, localMaxDepth)
 					self.BOARD_STATE_DICT[dictValOfBoard] = updatedScore
+				# if move == [6, 6]:
+				# 	print("score for G7 = %d\tweightMatrix for G7 = %d" % (updatedScore, self.positionWeightsMatrix[6][6]))
 				if updatedScore > score:
 					score = updatedScore
 					bestMove = move
@@ -220,100 +277,198 @@ class Strategy(object):
 					break # pruning
 			return bestMoveForHuman[0], bestMoveForHuman[1], score
 
-	def longestSequenceOfPiece(self, section, color):
-		'''Finds the longest consecutive sub-sequence of a piece in a section'''
-		maxStreak = 0
-		streak = 0
-		for spot in section:
-			if spot == color:
-				streak += 1
-				maxStreak = max(maxStreak, streak)
-			else:
-				streak = 0
-		return maxStreak
-
-	def scoreSection(self, section, color):
-		'''Looks at the given length 5 section and scores it'''
-		opponentColor = self.opponentOf(color)
-		numMyColor = section.count(color)
-		numOppColor = section.count(opponentColor)
-		numEmpty = section.count(EMPTY)
-
-		if numMyColor == 5:
-			return WIN_SCORE
-		elif numMyColor == 4:
-			if numEmpty == 1:
-				return 30 * self.longestSequenceOfPiece(section, color)
-			else:
-				return 35
-		elif numMyColor == 3 and numEmpty == 2:
-			if section[0] == section[4] == EMPTY:
-				# if unbounded on both sides
-				return 20 * self.longestSequenceOfPiece(section, color)
-			else:
-				return 17
-		elif numMyColor == 2 and numEmpty == 3:
-			return 5 * self.longestSequenceOfPiece(section, color)
-		elif numOppColor == 4:
-			if numEmpty == 1:
-				return -30 * self.longestSequenceOfPiece(section, opponentColor)
-			else:
-				return -35
-		elif numOppColor == 3 and numEmpty == 2:
-			if section[0] == section[4] == EMPTY:
-				return -20 * self.longestSequenceOfPiece(section, opponentColor)
-			else:
-				return -17
-		elif numOppColor == 2 and numEmpty == 3:
-			return -5 * self.longestSequenceOfPiece(section, opponentColor)
-		else:
-			return 0
-
-	def scoreBoard(self, board, color):
-		'''Scores the entire board'''
+	def scoreSections(self, board, color):
+		'''Scores all the different horizontal/vertical/diagonal sections on the board'''
 		score = 0
-
-		# Give a slight bonus to pieces in the middle area
-		for r in range(self.BOARD_WIDTH//4, self.BOARD_WIDTH - self.BOARD_WIDTH//4):
-			for c in range(self.BOARD_HEIGHT//4, self.BOARD_HEIGHT - self.BOARD_HEIGHT//4):
-				if board[r][c] == color:
-					score += 2
-
-		# Give another bonus for piece in the center
-		if board[self.BOARD_WIDTH//2][self.BOARD_HEIGHT//2] == color:
-			score += 4
+		scoresDict = self.blackThreatsScores if color == BLACK else self.whiteThreatsScores
 
 		# Check horizontal
-		for c in range(self.BOARD_WIDTH - 4):
+		for c in range(self.BOARD_WIDTH - 5):
 			for r in range(self.BOARD_HEIGHT):
-				score += self.scoreSection(board[r][c:c + 5], color)
-				
+				section6 = "".join(board[r][c:c + 6])
+				section5 = section6[:-1] # first 5 spaces of section 6
+				if section6 in scoresDict:
+					score += scoresDict[section6]
+				if section5 in scoresDict:
+					score += scoresDict[section5]
+				if c == self.BOARD_WIDTH - 6:
+					# if in last section of row
+					section5 = section6[1:] # check the rightmost 5 section of the row
+					if section5 in scoresDict:
+						score += scoresDict[section5]
 
 		# Check vertical
 		for c in range(self.BOARD_WIDTH):
-			for r in range(self.BOARD_HEIGHT - 4):
-				section = []
-				for i in range(5):
-					section.append(board[r + i][c])
-				score += self.scoreSection(section, color)
+			for r in range(self.BOARD_HEIGHT - 5):
+				section6 = ''
+				for i in range(6):
+					section6 += board[r + i][c]
+				section5 = section6[:-1] # first 5 spaces of section 6
+				if section6 in scoresDict:
+					score += scoresDict[section6]
+				if section5 in scoresDict:
+					score += scoresDict[section5]
+				if r == self.BOARD_HEIGHT - 6:
+					# if in last section of col
+					section5 = section6[1:] # check the bottom 5 section of the col
+					if section5 in scoresDict:
+						score += scoresDict[section5]
 
 		# Check diagonal from bottom left to top right
-		for c in range(self.BOARD_WIDTH - 4):
-			for r in range(self.BOARD_HEIGHT - 4):
-				section = []
-				for i in range(5):
-					section.append(board[r + i][c + i])
-				score += self.scoreSection(section, color)
+		for c in range(self.BOARD_WIDTH - 5):
+			for r in range(self.BOARD_HEIGHT - 5):
+				section6 = ''
+				for i in range(6):
+					section6 += board[r + i][c + i]
+				section5 = section6[:-1]
+				if section6 in scoresDict:
+					score += scoresDict[section6]
+				if section5 in scoresDict:
+					score += scoresDict[section5]
+				if c == self.BOARD_WIDTH - 6 or r == self.BOARD_HEIGHT - 6:
+					# if in last section of this diagonal path
+					section5 = section6[1:] # check the border section
+					if section5 in scoresDict:
+						score += scoresDict[section5]
 		
 		# Check diagonal from bottom right to top left
-		for c in range(self.BOARD_WIDTH - 4):
-			for r in range(4, self.BOARD_HEIGHT):
-				section = []
-				for i in range(5):
-					section.append(board[r - i][c + i])
-				score += self.scoreSection(section, color)
+		for c in range(self.BOARD_WIDTH - 5):
+			for r in range(5, self.BOARD_HEIGHT):
+				section6 = ''
+				for i in range(6):
+					section6 += board[r - i][c + i]
+				section5 = section6[:-1]
+				if section6 in scoresDict:
+					score += scoresDict[section6]
+				if section5 in scoresDict:
+					score += scoresDict[section5]
+				if c == self.BOARD_WIDTH - 6 or r == self.BOARD_HEIGHT - 1:
+					# if in last section of this diagonal path
+					section5 = section6[1:] # check the border section
+					if section5 in scoresDict:
+						score += scoresDict[section5]
 
 		return score
+
+	def scorePositionWeights(self, board, color):
+		'''Scores the board based on the weights of the individual locations (center preferred)'''
+		score = 0
+		for row in range(self.BOARD_HEIGHT):
+			for col in range(self.BOARD_WIDTH):
+				if board[row][col] == color:
+					score += self.positionWeightsMatrix[row][col]
+		# print('score of pos weights = %d' % score)
+		return score
+
+
+	def scoreBoard(self, board, color):
+		'''Scores the entire board'''
+		return self.scoreSections(board, color) + self.scorePositionWeights(board, color)
+		
+		# Give a slight bonus to pieces in the middle area
+		# for r in range(self.BOARD_WIDTH//4, self.BOARD_WIDTH - self.BOARD_WIDTH//4):
+		# 	for c in range(self.BOARD_HEIGHT//4, self.BOARD_HEIGHT - self.BOARD_HEIGHT//4):
+		# 		if board[r][c] == color:
+		# 			score += 2
+
+		# Give another bonus for piece in the center
+		# if board[self.BOARD_WIDTH//2][self.BOARD_HEIGHT//2] == color:
+		# 	score += 4
+
+	# def longestSequenceOfPiece(self, section, color):
+	# 	'''Finds the longest consecutive sub-sequence of a piece in a section'''
+	# 	maxStreak = 0
+	# 	streak = 0
+	# 	for spot in section:
+	# 		if spot == color:
+	# 			streak += 1
+	# 			maxStreak = max(maxStreak, streak)
+	# 		else:
+	# 			streak = 0
+	# 	return maxStreak
+
+	# def scoreSection(self, section, color):
+	# 	'''Looks at the given length 5 section and scores it'''
+	# 	opponentColor = self.opponentOf(color)
+	# 	numMyColor = section.count(color)
+	# 	numOppColor = section.count(opponentColor)
+	# 	numEmpty = section.count(EMPTY)
+
+	# 	if numMyColor == 5:
+	# 		return WIN_SCORE
+	# 	elif numMyColor == 4:
+	# 		if numEmpty == 1:
+	# 			return 30 * self.longestSequenceOfPiece(section, color)
+	# 		else:
+	# 			return 35
+	# 	elif numMyColor == 3 and numEmpty == 2:
+	# 		if section[0] == section[4] == EMPTY:
+	# 			# if unbounded on both sides
+	# 			return 20 * self.longestSequenceOfPiece(section, color)
+	# 		else:
+	# 			return 17
+	# 	elif numMyColor == 2 and numEmpty == 3:
+	# 		return 5 * self.longestSequenceOfPiece(section, color)
+	# 	elif numOppColor == 4:
+	# 		if numEmpty == 1:
+	# 			return -30 * self.longestSequenceOfPiece(section, opponentColor)
+	# 		else:
+	# 			return -35
+	# 	elif numOppColor == 3 and numEmpty == 2:
+	# 		if section[0] == section[4] == EMPTY:
+	# 			return -20 * self.longestSequenceOfPiece(section, opponentColor)
+	# 		else:
+	# 			return -17
+	# 	elif numOppColor == 2 and numEmpty == 3:
+	# 		return -5 * self.longestSequenceOfPiece(section, opponentColor)
+	# 	else:
+	# 		return 0
+
+	# def scoreBoard(self, board, color):
+	# 	'''Scores the entire board'''
+	# 	score = 0
+
+	# 	# Give a slight bonus to pieces in the middle area
+	# 	for r in range(self.BOARD_WIDTH//4, self.BOARD_WIDTH - self.BOARD_WIDTH//4):
+	# 		for c in range(self.BOARD_HEIGHT//4, self.BOARD_HEIGHT - self.BOARD_HEIGHT//4):
+	# 			if board[r][c] == color:
+	# 				score += 2
+
+	# 	# Give another bonus for piece in the center
+	# 	if board[self.BOARD_WIDTH//2][self.BOARD_HEIGHT//2] == color:
+	# 		score += 4
+
+	# 	# Check horizontal
+	# 	for c in range(self.BOARD_WIDTH - 4):
+	# 		for r in range(self.BOARD_HEIGHT):
+	# 			score += self.scoreSection(board[r][c:c + 5], color)
+				
+
+	# 	# Check vertical
+	# 	for c in range(self.BOARD_WIDTH):
+	# 		for r in range(self.BOARD_HEIGHT - 4):
+	# 			section = []
+	# 			for i in range(5):
+	# 				section.append(board[r + i][c])
+	# 			score += self.scoreSection(section, color)
+
+	# 	# Check diagonal from bottom left to top right
+	# 	for c in range(self.BOARD_WIDTH - 4):
+	# 		for r in range(self.BOARD_HEIGHT - 4):
+	# 			section = []
+	# 			for i in range(5):
+	# 				section.append(board[r + i][c + i])
+	# 			score += self.scoreSection(section, color)
+		
+	# 	# Check diagonal from bottom right to top left
+	# 	for c in range(self.BOARD_WIDTH - 4):
+	# 		for r in range(4, self.BOARD_HEIGHT):
+	# 			section = []
+	# 			for i in range(5):
+	# 				section.append(board[r - i][c + i])
+	# 			score += self.scoreSection(section, color)
+
+	# 	return score
 
 
 
