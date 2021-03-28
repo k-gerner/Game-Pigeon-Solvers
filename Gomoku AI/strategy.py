@@ -2,6 +2,7 @@
 
 import math # for infinities
 import random # for randomizing valid moves list in minimax
+from functools import cmp_to_key
 
 EMPTY, BLACK, WHITE = '.', 'X', 'O'
 BLACK_HASH_ROW_NUM, WHITE_HASH_ROW_NUM = 0, 1
@@ -111,6 +112,35 @@ class Strategy(object):
 		if self.isTerminal(board)[0]: 
 		 	self.GAME_OVER = True
 
+	def evaluateScoreFromMove(self, board, move, color):
+		'''Checks the score of the board for `color` if `move` is played on `board`'''
+		self.performMove(board, move[0], move[1], color)
+		score = self.scoreBoard(board, color)
+		self.performMove(board, move[0], move[1], EMPTY) # undo the move
+		return score
+
+	def partition(self, movesList, board, low, high, color):
+		'''Places every element greater than pivot to the left, less than pivot to the right'''
+		i = low-1
+		pivot = self.evaluateScoreFromMove(board, movesList[high], color)     # pivot
+		for j in range(low, high):
+		    if self.evaluateScoreFromMove(board, movesList[j], color) > pivot:
+		        i = i+1
+		        movesList[i], movesList[j] = movesList[j], movesList[i]
+
+		movesList[i+1], movesList[high] = movesList[high], movesList[i+1]
+		return i+1
+
+	def sortMoves(self, movesList, board, low, high, color):
+		'''Sorts the list of moves via Quick Sort'''
+		if len(movesList) == 1:
+		    return movesList
+		if low < high:
+		    partition_index = self.partition(movesList, board, low, high, color)
+
+		    self.sortMoves(movesList, board, low, partition_index-1, color)
+		    self.sortMoves(movesList, board, partition_index+1, high, color)
+
 	def isValidMove(self, board, row, col):
 		'''Checks if the spot is available'''
 		return board[row][col] == EMPTY
@@ -120,19 +150,31 @@ class Strategy(object):
 		validLocations = []
 		h = self.BOARD_HEIGHT
 		w = self.BOARD_WIDTH
+		max_dist_from_neighbor = 2 # max distance from an already played piece that we want to check
 		# for r in range(len(board)):
 		# 	for c in range(len(board)):
 		# 		if self.isValidMove(board, r, c):
 		# 			validLocations.append([r, c])
 
+		# will allow me to slightly prioritize checking the spots that are closer to 
+		# other pieces by placing them in separate lists
+		# lists_of_valids = [[]] * (max_dist_from_neighbor + 1) 
+
 		def spotIsNearOtherPieces(row, col):
-			if row in range(h//2 - h//4, h//2 + h//4 + 1) and col in range(w//2 - w//4, w//2 + w//4 + 1):
-				# if in middle section of board
+			# if row in range(h//2 - h//4, h//2 + h//4 + 1) and col in range(w//2 - w//4, w//2 + w//4 + 1):
+			# 	# if in middle section of board
+			# 	# lists_of_valids[-1].append([row, col])
+			# 	return True
+			if row == h//2 and col == w//2 and board[row][col] == EMPTY:
+				# if exact center spot empty
+				# lists_of_valids[-1].append([row, col])
 				return True
-			for r2 in range(max(0, row - 4), min(h, row + 5)):
-				for c2 in range(max(0, col - 4), min(w, col + 5)):
+			for r2 in range(max(0, row - max_dist_from_neighbor), min(h, row + max_dist_from_neighbor + 1)):
+				for c2 in range(max(0, col - max_dist_from_neighbor), min(w, col + max_dist_from_neighbor + 1)):
 					if board[r2][c2] != EMPTY:
-						# if there is a piece within 5 spots from this square
+						# if there is a piece within `max_dist_from_neighbor` spots from this square
+						# dist_from_neighbor = max(abs(r2-row), abs(c2-col))
+						# lists_of_valids[dist_from_neighbor].append([row, col])
 						return True
 			return False
 
@@ -144,6 +186,8 @@ class Strategy(object):
 						validLocations.append([r,c])
 
 		return validLocations
+		# combined_list = [item for sublist in lists_of_valids for item in sublist]
+		# return combined_list
 
 	def performMove(self, board, row, col, color):
 		'''Performs a given move on the board'''
@@ -220,6 +264,8 @@ class Strategy(object):
 		Returns the row in [0], column in [1], and score of the board in [2]
 		'''
 		validMoves = self.getValidMoves(board)
+		# if localMaxDepth == 1:
+		# 	print("valid moves: %s" % str(validMoves))
 		gameOver, winner = self.isTerminal(board)
 		if gameOver:
 			if winner == self.AI_COLOR:
@@ -232,9 +278,10 @@ class Strategy(object):
 		if depth == localMaxDepth:
 			return None, None, self.scoreBoard(board, self.AI_COLOR) - self.scoreBoard(board, self.HUMAN_COLOR)
 		
-		random.shuffle(validMoves)
+		# random.shuffle(validMoves)
 		if maxOrMin == MAX:
 			# want to maximize this move
+			# self.sortMoves(validMoves, board, 0, len(validMoves)-1, self.AI_COLOR)
 			score = -math.inf
 			bestMove = validMoves[0] # default best move
 			# print("valid moves: "+str(validMoves))
@@ -245,7 +292,7 @@ class Strategy(object):
 				dictValOfBoard = self.createZobristValueForBoardState(boardCopy)
 				updatedScore = 0 # placeholder
 				if dictValOfBoard in self.BOARD_STATE_DICT:
-					print("-"*70 + "  depth = %d" % localMaxDepth)
+					# print("-"*70 + "  depth = %d" % localMaxDepth)
 					# print("move = %s" % str(move))
 					# if we've already evaluated the score of this board state
 					updatedScore = self.BOARD_STATE_DICT[dictValOfBoard]
@@ -269,6 +316,7 @@ class Strategy(object):
 			return bestMove[0], bestMove[1], score
 		else:
 			# want to minimize this move
+			# self.sortMoves(validMoves, board, 0, len(validMoves)-1, self.HUMAN_COLOR)
 			score = math.inf
 			bestMoveForHuman = validMoves[0]
 			for move in validMoves:

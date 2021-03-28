@@ -3,10 +3,12 @@
 # Gomoku solver, client facing
 
 import strategy
+import time
 
 EMPTY, BLACK, WHITE = '.', 'X', 'O'
 gameBoard = [] # created later
-MY_COLOR, ENEMY_COLOR, NO_COLOR = '\033[92m', '\033[91m', '\033[0m' # green, red, white
+MY_COLOR, ENEMY_COLOR, NO_COLOR = '\033[92m', '\033[91m', '\033[0m' 		# green, red, white
+MOST_RECENT_HIGHLIGHT_COLOR = '\u001b[48;5;238m' # dark grey; to make lighter, increase 238 to anything 255 or below
 
 def createGameBoard(dimension):
 	'''Creates the gameBoard with the specified number of rows and columns'''
@@ -16,7 +18,7 @@ def createGameBoard(dimension):
 			row.append(EMPTY)
 		gameBoard.append(row)
 
-def printGameBoard():
+def printGameBoard(mostRecentMove):
 	'''Prints the gameBoard in a human readable format'''
 	# columnLabels = list(map(chr, range(65, 65 + len(gameBoard))))
 	# print("\n\t    %s" % " ".join(columnLabels))
@@ -27,20 +29,21 @@ def printGameBoard():
 	print("\n\t    %s" % " ".join(columnLabels))
 	for rowNum in range(len(gameBoard)):
 		print("\t%d%s| " % (rowNum+1, "" if rowNum > 8 else " "), end = '')
-		for spot in gameBoard[rowNum]:
+		for colNum in range(len(gameBoard[rowNum])):
 			# print("%s " % spot, end='')
-			if spot == playerColor:
-				print(f"{MY_COLOR}%s {NO_COLOR}" % spot, end = '')
-			elif spot == EMPTY:
+			spot = gameBoard[rowNum][colNum]
+			pieceColor = MOST_RECENT_HIGHLIGHT_COLOR if [rowNum, colNum] == mostRecentMove else ''
+			pieceColor += MY_COLOR if spot == playerColor else ENEMY_COLOR
+			if spot == EMPTY:
 				print("%s " % spot, end='')
 			else:
-				print(f"{ENEMY_COLOR}%s {NO_COLOR}" % spot, end = '')
+				print(f"{pieceColor}%s{NO_COLOR} " % spot, end = '')
 
 		print("")
 	print()
 
 def getPlayerMove():
-	'''Takes in the user's input and performs that move on the board'''
+	'''Takes in the user's input and performs that move on the board, returns the move'''
 	columnLabels = list(map(chr, range(65, 65 + len(gameBoard))))
 	spot = input("It's your turn, which spot would you like to play? (A1 - %s%d):\t" % (columnLabels[-1], len(gameBoard))).strip().upper()
 	while True:
@@ -57,6 +60,7 @@ def getPlayerMove():
 	col = columnLabels.index(spot[0])
 	ai.performMove(gameBoard, row, col, playerColor)
 	ai.checkGameState(gameBoard)
+	return [row, col]
 
 def main():
 	'''main method that prompts the user for input'''
@@ -83,23 +87,29 @@ def main():
 			print("Invalid input. You'll be white!")
 
 	ai = strategy.Strategy(int(boardDimension), playerColor)
-	print("You: %s\tAI: %s" % (playerColor, ai.opponentOf(playerColor)))
+	print(f"You: {MY_COLOR}%s{NO_COLOR}\tAI: {ENEMY_COLOR}%s{NO_COLOR}" % (playerColor, ai.opponentOf(playerColor)))
 	print("Press 'q' at any prompt to quit.")
 	
 	turn = BLACK
 	columnLabels = list(map(chr, range(65, 65 + len(gameBoard))))
+	mostRecentMove = None
+
 	while not ai.GAME_OVER:
-		printGameBoard()
+		printGameBoard(mostRecentMove)
 		if turn == playerColor:
-			getPlayerMove()
+			mostRecentMove = getPlayerMove()
 		else:
+			startTime = time.time()
 			ai_move_row, ai_move_col = ai.playBestMove(gameBoard)
+			endTime = time.time()
+			print("time taken: %f" % (endTime - startTime))
 			ai_move_formatted = columnLabels[ai_move_col] + str(ai_move_row + 1)
 			print("AI played in spot %s\n" % ai_move_formatted)
+			mostRecentMove = [ai_move_row, ai_move_col]
 		turn = ai.opponentOf(turn) # switch the turn
 
 	winner = "BLACK" if ai.opponentOf(turn) == BLACK else "WHITE"
-	printGameBoard()
+	printGameBoard(mostRecentMove)
 	print("%s wins!\n" % winner)
 
 
