@@ -98,6 +98,7 @@ class Strategy(object):
 					hash_row = BLACK_HASH_ROW_NUM if piece == BLACK else WHITE_HASH_ROW_NUM
 					hash_val = self.RANDOM_HASH_TABLE[hash_row][row*self.BOARD_WIDTH + col]
 					totalXOR = totalXOR ^ hash_val # ^ = XOR operator
+					# print("totalXOR = %s\thash_val = %s" % (str(totalXOR), str(hash_val)))
 		# print("totalXOR = %d" % totalXOR)
 		return totalXOR
 
@@ -111,34 +112,36 @@ class Strategy(object):
 		 	self.GAME_OVER = True
 
 	def isValidMove(self, board, row, col):
-		'''Checks if the column is full'''
+		'''Checks if the spot is available'''
 		return board[row][col] == EMPTY
 
 	def getValidMoves(self, board):
-		'''Returns a list of valid moves'''
+		'''Returns a list of valid moves (moves in the center area or near other pieces)'''
 		validLocations = []
-		for r in range(len(board)):
-			for c in range(len(board)):
-				if self.isValidMove(board, r, c):
-					validLocations.append([r, c])
-		# filledLocations = [] # list of spots that have been played
-		# for r in range(self.BOARD_HEIGHT):
-		# 	for c in range(self.BOARD_WIDTH):
-		# 		if board[r][c] != EMPTY:
-		# 			filledLocations.append([r,c])
-		# # updated this function to only consider spots within 5 of another already played piece
-		# for r in range(self.BOARD_HEIGHT):
-		# 	for c in range(self.BOARD_WIDTH):
-		# 		foundOtherPieceInRange = False
-		# 		if board[r][c] == EMPTY:
-		# 			for r2 in range(max(0, r - 4), min(self.BOARD_HEIGHT, r + 4)):
-		# 				for c2 in range(max(0, c - 4), min(self.BOARD_WIDTH, c + 4)):
-		# 					if board[r2][c2] != EMPTY:
-		# 						validLocations.append([r, c])
-		# 						foundOtherPieceInRange = True
-		# 						break
-		# 			if foundOtherPieceInRange:
-		# 				break
+		h = self.BOARD_HEIGHT
+		w = self.BOARD_WIDTH
+		# for r in range(len(board)):
+		# 	for c in range(len(board)):
+		# 		if self.isValidMove(board, r, c):
+		# 			validLocations.append([r, c])
+
+		def spotIsNearOtherPieces(row, col):
+			if row in range(h//2 - h//4, h//2 + h//4 + 1) and col in range(w//2 - w//4, w//2 + w//4 + 1):
+				# if in middle section of board
+				return True
+			for r2 in range(max(0, row - 4), min(h, row + 5)):
+				for c2 in range(max(0, col - 4), min(w, col + 5)):
+					if board[r2][c2] != EMPTY:
+						# if there is a piece within 5 spots from this square
+						return True
+			return False
+
+		for r in range(self.BOARD_HEIGHT):
+			for c in range(self.BOARD_WIDTH):
+				foundOtherPieceInRange = False
+				if board[r][c] == EMPTY:
+					if spotIsNearOtherPieces(r,c):
+						validLocations.append([r,c])
 
 		return validLocations
 
@@ -217,7 +220,6 @@ class Strategy(object):
 		Returns the row in [0], column in [1], and score of the board in [2]
 		'''
 		validMoves = self.getValidMoves(board)
-		random.shuffle(validMoves)
 		gameOver, winner = self.isTerminal(board)
 		if gameOver:
 			if winner == self.AI_COLOR:
@@ -229,6 +231,8 @@ class Strategy(object):
 				return None, None, 0
 		if depth == localMaxDepth:
 			return None, None, self.scoreBoard(board, self.AI_COLOR) - self.scoreBoard(board, self.HUMAN_COLOR)
+		
+		random.shuffle(validMoves)
 		if maxOrMin == MAX:
 			# want to maximize this move
 			score = -math.inf
@@ -237,17 +241,19 @@ class Strategy(object):
 			for move in validMoves:
 				
 				boardCopy = list(map(list, board)) # copies board
+				self.performMove(boardCopy, move[0], move[1], self.AI_COLOR)
 				dictValOfBoard = self.createZobristValueForBoardState(boardCopy)
 				updatedScore = 0 # placeholder
 				if dictValOfBoard in self.BOARD_STATE_DICT:
+					print("-"*70 + "  depth = %d" % localMaxDepth)
 					# print("move = %s" % str(move))
 					# if we've already evaluated the score of this board state
-					# updatedScore = self.BOARD_STATE_DICT[dictValOfBoard]
-					self.performMove(boardCopy, move[0], move[1], self.AI_COLOR)
-					_, __, updatedScore = self.minimax(boardCopy, depth + 1, MIN, alpha, beta, localMaxDepth)
+					updatedScore = self.BOARD_STATE_DICT[dictValOfBoard]
+					
+					# _, __, updatedScore = self.minimax(boardCopy, depth + 1, MIN, alpha, beta, localMaxDepth)
 					
 				else:
-					self.performMove(boardCopy, move[0], move[1], self.AI_COLOR)
+					# print("|"*70)
 					_, __, updatedScore = self.minimax(boardCopy, depth + 1, MIN, alpha, beta, localMaxDepth)
 					self.BOARD_STATE_DICT[dictValOfBoard] = updatedScore
 				# if move == [6, 6]:
