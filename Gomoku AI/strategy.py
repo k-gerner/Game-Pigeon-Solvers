@@ -115,35 +115,6 @@ class Strategy(object):
 		if self.isTerminal(board)[0]: 
 		 	self.GAME_OVER = True
 
-	def evaluateScoreFromMove(self, board, move, color):
-		'''Checks the score of the board for `color` if `move` is played on `board`'''
-		self.performMove(board, move[0], move[1], color)
-		score = self.scoreBoard(board, color, self.opponentOf(color))[0]
-		self.performMove(board, move[0], move[1], EMPTY) # undo the move
-		return score
-
-	def partition(self, movesList, board, low, high, color):
-		'''Places every element greater than pivot to the left, less than pivot to the right'''
-		i = low-1
-		pivot = self.evaluateScoreFromMove(board, movesList[high], color)     # pivot
-		for j in range(low, high):
-		    if self.evaluateScoreFromMove(board, movesList[j], color) > pivot:
-		        i = i+1
-		        movesList[i], movesList[j] = movesList[j], movesList[i]
-
-		movesList[i+1], movesList[high] = movesList[high], movesList[i+1]
-		return i+1
-
-	def sortMoves(self, movesList, board, low, high, color):
-		'''Sorts the list of moves via Quick Sort'''
-		if len(movesList) == 1:
-		    return movesList
-		if low < high:
-		    partition_index = self.partition(movesList, board, low, high, color)
-
-		    self.sortMoves(movesList, board, low, partition_index-1, color)
-		    self.sortMoves(movesList, board, partition_index+1, high, color)
-
 	def isValidMove(self, board, row, col):
 		'''Checks if the spot is available'''
 		return board[row][col] == EMPTY
@@ -235,13 +206,13 @@ class Strategy(object):
 				if board[r][c] == board[r+1][c] == board[r+2][c] == board[r+3][c] == board[r+4][c] != EMPTY:
 					return board[r][c]
 
-		# Check diagonal from bottom left to top right
+		# Check diagonal from top left to bottom right
 		for c in range(self.BOARD_WIDTH - 4):
 			for r in range(self.BOARD_HEIGHT - 4):
 				if board[r][c] == board[r+1][c+1] == board[r+2][c+2] == board[r+3][c+3] == board[r+4][c+4]!= EMPTY:
 					return board[r][c]
 
-		# Check diagonal from bottom right to top left
+		# Check diagonal from top right to bottom left
 		for c in range(self.BOARD_WIDTH - 4):
 			for r in range(4, self.BOARD_HEIGHT):
 				if board[r][c] == board[r-1][c+1] == board[r-2][c+2] == board[r-3][c+3] == board[r-4][c+4] != EMPTY:
@@ -347,22 +318,23 @@ class Strategy(object):
 		Returns the row in [0], column in [1], and score of the board in [2]
 		'''
 		if depth == localMaxDepth:
-			boardScores = self.scoreBoard(board, self.HUMAN_COLOR, self.AI_COLOR)
-			if localMaxDepth % 2 == 0:
-				# if AI's turn 1 level past max depth search level
-				humanScore = boardScores[0]
-				aiScore = boardScores[1] * 2
-			else:
-				# if human's turn 1 level past max depth search level
-				humanScore = boardScores[0] * 2
-				aiScore = boardScores[1]
-			# NOTE: I used a multiplier above because otherwise the AI may not try to block certain moves
-			# example: 	max depth 3; human gets 4 unbounded on depth 2, and AI can get 4 unbounded on depth 3
-			#			in this scenario, the point values would essentially cancel out, even though the human
-			#			has the clear advantage
+			playerWithTurnAfterMaxDepth = self.AI_COLOR if localMaxDepth % 2 == 0 else self.HUMAN_COLOR
+			boardScores = self.scoreBoard(board, self.HUMAN_COLOR, self.AI_COLOR, playerWithTurnAfterMaxDepth)
+			# if localMaxDepth % 2 == 0:
+			# 	# if AI's turn 1 level past max depth search level
+			# 	humanScore = boardScores[0]
+			# 	aiScore = boardScores[1] * 2
+			# else:
+			# 	# if human's turn 1 level past max depth search level
+			# 	humanScore = boardScores[0] * 2
+			# 	aiScore = boardScores[1]
+			# # NOTE: I used a multiplier above because otherwise the AI may not try to block certain moves
+			# # example: 	max depth 3; human gets 4 unbounded on depth 2, and AI can get 4 unbounded on depth 3
+			# #			in this scenario, the point values would essentially cancel out, even though the human
+			# #			has the clear advantage
 
-			# humanScore = boardScores[0]
-			# aiScore = boardScores[1]
+			humanScore = boardScores[0]
+			aiScore = boardScores[1]
 			return None, None, aiScore - humanScore
 			# return None, None, self.scoreBoard(board, self.AI_COLOR) - self.scoreBoard(board, self.HUMAN_COLOR)
 		
@@ -374,12 +346,11 @@ class Strategy(object):
 		# random.shuffle(validMoves) # I now shuffle inside of getValidMoves
 		if maxOrMin == MAX:
 			# want to maximize this move
-			# self.sortMoves(validMoves, board, 0, len(validMoves)-1, self.AI_COLOR)
 			score = -math.inf
 			bestMove = validMoves[0] # default best move
 			# print("valid moves: "+str(validMoves))
 			for move in validMoves:
-				if depth == 0 and localMaxDepth == 3 and (move == [8,5]):
+				if depth == 0 and localMaxDepth == 3 and (move == [9,5]):
 					abc = 0
 				boardCopy = list(map(list, board)) # copies board
 				self.performMove(boardCopy, move[0], move[1], self.AI_COLOR)
@@ -423,12 +394,13 @@ class Strategy(object):
 			return bestMove[0], bestMove[1], score
 		else:
 			# want to minimize this move
-			# self.sortMoves(validMoves, board, 0, len(validMoves)-1, self.HUMAN_COLOR)
 			score = math.inf
 			bestMoveForHuman = validMoves[0]
 			for move in validMoves:
 				# if move == [8,4] and localMaxDepth == 3:
 				# 	abc = 0
+				if depth == 1 and localMaxDepth == 3 and (move == [5,6]):
+					abc = 0
 				boardCopy = list(map(list, board)) # copies board
 				self.performMove(boardCopy, move[0], move[1], self.HUMAN_COLOR)
 				if depth >= 2:
@@ -458,10 +430,12 @@ class Strategy(object):
 					break # pruning
 			return bestMoveForHuman[0], bestMoveForHuman[1], score
 
-	def scoreSections(self, board, colorOfEvaluator, colorOfEnemy):
+	def scoreSections(self, board, colorOfEvaluator, colorOfEnemy, playerWithTurnAfterMaxDepth):
 		'''Scores all the different horizontal/vertical/diagonal sections on the board'''
 		evaluatorScore = 0
 		enemyScore = 0
+		evaluatorTrapIndicators = [0, 0, 0, 0]
+		enemyTrapIndicators = [0, 0, 0, 0]
 		if colorOfEvaluator == BLACK:
 			evaluatorScoresDict = self.blackThreatsScores
 			enemyScoresDict = self.whiteThreatsScores
@@ -476,19 +450,25 @@ class Strategy(object):
 				section5 = section6[:-1] # first 5 spaces of section 6
 				if section6 in evaluatorScoresDict:
 					evaluatorScore += evaluatorScoresDict[section6]
+					evaluatorTrapIndicators[0] = 1
 				elif section6 in enemyScoresDict:
 					enemyScore += enemyScoresDict[section6]
+					enemyTrapIndicators[0] = 1
 				if section5 in evaluatorScoresDict:
 					evaluatorScore += evaluatorScoresDict[section5]
+					evaluatorTrapIndicators[0] = 1
 				elif section5 in enemyScoresDict:
 					enemyScore += enemyScoresDict[section5]
+					enemyTrapIndicators[0] = 1
 				if c == self.BOARD_WIDTH - 6:
 					# if in last section of row
 					section5 = section6[1:] # check the rightmost 5 section of the row
 					if section5 in evaluatorScoresDict:
 						evaluatorScore += evaluatorScoresDict[section5]
+						evaluatorTrapIndicators[0] = 1
 					elif section5 in enemyScoresDict:
 						enemyScore += enemyScoresDict[section5]
+						enemyTrapIndicators[0] = 1
 
 		# Check vertical
 		for c in range(self.BOARD_WIDTH):
@@ -499,21 +479,27 @@ class Strategy(object):
 				section5 = section6[:-1] # first 5 spaces of section 6
 				if section6 in evaluatorScoresDict:
 					evaluatorScore += evaluatorScoresDict[section6]
+					evaluatorTrapIndicators[1] = 1
 				elif section6 in enemyScoresDict:
 					enemyScore += enemyScoresDict[section6]
+					enemyTrapIndicators[1] = 1
 				if section5 in evaluatorScoresDict:
 					evaluatorScore += evaluatorScoresDict[section5]
+					evaluatorTrapIndicators[1] = 1
 				elif section5 in enemyScoresDict:
 					enemyScore += enemyScoresDict[section5]
+					enemyTrapIndicators[1] = 1
 				if r == self.BOARD_HEIGHT - 6:
 					# if in last section of col
 					section5 = section6[1:] # check the bottom 5 section of the col
 					if section5 in evaluatorScoresDict:
 						evaluatorScore += evaluatorScoresDict[section5]
+						evaluatorTrapIndicators[1] = 1
 					elif section5 in enemyScoresDict:
 						enemyScore += enemyScoresDict[section5]
+						enemyTrapIndicators[1] = 1
 
-		# Check diagonal from bottom left to top right
+		# Check diagonal from top left to bottom right
 		for c in range(self.BOARD_WIDTH - 5):
 			for r in range(self.BOARD_HEIGHT - 5):
 				section6 = ''
@@ -522,21 +508,27 @@ class Strategy(object):
 				section5 = section6[:-1]
 				if section6 in evaluatorScoresDict:
 					evaluatorScore += evaluatorScoresDict[section6]
+					evaluatorTrapIndicators[2] = 1
 				elif section6 in enemyScoresDict:
 					enemyScore += enemyScoresDict[section6]
+					enemyTrapIndicators[2] = 1
 				if section5 in evaluatorScoresDict:
 					evaluatorScore += evaluatorScoresDict[section5]
+					evaluatorTrapIndicators[2] = 1
 				elif section5 in enemyScoresDict:
 					enemyScore += enemyScoresDict[section5]
+					enemyTrapIndicators[2] = 1
 				if c == self.BOARD_WIDTH - 6 or r == self.BOARD_HEIGHT - 6:
 					# if in last section of this diagonal path
 					section5 = section6[1:] # check the border section
 					if section5 in evaluatorScoresDict:
 						evaluatorScore += evaluatorScoresDict[section5]
+						evaluatorTrapIndicators[2] = 1
 					elif section5 in enemyScoresDict:
 						enemyScore += enemyScoresDict[section5]
+						enemyTrapIndicators[2] = 1
 		
-		# Check diagonal from bottom right to top left
+		# Check diagonal from top right to bottom left
 		for c in range(self.BOARD_WIDTH - 5):
 			for r in range(5, self.BOARD_HEIGHT):
 				section6 = ''
@@ -545,19 +537,55 @@ class Strategy(object):
 				section5 = section6[:-1]
 				if section6 in evaluatorScoresDict:
 					evaluatorScore += evaluatorScoresDict[section6]
+					evaluatorTrapIndicators[3] = 1
 				elif section6 in enemyScoresDict:
 					enemyScore += enemyScoresDict[section6]
+					enemyTrapIndicators[3] = 1
 				if section5 in evaluatorScoresDict:
 					evaluatorScore += evaluatorScoresDict[section5]
+					evaluatorTrapIndicators[3] = 1
 				elif section5 in enemyScoresDict:
 					enemyScore += enemyScoresDict[section5]
-				if c == self.BOARD_WIDTH - 6 or r == self.BOARD_HEIGHT - 1:
+					enemyTrapIndicators[3] = 1
+				if c == self.BOARD_WIDTH - 6 or r == 0:
 					# if in last section of this diagonal path
 					section5 = section6[1:] # check the border section
 					if section5 in evaluatorScoresDict:
 						evaluatorScore += evaluatorScoresDict[section5]
+						evaluatorTrapIndicators[3] = 1
 					elif section5 in enemyScoresDict:
 						enemyScore += enemyScoresDict[section5]
+						enemyTrapIndicators[3] = 1
+
+
+		numberOfEvaluatorTraps = sum(evaluatorTrapIndicators)
+		numberOfEnemyTraps = sum(enemyTrapIndicators)
+
+		# if traps found in multiple directions, weight this very heavily
+		if numberOfEvaluatorTraps > 1:
+			evaluatorScore *= 4
+		if numberOfEnemyTraps > 1:
+			enemyScore *= 4
+
+		# if the player who is set to play next has trap sequences worth more, they will probably win, so give a big bonus
+		if playerWithTurnAfterMaxDepth == colorOfEvaluator and evaluatorScore > enemyScore:
+			# if board[5][6] == 'X':
+			# 	print("when G6 is X, evaluatorScore = %d  and  enemyScore = %d" % (evaluatorScore, enemyScore))
+			return 100 * evaluatorScore, enemyScore
+		elif playerWithTurnAfterMaxDepth == colorOfEnemy and enemyScore > evaluatorScore:
+			# if board[5][6] == 'X':
+			# 	print("when G6 is X, evaluatorScore = %d  and  enemyScore = %d" % (evaluatorScore, enemyScore))
+			return evaluatorScore, 100 * enemyScore
+
+
+		# if both players have traps, check which player has the BETTER trap(s)
+		if numberOfEvaluatorTraps >= 1 and numberOfEnemyTraps >= 1:
+			if evaluatorScore > enemyScore:
+				evaluatorScore *= 5
+			elif enemyScore > evaluatorScore:
+				enemyScore *= 5
+
+		
 
 		return evaluatorScore, enemyScore
 
@@ -576,118 +604,18 @@ class Strategy(object):
 		return evaluatorScore, enemyScore
 
 
-	def scoreBoard(self, board, colorOfEvaluator, colorOfEnemy):
-		'''Scores the entire board'''
-		sectionsScores = self.scoreSections(board, colorOfEvaluator, colorOfEnemy)
+	def scoreBoard(self, board, colorOfEvaluator, colorOfEnemy, playerWithTurnAfterMaxDepth):
+		'''
+		Scores the entire board by looking at each section of spots, 
+		as well as the individual peice positions
+		'''
+		sectionsScores = self.scoreSections(board, colorOfEvaluator, colorOfEnemy, playerWithTurnAfterMaxDepth)
 		positionWeightScores = self.scorePositionWeights(board, colorOfEvaluator, colorOfEnemy)
 		evaluatorScore = sectionsScores[0] + positionWeightScores[0]
 		enemyScore = sectionsScores[1] + positionWeightScores[1]
 		return evaluatorScore, enemyScore
 
-		# Give a slight bonus to pieces in the middle area
-		# for r in range(self.BOARD_WIDTH//4, self.BOARD_WIDTH - self.BOARD_WIDTH//4):
-		# 	for c in range(self.BOARD_HEIGHT//4, self.BOARD_HEIGHT - self.BOARD_HEIGHT//4):
-		# 		if board[r][c] == color:
-		# 			score += 2
 
-		# Give another bonus for piece in the center
-		# if board[self.BOARD_WIDTH//2][self.BOARD_HEIGHT//2] == color:
-		# 	score += 4
-
-	# def longestSequenceOfPiece(self, section, color):
-	# 	'''Finds the longest consecutive sub-sequence of a piece in a section'''
-	# 	maxStreak = 0
-	# 	streak = 0
-	# 	for spot in section:
-	# 		if spot == color:
-	# 			streak += 1
-	# 			maxStreak = max(maxStreak, streak)
-	# 		else:
-	# 			streak = 0
-	# 	return maxStreak
-
-	# def scoreSection(self, section, color):
-	# 	'''Looks at the given length 5 section and scores it'''
-	# 	opponentColor = self.opponentOf(color)
-	# 	numMyColor = section.count(color)
-	# 	numOppColor = section.count(opponentColor)
-	# 	numEmpty = section.count(EMPTY)
-
-	# 	if numMyColor == 5:
-	# 		return WIN_SCORE
-	# 	elif numMyColor == 4:
-	# 		if numEmpty == 1:
-	# 			return 30 * self.longestSequenceOfPiece(section, color)
-	# 		else:
-	# 			return 35
-	# 	elif numMyColor == 3 and numEmpty == 2:
-	# 		if section[0] == section[4] == EMPTY:
-	# 			# if unbounded on both sides
-	# 			return 20 * self.longestSequenceOfPiece(section, color)
-	# 		else:
-	# 			return 17
-	# 	elif numMyColor == 2 and numEmpty == 3:
-	# 		return 5 * self.longestSequenceOfPiece(section, color)
-	# 	elif numOppColor == 4:
-	# 		if numEmpty == 1:
-	# 			return -30 * self.longestSequenceOfPiece(section, opponentColor)
-	# 		else:
-	# 			return -35
-	# 	elif numOppColor == 3 and numEmpty == 2:
-	# 		if section[0] == section[4] == EMPTY:
-	# 			return -20 * self.longestSequenceOfPiece(section, opponentColor)
-	# 		else:
-	# 			return -17
-	# 	elif numOppColor == 2 and numEmpty == 3:
-	# 		return -5 * self.longestSequenceOfPiece(section, opponentColor)
-	# 	else:
-	# 		return 0
-
-	# def scoreBoard(self, board, color):
-	# 	'''Scores the entire board'''
-	# 	score = 0
-
-	# 	# Give a slight bonus to pieces in the middle area
-	# 	for r in range(self.BOARD_WIDTH//4, self.BOARD_WIDTH - self.BOARD_WIDTH//4):
-	# 		for c in range(self.BOARD_HEIGHT//4, self.BOARD_HEIGHT - self.BOARD_HEIGHT//4):
-	# 			if board[r][c] == color:
-	# 				score += 2
-
-	# 	# Give another bonus for piece in the center
-	# 	if board[self.BOARD_WIDTH//2][self.BOARD_HEIGHT//2] == color:
-	# 		score += 4
-
-	# 	# Check horizontal
-	# 	for c in range(self.BOARD_WIDTH - 4):
-	# 		for r in range(self.BOARD_HEIGHT):
-	# 			score += self.scoreSection(board[r][c:c + 5], color)
-				
-
-	# 	# Check vertical
-	# 	for c in range(self.BOARD_WIDTH):
-	# 		for r in range(self.BOARD_HEIGHT - 4):
-	# 			section = []
-	# 			for i in range(5):
-	# 				section.append(board[r + i][c])
-	# 			score += self.scoreSection(section, color)
-
-	# 	# Check diagonal from bottom left to top right
-	# 	for c in range(self.BOARD_WIDTH - 4):
-	# 		for r in range(self.BOARD_HEIGHT - 4):
-	# 			section = []
-	# 			for i in range(5):
-	# 				section.append(board[r + i][c + i])
-	# 			score += self.scoreSection(section, color)
-		
-	# 	# Check diagonal from bottom right to top left
-	# 	for c in range(self.BOARD_WIDTH - 4):
-	# 		for r in range(4, self.BOARD_HEIGHT):
-	# 			section = []
-	# 			for i in range(5):
-	# 				section.append(board[r - i][c + i])
-	# 			score += self.scoreSection(section, color)
-
-	# 	return score
 
 
 
