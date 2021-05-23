@@ -254,7 +254,7 @@ class Strategy(object):
 		moveRow, moveCol, score = -123, -123, -123 # placeholders
 		for i in range(1, MAX_DEPTH + 1): # iterative deepening
 			# this will prioritize game winning movesets that occur with less total moves
-			moveRow, moveCol, score = self.minimax(board, 0, MAX, -math.inf, math.inf, i, None)
+			moveRow, moveCol, score = self.minimax(board, 0, MAX, -math.inf, math.inf, i)
 			self.BOARD_STATE_DICT.clear() # clear the dict after every depth increase
 			# ^ ideally I shouldn't do this, but I don't know how to implement it otherwise yet
 			if score >= WIN_SCORE:
@@ -308,33 +308,11 @@ class Strategy(object):
 		return True
 
 
-	def minimax(self, board, depth, maxOrMin, alpha, beta, localMaxDepth, recentMove):
+	def minimax(self, board, depth, maxOrMin, alpha, beta, localMaxDepth):
 		'''
 		Recursively finds the best move for a given board
 		Returns the row in [0], column in [1], and score of the board in [2]
 		'''
-		if recentMove != None:
-			# if not the first move of the game
-			winner, emptySpotSeen = self.checkIfMoveCausedWin(board, recentMove)
-			if winner == self.AI_COLOR:
-				return None, None, WIN_SCORE
-			elif winner == self.HUMAN_COLOR:
-				return None, None, -1 * WIN_SCORE
-			else:
-				# no winner
-				if not emptySpotSeen and self.isBoardFilled(board):
-					return None, None, 0
-					
-
-		# gameOver, winner = self.isTerminal(board)
-		# if gameOver:
-		# 	if winner == self.AI_COLOR:
-		# 		return None, None, WIN_SCORE
-		# 	elif winner == self.HUMAN_COLOR:
-		# 		return None, None, -1 * WIN_SCORE
-		# 	else:
-		# 		# no winner
-		# 		return None, None, 0
 		if depth == localMaxDepth:
 			boardScores = self.scoreBoard(board, self.HUMAN_COLOR, self.AI_COLOR)
 			humanScore = boardScores[0]
@@ -343,9 +321,8 @@ class Strategy(object):
 			# return None, None, self.scoreBoard(board, self.AI_COLOR) - self.scoreBoard(board, self.HUMAN_COLOR)
 		
 		validMoves = self.getValidMoves(board)
-		# print("VALID MOVES = %s" % str(validMoves)) 
 		# if localMaxDepth == 1:
-		# 	print("valid moves: %s" % str(validMoves))
+		# 	print("for depth = 1, the valid moves are: %s" % str(validMoves))
 		random.shuffle(validMoves)
 		if maxOrMin == MAX:
 			# want to maximize this move
@@ -370,7 +347,17 @@ class Strategy(object):
 					
 				else:
 					# print("|"*70)
-					_, __, updatedScore = self.minimax(boardCopy, depth + 1, MIN, alpha, beta, localMaxDepth, move)
+					winner, emptySpotSeen = self.checkIfMoveCausedWin(boardCopy, move)
+					if winner == self.AI_COLOR:
+						updatedScore = WIN_SCORE
+					elif winner == self.HUMAN_COLOR:
+						updatedScore = -1 * WIN_SCORE
+					else:
+						# no winner
+						if not emptySpotSeen and self.isBoardFilled(boardCopy):
+							updatedScore = 0
+						else:
+							_, __, updatedScore = self.minimax(boardCopy, depth + 1, MIN, alpha, beta, localMaxDepth)
 					self.BOARD_STATE_DICT[dictValOfBoard] = updatedScore
 				# if move == [6, 6]:
 				# 	print("score for G7 = %d\tweightMatrix for G7 = %d" % (updatedScore, self.positionWeightsMatrix[6][6]))
@@ -395,7 +382,17 @@ class Strategy(object):
 				if dictValOfBoard in self.BOARD_STATE_DICT:
 					updatedScore = self.BOARD_STATE_DICT[dictValOfBoard]
 				else:
-					_, __, updatedScore = self.minimax(boardCopy, depth + 1, MAX, alpha, beta, localMaxDepth, move)
+					winner, emptySpotSeen = self.checkIfMoveCausedWin(boardCopy, move)
+					if winner == self.AI_COLOR:
+						updatedScore = WIN_SCORE
+					elif winner == self.HUMAN_COLOR:
+						updatedScore = -1 * WIN_SCORE
+					else:
+						# no winner
+						if not emptySpotSeen and self.isBoardFilled(boardCopy):
+							updatedScore = 0
+						else:
+							_, __, updatedScore = self.minimax(boardCopy, depth + 1, MAX, alpha, beta, localMaxDepth)
 					self.BOARD_STATE_DICT[dictValOfBoard] = updatedScore
 				if updatedScore < score:
 					score = updatedScore
