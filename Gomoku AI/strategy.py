@@ -266,11 +266,11 @@ class Strategy(object):
 		return moveRow, moveCol
 
 
-	def checkIfMoveCausedWin(self, board, move):
+	def checkIfMoveCausedGameOver(self, board, move):
 		'''
 		Checks the spaces in outward directions to see if the move given caused a win
 		returns the winner in [0] (BLACK, WHITE, or None if no winner)
-		returns True or False in [1] whether or not there was an empty space seen
+		returns True or False in [1] whether or not the game is over
 		^ if false, I have to check if the entire board is full 
 		'''
 		emptySpotSeen = False
@@ -296,16 +296,16 @@ class Strategy(object):
 							emptySpotSeen = True
 						break
 				if numInARow == 5:
-					return color, emptySpotSeen
-		return None, emptySpotSeen
-
-	def isBoardFilled(self, board):
-		'''Checks if the board is completely filled'''
+					return color, True
+		# if we reach here, the move did not cause a win
+		if emptySpotSeen:
+			return None, False
 		for row in board:
 			for spot in row:
 				if spot == EMPTY:
-					return False
-		return True
+					# found an empty spot
+					return None, False
+		return None, True
 
 
 	def minimax(self, board, depth, maxOrMin, alpha, beta, localMaxDepth):
@@ -347,14 +347,14 @@ class Strategy(object):
 					
 				else:
 					# print("|"*70)
-					winner, emptySpotSeen = self.checkIfMoveCausedWin(boardCopy, move)
+					winner, gameOver = self.checkIfMoveCausedGameOver(boardCopy, move)
 					if winner == self.AI_COLOR:
 						updatedScore = WIN_SCORE
 					elif winner == self.HUMAN_COLOR:
 						updatedScore = -1 * WIN_SCORE
 					else:
 						# no winner
-						if not emptySpotSeen and self.isBoardFilled(boardCopy):
+						if gameOver:
 							updatedScore = 0
 						else:
 							_, __, updatedScore = self.minimax(boardCopy, depth + 1, MIN, alpha, beta, localMaxDepth)
@@ -382,14 +382,14 @@ class Strategy(object):
 				if dictValOfBoard in self.BOARD_STATE_DICT:
 					updatedScore = self.BOARD_STATE_DICT[dictValOfBoard]
 				else:
-					winner, emptySpotSeen = self.checkIfMoveCausedWin(boardCopy, move)
+					winner, gameOver = self.checkIfMoveCausedGameOver(boardCopy, move)
 					if winner == self.AI_COLOR:
 						updatedScore = WIN_SCORE
 					elif winner == self.HUMAN_COLOR:
 						updatedScore = -1 * WIN_SCORE
 					else:
 						# no winner
-						if not emptySpotSeen and self.isBoardFilled(boardCopy):
+						if gameOver:
 							updatedScore = 0
 						else:
 							_, __, updatedScore = self.minimax(boardCopy, depth + 1, MAX, alpha, beta, localMaxDepth)
