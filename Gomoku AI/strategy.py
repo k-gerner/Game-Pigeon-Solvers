@@ -8,7 +8,7 @@ from functools import cmp_to_key
 
 EMPTY, BLACK, WHITE = '.', 'X', 'O'
 BLACK_HASH_ROW_NUM, WHITE_HASH_ROW_NUM = 0, 1
-MAX_DEPTH = 2 # max number of moves ahead to calculate
+MAX_DEPTH = 3 # max number of moves ahead to calculate
 MAX, MIN = True, False # to be used in minimax
 WIN_SCORE = 1000000000 # large enough to always be the preferred outcome
 MAX_NEIGHBOR_DIST = 2 # max distance from an already played piece that we want to check if open
@@ -150,44 +150,48 @@ class Strategy(object):
 
 	def getValidMoves(self, board):
 		'''Returns a list of valid moves (moves in the center area or near other pieces)'''
-		validLocations = []
-		h = self.BOARD_HEIGHT
-		w = self.BOARD_WIDTH
-		
-		# for r in range(len(board)):
-		# 	for c in range(len(board)):
-		# 		if self.isValidMove(board, r, c):
-		# 			validLocations.append([r, c])
 
 		# will allow me to slightly prioritize checking the spots that are closer to 
 		# other pieces by placing them in separate lists
-		# lists_of_valids = [[]] * (max_dist_from_neighbor + 1) 
+		lists_of_valids = [] 
+		for l in range(MAX_NEIGHBOR_DIST):
+			lists_of_valids.append([]) 
 
-		def spotIsNearOtherPieces(row, col):
-			# if row in range(h//2 - h//4, h//2 + h//4 + 1) and col in range(w//2 - w//4, w//2 + w//4 + 1):
-			# 	# if in middle section of board
-			# 	# lists_of_valids[-1].append([row, col])
-			# 	return True
-			if row == h//2 and col == w//2 and board[row][col] == EMPTY:
-				# if exact center spot empty
-				# lists_of_valids[-1].append([row, col])
-				return True
-			for r2 in range(max(0, row - MAX_NEIGHBOR_DIST), min(h, row + MAX_NEIGHBOR_DIST + 1)):
-				for c2 in range(max(0, col - MAX_NEIGHBOR_DIST), min(w, col + MAX_NEIGHBOR_DIST + 1)):
-					if board[r2][c2] != EMPTY:
-						# if there is a piece within `max_dist_from_neighbor` spots from this square
-						# dist_from_neighbor = max(abs(r2-row), abs(c2-col))
-						# lists_of_valids[dist_from_neighbor].append([row, col])
-						# ISSUE ^ : may not get the closest neighbor
-						return True
-			return False
+		def findNearestNeighborDistance(row, col):
+			'''Finds the closest neighbor distance. -1 if no neighbor in range'''
+			if row == self.BOARD_HEIGHT//2 and col == self.BOARD_WIDTH//2:
+				# if exact center spot empty, automatically make it a valid location
+				return 1
+			for distFromPiece in range(1, MAX_NEIGHBOR_DIST + 1):
+				for i in range(-distFromPiece, distFromPiece + 1): # e.g. -1, 0, 1
+					for j in range(-distFromPiece, distFromPiece + 1): # e.g. -1, 0, 1
+						if i != distFromPiece and i != -distFromPiece and j != distFromPiece and j != -distFromPiece: 
+							# if not in the right distance circle
+							continue
+						if (row + i) % self.BOARD_HEIGHT != (row + i) or (col + j) % self.BOARD_WIDTH != (col + j):
+							# if outside of the board range
+							continue
+						if board[row + i][col + j] != EMPTY:
+							# if there is a piece played here
+							return distFromPiece
+			return -1
 
 		for r in range(self.BOARD_HEIGHT):
 			for c in range(self.BOARD_WIDTH):
 				foundOtherPieceInRange = False
 				if board[r][c] == EMPTY:
-					if spotIsNearOtherPieces(r,c):
-						validLocations.append([r,c])
+					nearestNeighborDistance = findNearestNeighborDistance(r,c)
+					if nearestNeighborDistance != -1:
+						# append it to the correct list
+						lists_of_valids[nearestNeighborDistance - 1].append([r,c])
+
+		# shuffle the moves in each distance level
+		# note this will not change the order of the distances, just the moves inside each distance level
+		for l in lists_of_valids:
+			random.shuffle(l)  # UNCOMMENT --------------------------------------------------------------------------------------------------------------------------------------------------------
+
+		# combine the lists into one big list
+		validLocations = [item for innerlist in lists_of_valids for item in innerlist]
 
 		return validLocations
 		# combined_list = [item for sublist in lists_of_valids for item in sublist]
@@ -260,10 +264,24 @@ class Strategy(object):
 			if score >= WIN_SCORE:
 				break
 		print("score for move: %d" % score)
-		self.performMove(board, moveRow, moveCol, self.AI_COLOR)
+		if moveRow != -1 and moveCol != -1:
+			# board not filled
+			self.performMove(board, moveRow, moveCol, self.AI_COLOR)
+		else:
+			# board filled
+			self.GAME_OVER = True
 		self.checkGameState(board)
 		self.BOARD_STATE_DICT = {} 
 		return moveRow, moveCol
+
+	def isCoordinateInBoardRange(self, coord):
+		'''Checks if the coordinate is valid on the board'''
+		rowNum = coord[0]
+		colNum = coord[1]
+		if rowNum % self.BOARD_HEIGHT == rowNum and colNum % self.BOARD_WIDTH == colNum:
+			return True
+		else:
+			return False
 
 
 	def checkIfMoveCausedGameOver(self, board, move):
@@ -271,32 +289,47 @@ class Strategy(object):
 		Checks the spaces in outward directions to see if the move given caused a win
 		returns the winner in [0] (BLACK, WHITE, or None if no winner)
 		returns True or False in [1] whether or not the game is over
-		^ if false, I have to check if the entire board is full 
 		'''
 		emptySpotSeen = False
 		color = board[move[0]][move[1]]
-		for i in range(-1, 2): # -1, 0, 1
-			for j in range(-1, 2): # -1, 0, 1
-				if i == j == 0: 
-					continue
-				directionVector = [i, j]
-				numInARow = 1
-				currCoordinates = move.copy()
-				for k in range(4):
-					currCoordinates = [a + b for a, b in zip(currCoordinates, directionVector)] # adds the direction vector
-					if currCoordinates[0] % self.BOARD_HEIGHT != currCoordinates[0] or currCoordinates[1] % self.BOARD_WIDTH != currCoordinates[1]:
-						# if out of range
-						break
-					currSpot = board[currCoordinates[0]][currCoordinates[1]]
-					if currSpot == color:
-						numInARow += 1
-						continue
+		directionVectorsList = [[1, -1], [1, 0], [1, 1], [0, 1]]
+		for directionVector in directionVectorsList:
+			numInARow = 1
+			currCoordinatesForward = move.copy()
+			currCoordinatesBackward = move.copy()
+			forwardCheckStillValid = True
+			backwardCheckStillValid = True
+			outwardSpacesChecked = 0
+			while outwardSpacesChecked < 4 and numInARow < 5 and (forwardCheckStillValid or backwardCheckStillValid):
+				outwardSpacesChecked += 1
+				if forwardCheckStillValid:
+					# keep looking in the positive 
+					currCoordinatesForward = [a + b for a, b in zip(currCoordinatesForward, directionVector)] # adds the direction vector
+					if self.isCoordinateInBoardRange(currCoordinatesForward):
+						currForwardSpot = board[currCoordinatesForward[0]][currCoordinatesForward[1]]
+						if currForwardSpot == color:
+							numInARow += 1
+						else:
+							if currForwardSpot == EMPTY:
+								emptySpotSeen = True
+							forwardCheckStillValid = False
 					else:
-						if currSpot == EMPTY:
-							emptySpotSeen = True
-						break
-				if numInARow == 5:
-					return color, True
+						forwardCheckStillValid = False
+
+				if backwardCheckStillValid:
+					currCoordinatesBackward = [a - b for a, b in zip(currCoordinatesBackward, directionVector)] # subtracts the direction vector
+					if self.isCoordinateInBoardRange(currCoordinatesBackward):
+						currBackwardSpot = board[currCoordinatesBackward[0]][currCoordinatesBackward[1]]
+						if currBackwardSpot == color:
+							numInARow += 1
+						else:
+							if currBackwardSpot == EMPTY:
+								emptySpotSeen = True
+							backwardCheckStillValid = False
+					else:
+						backwardCheckStillValid = False
+			if numInARow >= 5:
+				return color, True
 		# if we reach here, the move did not cause a win
 		if emptySpotSeen:
 			return None, False
@@ -315,15 +348,30 @@ class Strategy(object):
 		'''
 		if depth == localMaxDepth:
 			boardScores = self.scoreBoard(board, self.HUMAN_COLOR, self.AI_COLOR)
-			humanScore = boardScores[0]
-			aiScore = boardScores[1]
+			if localMaxDepth % 2 == 0:
+				# if AI's turn 1 level past max depth search level
+				humanScore = boardScores[0]
+				aiScore = boardScores[1] * 2
+			else:
+				# if human's turn 1 level past max depth search level
+				humanScore = boardScores[0] * 2
+				aiScore = boardScores[1]
+			# NOTE: I used a multiplier above because otherwise the AI may not try to block certain moves
+			# example: 	max depth 3; human gets 4 unbounded on depth 2, and AI can get 4 unbounded on depth 3
+			#			in this scenario, the point values would essentially cancel out, even though the human
+			#			has the clear advantage
+			
+			# humanScore = boardScores[0]
+			# aiScore = boardScores[1]
 			return None, None, aiScore - humanScore
 			# return None, None, self.scoreBoard(board, self.AI_COLOR) - self.scoreBoard(board, self.HUMAN_COLOR)
 		
 		validMoves = self.getValidMoves(board)
+		if len(validMoves) == 0:
+			return -1, -1, 0
 		# if localMaxDepth == 1:
 		# 	print("for depth = 1, the valid moves are: %s" % str(validMoves))
-		random.shuffle(validMoves)
+		# random.shuffle(validMoves) # I now shuffle inside of getValidMoves
 		if maxOrMin == MAX:
 			# want to maximize this move
 			# self.sortMoves(validMoves, board, 0, len(validMoves)-1, self.AI_COLOR)
@@ -331,7 +379,8 @@ class Strategy(object):
 			bestMove = validMoves[0] # default best move
 			# print("valid moves: "+str(validMoves))
 			for move in validMoves:
-				
+				if depth == 0 and localMaxDepth == 3 and (move == [8,5]):
+					abc = 0
 				boardCopy = list(map(list, board)) # copies board
 				self.performMove(boardCopy, move[0], move[1], self.AI_COLOR)
 				dictValOfBoard = self.createZobristValueForBoardState(boardCopy)
@@ -355,6 +404,7 @@ class Strategy(object):
 					else:
 						# no winner
 						if gameOver:
+							# if board filled
 							updatedScore = 0
 						else:
 							_, __, updatedScore = self.minimax(boardCopy, depth + 1, MIN, alpha, beta, localMaxDepth)
@@ -376,6 +426,8 @@ class Strategy(object):
 			score = math.inf
 			bestMoveForHuman = validMoves[0]
 			for move in validMoves:
+				# if move == [8,4] and localMaxDepth == 3:
+				# 	abc = 0
 				boardCopy = list(map(list, board)) # copies board
 				self.performMove(boardCopy, move[0], move[1], self.HUMAN_COLOR)
 				dictValOfBoard = self.createZobristValueForBoardState(boardCopy)
@@ -390,6 +442,7 @@ class Strategy(object):
 					else:
 						# no winner
 						if gameOver:
+							# if board filled
 							updatedScore = 0
 						else:
 							_, __, updatedScore = self.minimax(boardCopy, depth + 1, MAX, alpha, beta, localMaxDepth)
