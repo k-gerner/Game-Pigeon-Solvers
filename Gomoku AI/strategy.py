@@ -360,7 +360,7 @@ class Strategy(object):
 			# example: 	max depth 3; human gets 4 unbounded on depth 2, and AI can get 4 unbounded on depth 3
 			#			in this scenario, the point values would essentially cancel out, even though the human
 			#			has the clear advantage
-			
+
 			# humanScore = boardScores[0]
 			# aiScore = boardScores[1]
 			return None, None, aiScore - humanScore
@@ -383,11 +383,11 @@ class Strategy(object):
 					abc = 0
 				boardCopy = list(map(list, board)) # copies board
 				self.performMove(boardCopy, move[0], move[1], self.AI_COLOR)
-				dictValOfBoard = self.createZobristValueForBoardState(boardCopy)
 				updatedScore = 0 # placeholder
-				if dictValOfBoard in self.BOARD_STATE_DICT:
-					# print("-"*70 + "  depth = %d" % localMaxDepth)
-					# print("move = %s" % str(move))
+				if depth >= 2:
+					# no chance of repeat boards until at least depth = 2
+					dictValOfBoard = self.createZobristValueForBoardState(boardCopy)
+				if depth >= 2 and dictValOfBoard in self.BOARD_STATE_DICT:
 					# if we've already evaluated the score of this board state
 					updatedScore = self.BOARD_STATE_DICT[dictValOfBoard]
 					# print("WEVE SEEN A STATE BEFORE")
@@ -408,7 +408,8 @@ class Strategy(object):
 							updatedScore = 0
 						else:
 							_, __, updatedScore = self.minimax(boardCopy, depth + 1, MIN, alpha, beta, localMaxDepth)
-					self.BOARD_STATE_DICT[dictValOfBoard] = updatedScore
+					if depth >= 2:
+						self.BOARD_STATE_DICT[dictValOfBoard] = updatedScore
 				# if move == [6, 6]:
 				# 	print("score for G7 = %d\tweightMatrix for G7 = %d" % (updatedScore, self.positionWeightsMatrix[6][6]))
 				if updatedScore > score:
@@ -430,8 +431,9 @@ class Strategy(object):
 				# 	abc = 0
 				boardCopy = list(map(list, board)) # copies board
 				self.performMove(boardCopy, move[0], move[1], self.HUMAN_COLOR)
-				dictValOfBoard = self.createZobristValueForBoardState(boardCopy)
-				if dictValOfBoard in self.BOARD_STATE_DICT:
+				if depth >= 2:
+					dictValOfBoard = self.createZobristValueForBoardState(boardCopy)
+				if depth >= 2 and dictValOfBoard in self.BOARD_STATE_DICT:
 					updatedScore = self.BOARD_STATE_DICT[dictValOfBoard]
 				else:
 					winner, gameOver = self.checkIfMoveCausedGameOver(boardCopy, move)
@@ -446,7 +448,8 @@ class Strategy(object):
 							updatedScore = 0
 						else:
 							_, __, updatedScore = self.minimax(boardCopy, depth + 1, MAX, alpha, beta, localMaxDepth)
-					self.BOARD_STATE_DICT[dictValOfBoard] = updatedScore
+					if depth >= 2:
+						self.BOARD_STATE_DICT[dictValOfBoard] = updatedScore
 				if updatedScore < score:
 					score = updatedScore
 					bestMoveForHuman = move
