@@ -254,7 +254,7 @@ class Strategy(object):
 		moveRow, moveCol, score = -123, -123, -123 # placeholders
 		for i in range(1, MAX_DEPTH + 1): # iterative deepening
 			# this will prioritize game winning movesets that occur with less total moves
-			moveRow, moveCol, score = self.minimax(board, 0, MAX, -math.inf, math.inf, i)
+			moveRow, moveCol, score = self.minimax(board, 0, MAX, -math.inf, math.inf, i, None)
 			self.BOARD_STATE_DICT.clear() # clear the dict after every depth increase
 			# ^ ideally I shouldn't do this, but I don't know how to implement it otherwise yet
 			if score >= WIN_SCORE:
@@ -265,21 +265,76 @@ class Strategy(object):
 		self.BOARD_STATE_DICT = {} 
 		return moveRow, moveCol
 
-	def minimax(self, board, depth, maxOrMin, alpha, beta, localMaxDepth):
+
+	def checkIfMoveCausedWin(self, board, move):
+		'''
+		Checks the spaces in outward directions to see if the move given caused a win
+		returns the winner in [0] (BLACK, WHITE, or None if no winner)
+		returns True or False in [1] whether or not there was an empty space seen
+		^ if false, I have to check if the entire board is full 
+		'''
+		emptySpotSeen = False
+		color = board[move[0]][move[1]]
+		for i in range(-1, 2): # -1, 0, 1
+			for j in range(-1, 2): # -1, 0, 1
+				if i == j == 0: 
+					continue
+				directionVector = [i, j]
+				numInARow = 1
+				currCoordinates = move.copy()
+				for k in range(4):
+					currCoordinates = [a + b for a, b in zip(currCoordinates, directionVector)] # adds the direction vector
+					if currCoordinates[0] % self.BOARD_HEIGHT != currCoordinates[0] or currCoordinates[1] % self.BOARD_WIDTH != currCoordinates[1]:
+						# if out of range
+						break
+					currSpot = board[currCoordinates[0]][currCoordinates[1]]
+					if currSpot == color:
+						numInARow += 1
+						continue
+					else:
+						if currSpot == EMPTY:
+							emptySpotSeen = True
+						break
+				if numInARow == 5:
+					return color, emptySpotSeen
+		return None, emptySpotSeen
+
+	def isBoardFilled(self, board):
+		'''Checks if the board is completely filled'''
+		for row in board:
+			for spot in row:
+				if spot == EMPTY:
+					return False
+		return True
+
+
+	def minimax(self, board, depth, maxOrMin, alpha, beta, localMaxDepth, recentMove):
 		'''
 		Recursively finds the best move for a given board
 		Returns the row in [0], column in [1], and score of the board in [2]
 		'''
-		
-		gameOver, winner = self.isTerminal(board)
-		if gameOver:
+		if recentMove != None:
+			# if not the first move of the game
+			winner, emptySpotSeen = self.checkIfMoveCausedWin(board, recentMove)
 			if winner == self.AI_COLOR:
 				return None, None, WIN_SCORE
 			elif winner == self.HUMAN_COLOR:
 				return None, None, -1 * WIN_SCORE
 			else:
 				# no winner
-				return None, None, 0
+				if not emptySpotSeen and self.isBoardFilled(board):
+					return None, None, 0
+					
+
+		# gameOver, winner = self.isTerminal(board)
+		# if gameOver:
+		# 	if winner == self.AI_COLOR:
+		# 		return None, None, WIN_SCORE
+		# 	elif winner == self.HUMAN_COLOR:
+		# 		return None, None, -1 * WIN_SCORE
+		# 	else:
+		# 		# no winner
+		# 		return None, None, 0
 		if depth == localMaxDepth:
 			boardScores = self.scoreBoard(board, self.HUMAN_COLOR, self.AI_COLOR)
 			humanScore = boardScores[0]
@@ -315,7 +370,7 @@ class Strategy(object):
 					
 				else:
 					# print("|"*70)
-					_, __, updatedScore = self.minimax(boardCopy, depth + 1, MIN, alpha, beta, localMaxDepth)
+					_, __, updatedScore = self.minimax(boardCopy, depth + 1, MIN, alpha, beta, localMaxDepth, move)
 					self.BOARD_STATE_DICT[dictValOfBoard] = updatedScore
 				# if move == [6, 6]:
 				# 	print("score for G7 = %d\tweightMatrix for G7 = %d" % (updatedScore, self.positionWeightsMatrix[6][6]))
@@ -336,7 +391,12 @@ class Strategy(object):
 			for move in validMoves:
 				boardCopy = list(map(list, board)) # copies board
 				self.performMove(boardCopy, move[0], move[1], self.HUMAN_COLOR)
-				_, __, updatedScore = self.minimax(boardCopy, depth + 1, MAX, alpha, beta, localMaxDepth)
+				dictValOfBoard = self.createZobristValueForBoardState(boardCopy)
+				if dictValOfBoard in self.BOARD_STATE_DICT:
+					updatedScore = self.BOARD_STATE_DICT[dictValOfBoard]
+				else:
+					_, __, updatedScore = self.minimax(boardCopy, depth + 1, MAX, alpha, beta, localMaxDepth, move)
+					self.BOARD_STATE_DICT[dictValOfBoard] = updatedScore
 				if updatedScore < score:
 					score = updatedScore
 					bestMoveForHuman = move
