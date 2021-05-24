@@ -8,7 +8,7 @@ from functools import cmp_to_key
 
 EMPTY, BLACK, WHITE = '.', 'X', 'O'
 BLACK_HASH_ROW_NUM, WHITE_HASH_ROW_NUM = 0, 1
-MAX_DEPTH = 3 # max number of moves ahead to calculate
+MAX_DEPTH = 4 # max number of moves ahead to calculate
 MAX, MIN = True, False # to be used in minimax
 WIN_SCORE = 1000000000 # large enough to always be the preferred outcome
 MAX_NEIGHBOR_DIST = 2 # max distance from an already played piece that we want to check if open
@@ -234,7 +234,7 @@ class Strategy(object):
 			# ^ ideally I shouldn't do this, but I don't know how to implement it otherwise yet
 			if score >= WIN_SCORE:
 				break
-		print("score for move: %d" % score)
+		print("Score for move: %d" % score)
 		if moveRow != -1 and moveCol != -1:
 			# board not filled
 			self.performMove(board, moveRow, moveCol, self.AI_COLOR)
@@ -361,7 +361,6 @@ class Strategy(object):
 				if depth >= 2 and dictValOfBoard in self.BOARD_STATE_DICT:
 					# if we've already evaluated the score of this board state
 					updatedScore = self.BOARD_STATE_DICT[dictValOfBoard]
-					# print("WEVE SEEN A STATE BEFORE")
 					
 					# _, __, updatedScore = self.minimax(boardCopy, depth + 1, MIN, alpha, beta, localMaxDepth)
 					
@@ -568,14 +567,18 @@ class Strategy(object):
 			enemyScore *= 4
 
 		# if the player who is set to play next has trap sequences worth more, they will probably win, so give a big bonus
-		if playerWithTurnAfterMaxDepth == colorOfEvaluator and evaluatorScore > enemyScore:
+		if playerWithTurnAfterMaxDepth == colorOfEvaluator and numberOfEvaluatorTraps >= 1:
+			evaluatorScore *= 4
 			# if board[5][6] == 'X':
 			# 	print("when G6 is X, evaluatorScore = %d  and  enemyScore = %d" % (evaluatorScore, enemyScore))
-			return 100 * evaluatorScore, enemyScore
-		elif playerWithTurnAfterMaxDepth == colorOfEnemy and enemyScore > evaluatorScore:
+			if evaluatorScore > enemyScore:
+				return 25 * evaluatorScore, enemyScore
+		elif playerWithTurnAfterMaxDepth == colorOfEnemy and numberOfEnemyTraps >= 1:
 			# if board[5][6] == 'X':
 			# 	print("when G6 is X, evaluatorScore = %d  and  enemyScore = %d" % (evaluatorScore, enemyScore))
-			return evaluatorScore, 100 * enemyScore
+			enemyScore *= 4
+			if enemyScore > evaluatorScore:
+				return evaluatorScore, 25 * enemyScore
 
 
 		# if both players have traps, check which player has the BETTER trap(s)

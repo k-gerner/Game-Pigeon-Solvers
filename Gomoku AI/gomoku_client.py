@@ -102,7 +102,8 @@ def main():
 			startTime = time.time()
 			ai_move_row, ai_move_col = ai.playBestMove(gameBoard)
 			endTime = time.time()
-			print("time taken: %f" % (endTime - startTime))
+			minutesTaken, secondsTaken = int(endTime - startTime) // 60, (endTime - startTime) % 60
+			print("Time taken: %s %.2fs" % ('' if minutesTaken == 0 else '%dm' % minutesTaken, secondsTaken))
 			ai_move_formatted = columnLabels[ai_move_col] + str(ai_move_row + 1)
 			print("AI played in spot %s\n" % ai_move_formatted)
 			mostRecentMove = [ai_move_row, ai_move_col]
