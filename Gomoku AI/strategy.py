@@ -4,6 +4,7 @@
 
 import math # for infinities
 import random # for randomizing valid moves list in minimax
+import sys # for better progress bar formatting
 from functools import cmp_to_key
 
 EMPTY, BLACK, WHITE = '.', 'X', 'O'
@@ -349,7 +350,21 @@ class Strategy(object):
 			score = -math.inf
 			bestMove = validMoves[0] # default best move
 			# print("valid moves: "+str(validMoves))
+			if depth == 0:
+				# on the top level of search, printing progress bar
+				percentComplete = 0
+				movesChecked = 0
+				barCompleteMultiplier = 0
+				print('\r[%s%s] %d%% (%d/%d moves checked) @ maxDepth = %d' % ("="*barCompleteMultiplier, "-"*(25-barCompleteMultiplier), percentComplete, movesChecked, len(validMoves), localMaxDepth), end = "")
+
 			for move in validMoves:
+				if depth == 0:
+					# print progress bar
+					percentComplete = int((movesChecked/len(validMoves))*100)
+					barCompleteMultiplier = percentComplete // 4
+					print('\r[%s%s] %d%% (%d/%d moves checked) @ maxDepth = %d' % ("="*barCompleteMultiplier, "-"*(25-barCompleteMultiplier), percentComplete, movesChecked, len(validMoves), localMaxDepth), end = "")
+					movesChecked += 1
+
 				if depth == 0 and localMaxDepth == 3 and (move == [9,5]):
 					abc = 0
 				boardCopy = list(map(list, board)) # copies board
@@ -390,6 +405,9 @@ class Strategy(object):
 				# 	print("Score for slot %d = %d. Max depth = %d" % (move, updatedScore, localMaxDepth))
 				if alpha >= beta:
 					break # pruning
+			if depth == 0:
+				# clear progress bar print-out
+				sys.stdout.write('\033[2K\033[1G')
 			return bestMove[0], bestMove[1], score
 		else:
 			# want to minimize this move
