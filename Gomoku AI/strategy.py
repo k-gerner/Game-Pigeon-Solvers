@@ -1,25 +1,22 @@
-# gomoku AI BEFORE trying to implement updateValids
-
 # Contains AI strategy and board manipulation methods
 
 import math # for infinities
 import random # for randomizing valid moves list in minimax
 import sys # for better progress bar formatting
-from functools import cmp_to_key
 
 EMPTY, BLACK, WHITE = '.', 'X', 'O'
 BLACK_HASH_ROW_NUM, WHITE_HASH_ROW_NUM = 0, 1
-MAX_DEPTH = 4 # max number of moves ahead to calculate
+MAX_DEPTH = 5 # max number of moves ahead to calculate
 MAX, MIN = True, False # to be used in minimax
 WIN_SCORE = 1000000000 # large enough to always be the preferred outcome
 MAX_NEIGHBOR_DIST = 2 # max distance from an already played piece that we want to check if open
+MAX_NUM_MOVES_TO_EVALUATE = 15 # most moves we want to evaluate at once for any given board
 
 # class for the A.I.
 class Strategy(object):
 
 	def __init__(self, boardDimension, humanColor):
 		'''Initializes the board attributes'''
-		print("THIS PRINT IS IN INIT. CURRENT MAX DEPTH = %d%s" % (MAX_DEPTH, '--------'*80))
 		self.GAME_OVER = False
 		self.HUMAN_COLOR = humanColor
 		self.AI_COLOR = self.opponentOf(humanColor)
@@ -31,11 +28,11 @@ class Strategy(object):
 		# on the board. This will be used for XORing in the Zobrist Hashing.
 		self.RANDOM_HASH_TABLE = self.createHashTable(boardDimension)
 		# BOARD_STATE_DICT will be a map that maps board-state hashes to a list containing
-		# important information about the board at that board-state
+		# important information about the board at that board-state (the score)
 		# NOTE this transposition table will be cleared between different depth searches.
-		# This is because I'm not quite sure how to know which boards to not explore if the 
-		# depth increases. This should still help with pruning, but not as much as it would 
-		# otherwise.
+		# Maintaining the transposition table between different depth searches could help prune
+		# even further, but it would require me to define some minimum score that determines whether
+		# or not it would be worth it to search this path at a deeper depth
 		self.BOARD_STATE_DICT = {} 
 		self.createThreatSequencesDictionary()
 		self.createBoardPositionWeights(boardDimension)
@@ -103,8 +100,6 @@ class Strategy(object):
 					hash_row = BLACK_HASH_ROW_NUM if piece == BLACK else WHITE_HASH_ROW_NUM
 					hash_val = self.RANDOM_HASH_TABLE[hash_row][row*self.BOARD_WIDTH + col]
 					totalXOR = totalXOR ^ hash_val # ^ = XOR operator
-					# print("totalXOR = %s\thash_val = %s" % (str(totalXOR), str(hash_val)))
-		# print("totalXOR = %d" % totalXOR)
 		return totalXOR
 
 	def opponentOf(self, color):
@@ -116,63 +111,6 @@ class Strategy(object):
 		if self.isTerminal(board)[0]: 
 		 	self.GAME_OVER = True
 
-	def isValidMove(self, board, row, col):
-		'''Checks if the spot is available'''
-		return board[row][col] == EMPTY
-
-	def getValidMoves(self, board):
-		'''Returns a list of valid moves (moves in the center area or near other pieces)'''
-
-		# will allow me to slightly prioritize checking the spots that are closer to 
-		# other pieces by placing them in separate lists
-		lists_of_valids = [] 
-		for l in range(MAX_NEIGHBOR_DIST):
-			lists_of_valids.append([]) 
-
-		def findNearestNeighborDistance(row, col):
-			'''Finds the closest neighbor distance. -1 if no neighbor in range'''
-			if row == self.BOARD_HEIGHT//2 and col == self.BOARD_WIDTH//2:
-				# if exact center spot empty, automatically make it a valid location
-				return 1
-			for distFromPiece in range(1, MAX_NEIGHBOR_DIST + 1):
-				for i in range(-distFromPiece, distFromPiece + 1): # e.g. -1, 0, 1
-					for j in range(-distFromPiece, distFromPiece + 1): # e.g. -1, 0, 1
-						if i != distFromPiece and i != -distFromPiece and j != distFromPiece and j != -distFromPiece: 
-							# if not in the right distance circle
-							continue
-						if (row + i) % self.BOARD_HEIGHT != (row + i) or (col + j) % self.BOARD_WIDTH != (col + j):
-							# if outside of the board range
-							continue
-						if board[row + i][col + j] != EMPTY:
-							# if there is a piece played here
-							return distFromPiece
-			return -1
-
-		for r in range(self.BOARD_HEIGHT):
-			for c in range(self.BOARD_WIDTH):
-				foundOtherPieceInRange = False
-				if board[r][c] == EMPTY:
-					nearestNeighborDistance = findNearestNeighborDistance(r,c)
-					if nearestNeighborDistance != -1:
-						# append it to the correct list
-						lists_of_valids[nearestNeighborDistance - 1].append([r,c])
-
-		# shuffle the moves in each distance level
-		# note this will not change the order of the distances, just the moves inside each distance level
-		for l in lists_of_valids:
-			random.shuffle(l)  # UNCOMMENT --------------------------------------------------------------------------------------------------------------------------------------------------------
-
-		# combine the lists into one big list
-		validLocations = [item for innerlist in lists_of_valids for item in innerlist]
-
-		return validLocations
-		# combined_list = [item for sublist in lists_of_valids for item in sublist]
-		# return combined_list
-
-	def performMove(self, board, row, col, color):
-		'''Performs a given move on the board'''
-		board[row][col] = color
-
 	def isTerminal(self, board):
 		'''
 		Checks if the current board state is Game Over
@@ -182,12 +120,12 @@ class Strategy(object):
 		winner = self.findWinner(board)
 		if winner != None:
 			return True, winner
-		# elif len(self.getValidMoves(board)) == 0:
-		# getting valid moves this often will slow it down too much, so can just check if an empty spot exists on the board
+		
 		for row in board:
 			for spot in row:
 				if spot == EMPTY:
 					return False, None
+
 		return True, None
 
 	def findWinner(self, board):
@@ -221,30 +159,9 @@ class Strategy(object):
 
 		return None
 
-	def playBestMove(self, board):
-		'''Calculates and performs the best move for the AI for the given board'''
-		x = input("It's the AI's turn, press enter for it to play.\t").strip().lower()
-		if x == 'q':
-			print("\nThanks for playing!\n")
-			exit(0)
-		moveRow, moveCol, score = -123, -123, -123 # placeholders
-		for i in range(1, MAX_DEPTH + 1): # iterative deepening
-			# this will prioritize game winning movesets that occur with less total moves
-			moveRow, moveCol, score = self.minimax(board, 0, MAX, -math.inf, math.inf, i)
-			self.BOARD_STATE_DICT.clear() # clear the dict after every depth increase
-			# ^ ideally I shouldn't do this, but I don't know how to implement it otherwise yet
-			if score >= WIN_SCORE:
-				break
-		print("Score for move: %d" % score)
-		if moveRow != -1 and moveCol != -1:
-			# board not filled
-			self.performMove(board, moveRow, moveCol, self.AI_COLOR)
-		else:
-			# board filled
-			self.GAME_OVER = True
-		self.checkGameState(board)
-		self.BOARD_STATE_DICT = {} 
-		return moveRow, moveCol
+	def performMove(self, board, row, col, color):
+		'''Performs a given move on the board'''
+		board[row][col] = color
 
 	def isCoordinateInBoardRange(self, coord):
 		'''Checks if the coordinate is valid on the board'''
@@ -254,7 +171,6 @@ class Strategy(object):
 			return True
 		else:
 			return False
-
 
 	def checkIfMoveCausedGameOver(self, board, move):
 		'''
@@ -275,7 +191,7 @@ class Strategy(object):
 			while outwardSpacesChecked < 4 and numInARow < 5 and (forwardCheckStillValid or backwardCheckStillValid):
 				outwardSpacesChecked += 1
 				if forwardCheckStillValid:
-					# keep looking in the positive 
+					# keep looking in the forward direction
 					currCoordinatesForward = [a + b for a, b in zip(currCoordinatesForward, directionVector)] # adds the direction vector
 					if self.isCoordinateInBoardRange(currCoordinatesForward):
 						currForwardSpot = board[currCoordinatesForward[0]][currCoordinatesForward[1]]
@@ -312,6 +228,301 @@ class Strategy(object):
 					return None, False
 		return None, True
 
+	def getValidMoves(self, board):
+		'''Returns a list of valid moves (moves in the center area or near other pieces)'''
+
+		# Will allow me to slightly prioritize checking the spots that are closer to 
+		# other pieces by placing them in separate lists
+		lists_of_valids = [] 
+		for l in range(MAX_NEIGHBOR_DIST):
+			lists_of_valids.append([]) 
+
+		emptiesFoundSoFar = set() # used to make sure we don't double-count empty spots
+
+		# locate all the spots with pieces
+		filledLocations = []
+		for r in range(self.BOARD_HEIGHT):
+			for c in range(self.BOARD_WIDTH):
+				if board[r][c] != EMPTY:
+					filledLocations.append([r,c])
+
+
+		def locateEmptyNearSpots(filledCoord, distFromPiece):
+			'''Finds all the empty spots near this coordinate and adds them to the list of valid spots'''
+			row, col = filledCoord[0], filledCoord[1]
+			for i in range(-distFromPiece, distFromPiece + 1): # e.g. -1, 0, 1
+				for j in range(-distFromPiece, distFromPiece + 1): # e.g. -1, 0, 1
+					if i != distFromPiece and i != -distFromPiece and j != distFromPiece and j != -distFromPiece: 
+						# if not in the right distance circle
+						continue
+					if (row + i) % self.BOARD_HEIGHT != (row + i) or (col + j) % self.BOARD_WIDTH != (col + j):
+						# if outside of the board range
+						continue
+					neighborSpot = board[row + i][col + j]
+					neighborCoordAsTuple = (row + i, col + j)
+					if neighborSpot == EMPTY and neighborCoordAsTuple not in emptiesFoundSoFar:
+						# if there is an empty spot here and we haven't validated it yet
+						emptiesFoundSoFar.add(neighborCoordAsTuple)
+						lists_of_valids[distFromPiece - 1].append([row + i, col + j])
+
+		# check each distance level around each filled piece
+		for distFromPiece in range(1, MAX_NEIGHBOR_DIST + 1):
+			for filledCoord in filledLocations:
+				locateEmptyNearSpots(filledCoord, distFromPiece)
+
+		# shuffle the moves in each distance level
+		# note this will not change the order of the distances, just the moves inside each distance level
+		for l in lists_of_valids:
+			random.shuffle(l) 
+
+		# combine the lists into one big list
+		validLocations = [item for innerlist in lists_of_valids for item in innerlist]
+
+		if len(validLocations) == 0 and board[self.BOARD_HEIGHT//2][self.BOARD_WIDTH//2] == EMPTY:
+			# If there are no valid moves evaluated (due to no pieces played yet), but the center is open
+			# This will occur when the AI is black and has the first move
+			return [[self.BOARD_HEIGHT//2, self.BOARD_WIDTH//2]]
+
+		# return the best locations from all the valid locations
+		return self.findBestValidMoves(validLocations, board)
+
+	def findBestValidMoves(self, validMoves, board):
+		'''Takes in all the spaces that were deemed valid and selects the ones that have the most potential'''
+		if len(validMoves) <= MAX_NUM_MOVES_TO_EVALUATE:
+			# no need to decrease quantity
+			return validMoves
+
+		def sectionContainsThreats(pieceColor, sectionString):
+			'''
+			Evaluates each length 5 and length 6 section of spots in the board for threats
+			Returns True or False depending on whether or not a threat was found
+			'''
+			threatDictionary = self.blackThreatsScores if pieceColor == BLACK else self.whiteThreatsScores
+			if len(sectionString) == 5:
+				# if the section is only 5 spaces
+				if sectionString in threatDictionary:
+					return True
+				return False
+			for i in range(len(sectionString) - 5):
+				section6 = sectionString[i:i+6]
+				section5 = section6[:-1]
+				if section6 in threatDictionary:
+					return True
+				if section5 in threatDictionary:
+					return True
+				if i == len(sectionString) - 6:
+					# if at the last 6-piece section, we want to check the final 5 spots as well
+					section5 = section6[1:]
+					if section5 in threatDictionary:
+						threatMultiplier = 2
+						return True
+			return False
+
+
+		movesWithScores = [] # each element in the form:  [moveX, moveY], score 
+
+		directionVectorsList = [[1, -1], [1, 0], [1, 1], [0, 1]]
+		for move in validMoves:
+			moveScore = 0
+			for directionVector in directionVectorsList:
+				forwardScore, backwardScore = 0, 0
+				if self.isCoordinateInBoardRange([move[0] + directionVector[0], move[1] + directionVector[1]]):
+					forwardCheckStillValid = True
+					forwardPieceColor = board[move[0] + directionVector[0]][move[1] + directionVector[1]] # looks at first piece in forward direction
+				else:
+					forwardCheckStillValid = False
+					forwardPieceColor = None
+
+				if self.isCoordinateInBoardRange([move[0] - directionVector[0], move[1] - directionVector[1]]):
+					backwardCheckStillValid = True
+					backwardPieceColor = board[move[0] - directionVector[0]][move[1] - directionVector[1]] # looks at first piece in backward direction
+				else:
+					backwardCheckStillValid = False
+					backwardPieceColor = None
+
+				numForwardPlayerPieces, numBackwardPlayerPieces = 0, 0 # number of the piece we have seen in a direction
+				currCoordinatesForward, currCoordinatesBackward = move.copy(), move.copy()
+				outwardSpacesChecked = 0
+				forwardDistanceReached, backwardDistanceReached = 0, 0 # how many spots until a block
+				numForwardEmptiesBeforePiece, numBackwardEmptiesBeforePiece = 0, 0 # number of empty spots before seeing a player piece
+				forwardDirectionStr, backwardDirectionStr = '', '' # string representations of the board in each direction
+				
+				# now will look at most 4 spaces forward in the forward and backward direction and evaluate them
+				while outwardSpacesChecked < 4 and (forwardCheckStillValid or backwardCheckStillValid):
+					outwardSpacesChecked += 1
+					if forwardCheckStillValid:
+						# keep looking in the forward direction
+						currCoordinatesForward = [a + b for a, b in zip(currCoordinatesForward, directionVector)] # adds the direction vector
+						if self.isCoordinateInBoardRange(currCoordinatesForward):
+							currPiece = board[currCoordinatesForward[0]][currCoordinatesForward[1]]
+							
+							if forwardPieceColor == EMPTY:
+								# if we have not found a player piece yet
+								forwardDirectionStr += currPiece
+								forwardDistanceReached += 1
+								if currPiece == EMPTY:
+									numForwardEmptiesBeforePiece += 1
+								else:
+									# if the current spot we are looking at is the first player piece we have seen
+									forwardPieceColor = currPiece
+									numForwardPlayerPieces += 1
+									forwardScore += (5 - outwardSpacesChecked)
+
+							elif forwardPieceColor == currPiece:
+								# current piece is the player piece that we are searching for
+								forwardDirectionStr += currPiece
+								forwardDistanceReached += 1
+								numForwardPlayerPieces += 1
+								forwardScore += (5 - outwardSpacesChecked) * (2 ** (2 * (numForwardPlayerPieces - 1)))
+
+							else:
+								# the current spot does not contain the piece we are searching for
+								if currPiece == EMPTY:
+									forwardDirectionStr += currPiece
+									forwardDistanceReached += 1
+									forwardScore += (5 - outwardSpacesChecked)
+								else:
+									# if we have found the opposing color to the piece we are searching for
+									forwardCheckStillValid = False
+						else:
+							forwardCheckStillValid = False
+
+					if backwardCheckStillValid:
+						# keep looking in the backward direction
+						currCoordinatesBackward = [a - b for a, b in zip(currCoordinatesBackward, directionVector)] # subtracts the direction vector
+						if self.isCoordinateInBoardRange(currCoordinatesBackward):
+							currPiece = board[currCoordinatesBackward[0]][currCoordinatesBackward[1]]
+							
+							if backwardPieceColor == EMPTY:
+								# if we have not found a player piece yet
+								backwardDirectionStr += currPiece
+								backwardDistanceReached += 1
+								if currPiece == EMPTY:
+									numBackwardEmptiesBeforePiece += 1
+								else:
+									# if the current spot we are looking at is the first player piece we have seen
+									backwardPieceColor = currPiece
+									numBackwardPlayerPieces += 1
+									backwardScore += (5 - outwardSpacesChecked)
+
+							elif backwardPieceColor == currPiece:
+								# current piece is the player piece that we are searching for
+								backwardDirectionStr += currPiece
+								backwardDistanceReached += 1
+								numBackwardPlayerPieces += 1
+								backwardScore += (5 - outwardSpacesChecked) * (2 ** (2 * (numBackwardPlayerPieces - 1)))
+
+							else:
+								# the current spot does not contain the piece we are searching for
+								if currPiece == EMPTY:
+									backwardDirectionStr += currPiece
+									backwardDistanceReached += 1
+									backwardScore += (5 - outwardSpacesChecked)
+								else:
+									# if we have found the opposing color to the piece we are searching for
+									backwardCheckStillValid = False
+						else:
+							backwardCheckStillValid = False
+
+				directionVectorScore = forwardScore + backwardScore
+				if forwardPieceColor == backwardPieceColor:
+					# if the closest piece in each direction was the same color
+					if forwardDistanceReached + 1 + backwardDistanceReached < 5:
+						# if there is less than a 5 piece section here
+						directionVectorScore = 0
+					else:
+						threatMultiplier = 1
+						if forwardPieceColor != EMPTY and forwardPieceColor != None:
+							# if we actually found a piece 
+							fullSectionString = backwardDirectionStr + forwardPieceColor + forwardDirectionStr # add in the imaginary piece to see if a threat is produced
+							if sectionContainsThreats(forwardPieceColor, fullSectionString):
+								threatMultiplier = 2
+
+						directionVectorScore += max(forwardScore, backwardScore) * threatMultiplier
+				else:
+					# if the closest piece in each direction were different colors
+					if forwardDistanceReached + 1 + numBackwardEmptiesBeforePiece < 5 and backwardDistanceReached + 1 + numForwardEmptiesBeforePiece < 5:
+						# if there is less than a 5 piece section here
+						directionVectorScore = 0
+					else:
+						threatMultiplier = 1
+
+						if self.opponentOf(forwardPieceColor) == backwardPieceColor and forwardPieceColor != None and backwardPieceColor != None:
+							# if the pieces in each direction are opposing colors (i.e. neither are empty or out of bounds)
+							if numBackwardEmptiesBeforePiece == 0:
+								# if the first spot in the backward direction is a player piece
+							 	forwardSectionStr = forwardPieceColor + forwardDirectionStr
+							else:
+								# if the first spot in the backward direction is empty, we want to add an empty
+								# spot to the front of this, since threats may have 0 or 1 spaces at the start/end
+								forwardSectionStr = "." + forwardPieceColor + forwardDirectionStr
+							if numForwardEmptiesBeforePiece == 0:
+								# if the first spot in the forward direction is a player piece
+							 	backwardSectionStr = backwardPieceColor + backwardDirectionStr
+							else:
+								# if the first spot in the forward direction is empty, we want to add an empty
+								# spot to the front of this, since threats may have 0 or 1 spaces at the start/end
+								backwardSectionStr = "." + backwardPieceColor + backwardDirectionStr
+
+							if sectionContainsThreats(forwardPieceColor, forwardSectionStr) or sectionContainsThreats(backwardPieceColor, backwardSectionStr):
+								threatMultiplier = 2
+
+
+						else:
+							# one of the directions is all empty spaces, and the other contains at least one player piece
+							# OR one of the directions is out of bounds
+							if forwardPieceColor == None:
+								# if the forward direction is out of bounds
+								totalSectionStr = backwardPieceColor + backwardDirectionStr
+								evaluatingPieceColor = backwardPieceColor
+							elif backwardPieceColor == None:
+								# if the backward direction is out of bounds
+								totalSectionStr = forwardPieceColor + forwardDirectionStr
+								evaluatingPieceColor = forwardPieceColor
+							else:
+								if forwardPieceColor == EMPTY:
+									# if the forward direction is all the empties
+									totalSectionStr = "." + backwardPieceColor + backwardDirectionStr
+									evaluatingPieceColor = backwardPieceColor
+								else:
+									# if the backward direction is all the empties
+									totalSectionStr = "." + forwardPieceColor + forwardDirectionStr
+									evaluatingPieceColor = forwardPieceColor
+							
+							if sectionContainsThreats(evaluatingPieceColor, totalSectionStr):
+								threatMultiplier = 2
+
+						directionVectorScore += max(forwardScore, backwardScore) * threatMultiplier
+
+				moveScore += directionVectorScore
+			movesWithScores.append([move, moveScore])
+
+		movesWithScores.sort(key = lambda x: -x[1]) # sort in descending order by evaluated score
+		highestEvaluatedMoves = []
+		for i in range(MAX_NUM_MOVES_TO_EVALUATE):
+			highestEvaluatedMoves.append(movesWithScores[i][0])
+
+		return highestEvaluatedMoves
+
+	def playBestMove(self, board):
+		'''Calculates and performs the best move for the AI for the given board'''
+		moveRow, moveCol, score = -123, -123, -123 # placeholders
+		for i in range(1, MAX_DEPTH + 1): # iterative deepening
+			# this will prioritize game winning movesets that occur with less total moves
+			moveRow, moveCol, score = self.minimax(board, 0, MAX, -math.inf, math.inf, i)
+			self.BOARD_STATE_DICT.clear() # clear the dict after every depth increase
+			if score >= WIN_SCORE:
+				break
+		print("Score for move: %d" % score)
+		if moveRow != -1 and moveCol != -1:
+			# board not filled
+			self.performMove(board, moveRow, moveCol, self.AI_COLOR)
+			self.checkGameState(board)
+		else:
+			# board filled
+			self.GAME_OVER = True
+		self.BOARD_STATE_DICT = {} 
+		return moveRow, moveCol
 
 	def minimax(self, board, depth, maxOrMin, alpha, beta, localMaxDepth):
 		'''
@@ -321,35 +532,17 @@ class Strategy(object):
 		if depth == localMaxDepth:
 			playerWithTurnAfterMaxDepth = self.AI_COLOR if localMaxDepth % 2 == 0 else self.HUMAN_COLOR
 			boardScores = self.scoreBoard(board, self.HUMAN_COLOR, self.AI_COLOR, playerWithTurnAfterMaxDepth)
-			# if localMaxDepth % 2 == 0:
-			# 	# if AI's turn 1 level past max depth search level
-			# 	humanScore = boardScores[0]
-			# 	aiScore = boardScores[1] * 2
-			# else:
-			# 	# if human's turn 1 level past max depth search level
-			# 	humanScore = boardScores[0] * 2
-			# 	aiScore = boardScores[1]
-			# # NOTE: I used a multiplier above because otherwise the AI may not try to block certain moves
-			# # example: 	max depth 3; human gets 4 unbounded on depth 2, and AI can get 4 unbounded on depth 3
-			# #			in this scenario, the point values would essentially cancel out, even though the human
-			# #			has the clear advantage
-
 			humanScore = boardScores[0]
 			aiScore = boardScores[1]
 			return None, None, aiScore - humanScore
-			# return None, None, self.scoreBoard(board, self.AI_COLOR) - self.scoreBoard(board, self.HUMAN_COLOR)
 		
 		validMoves = self.getValidMoves(board)
 		if len(validMoves) == 0:
 			return -1, -1, 0
-		# if localMaxDepth == 1:
-		# 	print("for depth = 1, the valid moves are: %s" % str(validMoves))
-		# random.shuffle(validMoves) # I now shuffle inside of getValidMoves
 		if maxOrMin == MAX:
 			# want to maximize this move
 			score = -math.inf
 			bestMove = validMoves[0] # default best move
-			# print("valid moves: "+str(validMoves))
 			if depth == 0:
 				# on the top level of search, printing progress bar
 				percentComplete = 0
@@ -365,20 +558,15 @@ class Strategy(object):
 					print('\r[%s%s] %d%% (%d/%d moves checked) @ maxDepth = %d' % ("="*barCompleteMultiplier, "-"*(25-barCompleteMultiplier), percentComplete, movesChecked, len(validMoves), localMaxDepth), end = "")
 					movesChecked += 1
 
-				if depth == 0 and localMaxDepth == 3 and (move == [9,5]):
-					abc = 0
 				boardCopy = list(map(list, board)) # copies board
 				self.performMove(boardCopy, move[0], move[1], self.AI_COLOR)
-				updatedScore = 0 # placeholder
 				if depth >= 2:
 					# no chance of repeat boards until at least depth = 2
 					dictValOfBoard = self.createZobristValueForBoardState(boardCopy)
 				if depth >= 2 and dictValOfBoard in self.BOARD_STATE_DICT:
 					# if we've already evaluated the score of this board state
 					updatedScore = self.BOARD_STATE_DICT[dictValOfBoard]
-					
-					# _, __, updatedScore = self.minimax(boardCopy, depth + 1, MIN, alpha, beta, localMaxDepth)
-					
+
 				else:
 					# print("|"*70)
 					winner, gameOver = self.checkIfMoveCausedGameOver(boardCopy, move)
@@ -395,27 +583,22 @@ class Strategy(object):
 							_, __, updatedScore = self.minimax(boardCopy, depth + 1, MIN, alpha, beta, localMaxDepth)
 					if depth >= 2:
 						self.BOARD_STATE_DICT[dictValOfBoard] = updatedScore
-				# if move == [6, 6]:
-				# 	print("score for G7 = %d\tweightMatrix for G7 = %d" % (updatedScore, self.positionWeightsMatrix[6][6]))
 				if updatedScore > score:
 					score = updatedScore
 					bestMove = move
 				alpha = max(alpha, score)
-				# if depth == 0:
-				# 	print("Score for slot %d = %d. Max depth = %d" % (move, updatedScore, localMaxDepth))
 				if alpha >= beta:
 					break # pruning
 			if depth == 0:
 				# clear progress bar print-out
 				sys.stdout.write('\033[2K\033[1G')
 			return bestMove[0], bestMove[1], score
-		else:
+		else: 
+			# maxOrMin == MIN
 			# want to minimize this move
 			score = math.inf
 			bestMoveForHuman = validMoves[0]
 			for move in validMoves:
-				# if move == [8,4] and localMaxDepth == 3:
-				# 	abc = 0
 				if depth == 1 and localMaxDepth == 3 and (move == [5,6]):
 					abc = 0
 				boardCopy = list(map(list, board)) # copies board
@@ -574,6 +757,31 @@ class Strategy(object):
 						enemyScore += enemyScoresDict[section5]
 						enemyTrapIndicators[3] = 1
 
+		# manually check the remaining unchecked length-5 corner sections 
+		topLeft, topRight, bottomRight, bottomLeft = '', '', '', ''
+		for i in range(5):
+			topLeft += board[4-i][i]
+			topRight += board[i][self.BOARD_WIDTH - (5-i)]
+			bottomRight += board[self.BOARD_HEIGHT - i - 1][self.BOARD_WIDTH - (5-i)]
+			bottomLeft += board[self.BOARD_HEIGHT - (5-i)][i]
+		cornerCounter = 1
+		for section in [topLeft, topRight, bottomRight, bottomLeft]:
+			if section in evaluatorScoresDict:
+				if section.count(colorOfEvaluator) == 4:
+					# since a 3-piece-trap is not actually a trap in this section
+					evaluatorScore += evaluatorScoresDict[section]
+					evaluatorTrapIndicators[cornerCounter%2 + 2] = 1
+				else:
+					evaluatorScore += (evaluatorScoresDict[section] // 2) # 3 piece 'traps' aren't as valuable here
+			elif section in enemyScoresDict:
+				if section.count(colorOfEnemy) == 4:
+					# since a 3-piece-trap is not actually a trap in this section
+					enemyScore += enemyScoresDict[section]
+					enemyTrapIndicators[cornerCounter%2 + 2] = 1
+				else:
+					enemyScore += (enemyScoresDict[section] // 2) # 3 piece 'traps' aren't as valuable here
+			cornerCounter += 1
+
 
 		numberOfEvaluatorTraps = sum(evaluatorTrapIndicators)
 		numberOfEnemyTraps = sum(enemyTrapIndicators)
@@ -587,17 +795,12 @@ class Strategy(object):
 		# if the player who is set to play next has trap sequences worth more, they will probably win, so give a big bonus
 		if playerWithTurnAfterMaxDepth == colorOfEvaluator and numberOfEvaluatorTraps >= 1:
 			evaluatorScore *= 4
-			# if board[5][6] == 'X':
-			# 	print("when G6 is X, evaluatorScore = %d  and  enemyScore = %d" % (evaluatorScore, enemyScore))
 			if evaluatorScore > enemyScore:
 				return 25 * evaluatorScore, enemyScore
 		elif playerWithTurnAfterMaxDepth == colorOfEnemy and numberOfEnemyTraps >= 1:
-			# if board[5][6] == 'X':
-			# 	print("when G6 is X, evaluatorScore = %d  and  enemyScore = %d" % (evaluatorScore, enemyScore))
 			enemyScore *= 4
 			if enemyScore > evaluatorScore:
 				return evaluatorScore, 25 * enemyScore
-
 
 		# if both players have traps, check which player has the BETTER trap(s)
 		if numberOfEvaluatorTraps >= 1 and numberOfEnemyTraps >= 1:
@@ -605,8 +808,6 @@ class Strategy(object):
 				evaluatorScore *= 5
 			elif enemyScore > evaluatorScore:
 				enemyScore *= 5
-
-		
 
 		return evaluatorScore, enemyScore
 
@@ -621,9 +822,7 @@ class Strategy(object):
 					evaluatorScore += self.positionWeightsMatrix[row][col]
 				elif currSpot == colorOfEnemy:
 					enemyScore += self.positionWeightsMatrix[row][col]
-		# print('score of pos weights = %d' % score)
 		return evaluatorScore, enemyScore
-
 
 	def scoreBoard(self, board, colorOfEvaluator, colorOfEnemy, playerWithTurnAfterMaxDepth):
 		'''

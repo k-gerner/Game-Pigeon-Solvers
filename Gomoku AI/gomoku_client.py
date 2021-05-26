@@ -20,11 +20,6 @@ def createGameBoard(dimension):
 
 def printGameBoard(mostRecentMove):
 	'''Prints the gameBoard in a human readable format'''
-	# columnLabels = list(map(chr, range(65, 65 + len(gameBoard))))
-	# print("\n\t    %s" % " ".join(columnLabels))
-	# for rowNum in range(len(gameBoard)):
-	# 	print("\t%d%s| %s" % (rowNum+1, "" if rowNum > 8 else " ", " ".join(gameBoard[rowNum])))
-	# print()
 	columnLabels = list(map(chr, range(65, 65 + len(gameBoard))))
 	print("\n\t    %s" % " ".join(columnLabels))
 	for rowNum in range(len(gameBoard)):
@@ -42,6 +37,35 @@ def printGameBoard(mostRecentMove):
 		print("")
 	print()
 
+def givePythonCodeForBoardInput():
+	'''
+	Prints out the Python code needed to recreate the game board at this state
+	For debugging purposes
+	'''
+	print("\n# Copy and paste this code into createGameBoard() and comment out the for loop:\n")
+	for i in range(len(gameBoard)):
+		strRepOfRow = ""
+		for spot in gameBoard[i]:
+			strRepOfRow += spot + " "
+		print("row%d = \"%s\".split()" % (i + 1, strRepOfRow))
+	for i in range(len(gameBoard)):
+		print("gameBoard.append(row%d)" % (i + 1))
+	print("\n")
+
+def printAsciiTitleArt():
+	'''Prints the fancy text when you start the program'''
+	print('\n\t    _  __     _      _')
+	print('\t   | |/ /   _| | ___( )___')
+	print('\t   | \' / | | | |/ _ \\// __|')
+	print('\t   | . \\ |_| | |  __/ \\__ \\')
+	print('\t   |_|\\_\\__, |_|\\___| |___/')
+	print('   ___\t        |___/        _               _    ___')
+	print(' / ___| ___  _ __ ___   ___ | | ___   _     / \\  |_ _|')
+	print('| |  _ / _ \\| \'_ ` _ \\ / _ \\| |/ / | | |   / _ \\  | |')
+	print('| |_| | (_) | | | | | | (_) |   <| |_| |  / ___ \\ | |')
+	print(' \\____|\\___/|_| |_| |_|\\___/|_|\\\\_\\__,_| /_/   \\_\\___|\n')
+                                                       
+
 def getPlayerMove():
 	'''Takes in the user's input and performs that move on the board, returns the move'''
 	columnLabels = list(map(chr, range(65, 65 + len(gameBoard))))
@@ -50,9 +74,12 @@ def getPlayerMove():
 		if spot == 'Q':
 			print("\nThanks for playing!\n")
 			exit(0)
+		elif spot == 'P':
+			givePythonCodeForBoardInput()
+			exit(0)
 		elif len(spot) >= 4 or len(spot) == 0 or spot[0] not in columnLabels or not spot[1:].isdigit() or int(spot[1:]) > len(gameBoard) or int(spot[1:]) < 1:
 			spot = input("Invalid input. Please try again.\t").strip().upper()
-		elif not ai.isValidMove(gameBoard, int(spot[1:]) - 1, columnLabels.index(spot[0])):
+		elif gameBoard[int(spot[1:]) - 1][columnLabels.index(spot[0])] != EMPTY:
 			spot = input("That spot is already taken, please choose another:\t").strip().upper()
 		else:
 			break
@@ -67,7 +94,8 @@ def main():
 	global ai
 	global gameBoard
 	global playerColor
-	print("\nWelcome to Kyle's Gomoku AI!")
+	# print("\nWelcome to Kyle's Gomoku AI!")
+	printAsciiTitleArt()
 	boardDimension = input("What is the dimension of the board? (Default is 13x13)\nEnter a single odd number:\t").strip()
 	if boardDimension.isdigit() and int(boardDimension) % 2 == 1 and 6 < int(boardDimension) < 100:
 		print("The board will be %sx%s!" % (boardDimension, boardDimension))
@@ -87,8 +115,8 @@ def main():
 			print("Invalid input. You'll be white!")
 
 	ai = strategy.Strategy(int(boardDimension), playerColor)
-	print(f"You: {MY_COLOR}%s{NO_COLOR}\tAI: {ENEMY_COLOR}%s{NO_COLOR}" % (playerColor, ai.opponentOf(playerColor)))
-	print("Press 'q' at any prompt to quit.")
+	print(f"\nYou: {MY_COLOR}%s{NO_COLOR}\tAI: {ENEMY_COLOR}%s{NO_COLOR}" % (playerColor, ai.opponentOf(playerColor)))
+	print("Press 'q' at any prompt to quit.\nOr, press 'p' to end the game and receive Python code for recreating the gameBoard.")
 	
 	turn = BLACK
 	columnLabels = list(map(chr, range(65, 65 + len(gameBoard))))
@@ -99,6 +127,9 @@ def main():
 		if turn == playerColor:
 			mostRecentMove = getPlayerMove()
 		else:
+			if input("It's the AI's turn, press enter for it to play.\t").strip().lower() == 'q':
+				print("\nThanks for playing!\n")
+				exit(0)
 			startTime = time.time()
 			ai_move_row, ai_move_col = ai.playBestMove(gameBoard)
 			endTime = time.time()
@@ -112,8 +143,6 @@ def main():
 	winner = "BLACK" if ai.opponentOf(turn) == BLACK else "WHITE"
 	printGameBoard(mostRecentMove)
 	print("%s wins!\n" % winner)
-
-
 
 
 
