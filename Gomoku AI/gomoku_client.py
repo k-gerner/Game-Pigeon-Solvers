@@ -50,7 +50,7 @@ def givePythonCodeForBoardInput():
 		print("row%d = \"%s\".split()" % (i + 1, strRepOfRow))
 	for i in range(len(gameBoard)):
 		print("gameBoard.append(row%d)" % (i + 1))
-	print("\n")
+	print()
 
 def printAsciiTitleArt():
 	'''Prints the fancy text when you start the program'''
@@ -76,7 +76,7 @@ def getPlayerMove():
 			exit(0)
 		elif spot == 'P':
 			givePythonCodeForBoardInput()
-			exit(0)
+			spot = input("Enter a coordinates for a move, or press 'q' to quit:\t").strip().upper()
 		elif len(spot) >= 4 or len(spot) == 0 or spot[0] not in columnLabels or not spot[1:].isdigit() or int(spot[1:]) > len(gameBoard) or int(spot[1:]) < 1:
 			spot = input("Invalid input. Please try again.\t").strip().upper()
 		elif gameBoard[int(spot[1:]) - 1][columnLabels.index(spot[0])] != EMPTY:
@@ -127,9 +127,14 @@ def main():
 		if turn == playerColor:
 			mostRecentMove = getPlayerMove()
 		else:
-			if input("It's the AI's turn, press enter for it to play.\t").strip().lower() == 'q':
-				print("\nThanks for playing!\n")
-				exit(0)
+			userInput = input("It's the AI's turn, press enter for it to play.\t").strip().lower()
+			while userInput == 'q' or userInput == 'p':
+				if userInput == 'q':
+					print("\nThanks for playing!\n")
+					exit(0)
+				else:
+					givePythonCodeForBoardInput()
+					userInput = input("Press enter for the AI to play, or press 'q' to quit:\t").strip().lower()
 			startTime = time.time()
 			ai_move_row, ai_move_col = ai.playBestMove(gameBoard)
 			endTime = time.time()
