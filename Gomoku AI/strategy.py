@@ -4,13 +4,17 @@ import math # for infinities
 import random # for randomizing valid moves list in minimax
 import sys # for better progress bar formatting
 
+#### DO NOT MODIFY ####
 EMPTY, BLACK, WHITE = '.', 'X', 'O'
 BLACK_HASH_ROW_NUM, WHITE_HASH_ROW_NUM = 0, 1
-MAX_DEPTH = 5 # max number of moves ahead to calculate
 MAX, MIN = True, False # to be used in minimax
 WIN_SCORE = 1000000000 # large enough to always be the preferred outcome
+#######################
+####### MODIFY ########
 MAX_NEIGHBOR_DIST = 2 # max distance from an already played piece that we want to check if open
 MAX_NUM_MOVES_TO_EVALUATE = 15 # most moves we want to evaluate at once for any given board
+MAX_DEPTH = 6 # max number of moves ahead to calculate
+#######################
 
 # class for the A.I.
 class Strategy(object):
@@ -568,7 +572,6 @@ class Strategy(object):
 					updatedScore = self.BOARD_STATE_DICT[dictValOfBoard]
 
 				else:
-					# print("|"*70)
 					winner, gameOver = self.checkIfMoveCausedGameOver(boardCopy, move)
 					if winner == self.AI_COLOR:
 						updatedScore = WIN_SCORE
