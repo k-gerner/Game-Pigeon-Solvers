@@ -1,11 +1,11 @@
 # Gomoku
-<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Gomoku/sampleGomokuBoard.jpg" alt = "sample board" width="40%" align = "right">  
+<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Gomoku/sampleGomokuBoard.jpg" alt = "sample board" width="30%" align = "right">  
 
 ### The Basics 
 In Gomoku, the objective is to get 5 of your pieces to line up in succession. The player can choose any spot on the board to play their piece. Each player places one piece per turn. One easy way to think of this is that it is basically Tic-Tac-Toe, except it is played on a much bigger board, and you need 5 pieces in a row to win instead of 3.
 
 ### How to use 
-<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Gomoku/gomokuStarterPrompts.png" alt = "starting prompts" width="20%" align = "right">  
+<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Gomoku/gomokuStartingPrompts.png" alt = "starting prompts" width="20%" align = "right">  
 <img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Gomoku/gomokuBoardOutput.png" alt = "sample board output" width="20%" align = "right">  
 First, download the `gomoku_client.py` and `strategy.py` files and place them both in the same directory. You can invoke the tool by running  
 ```
