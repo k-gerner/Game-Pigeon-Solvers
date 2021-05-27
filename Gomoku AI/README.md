@@ -82,5 +82,20 @@ One helpful tool I used to determine which sections of my code needed to be impr
 
 #### Any more questions?
 Any further clarification that is needed can come from viewing the code. I was pretty liberal with my use of comments that describe certain sections of the code that may be complicated, so those should provide some clarification.  
+  
+### Further reading
+#### Transposition Tables
+https://stackoverflow.com/questions/20009796/transposition-tables  
+https://stackoverflow.com/questions/29990116/alpha-beta-prunning-with-transposition-table-iterative-deepening  
+https://ai.stackexchange.com/questions/8403/transposition-table-is-only-used-for-roughly-17-of-the-nodes-is-this-expected  
+http://blog.gamesolver.org/solving-connect-four/07-transposition-table/  
+
+#### Zobrist Hashing  
+https://levelup.gitconnected.com/zobrist-hashing-305c6c3c54d0  
+
+#### General strategy and Miscellaneous
+https://stackoverflow.com/questions/6952607/what-would-be-a-good-ai-strategy-to-play-gomoku  
+https://webdocs.cs.ualberta.ca/~mmueller/courses/2014-AAAI-games-tutorial/slides/AAAI-14-Tutorial-Games-3-AlphaBeta.pdf  
+https://medium.com/@LukeASalamone/creating-an-ai-for-gomoku-28a4c84c7a52  
 
 Thanks for checking out my Gomoku AI! I hope you enjoy!
