@@ -21,8 +21,8 @@ There is some customization available as well. Inside of `strategy.py` you can c
     - `MAX_DEPTH = 5` &#8594; `8s`  
     - `MAX_DEPTH = 6` &#8594; `30s`  
 
-<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Gomoku/gomokuStartingPrompts.png" alt = "starting prompts" width="40%" align = "left">  
-<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Gomoku/gomokuBoardOutput.png" alt = "sample board output" width="20%" align = "left">  
+<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Gomoku/gomokuStartingPrompts.png" alt = "starting prompts" width="40%">  
+<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Gomoku/gomokuBoardOutput.png" alt = "sample board output" width="20%">  
   
 ### Features 
 - As mentioned above, you can change several parameters to fine-tune the A.I. yourself. For more information about that, see the bottom of the [How to use](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#how-to-use) section. 
@@ -46,19 +46,23 @@ Alpha-Beta pruning works by keeping track of the best already explored option al
 Another method I used to speed up the algorithm was a technique known as [Zobrist Hashing](https://en.wikipedia.org/wiki/Zobrist_hashing) in conjunction with [Transposition Tables](https://en.wikipedia.org/wiki/Transposition_table). Zobrist Hashing is essentially a way to represent a state of the board with a unique hash value. We create a `key` value for each position on the board for each player color. For a given board state, we look at each space with a piece on it, get all of the keys for those pieces, and then use the `XOR` operation on all of them together. The result will be the unique hash value for that board state. We will map this value to the score that we have evaluated for this board state. This means that if we ever see this same board later in the search, we do not have to recalculate the score for it, since we already have it stored. Here is an example where this may be useful:
 
 Say we have two players playing on a 3x3 board. Lets denote the spaces as `A`, `B`, ... `I`. Say we are evaluating the board after the following sequence:  
+
 - P1 turn 1: `A`  
 - P2 turn 1: `B`  
 - P1 turn 2: `C`  
 - P2 turn 2: `D`  
 - P1 turn 3: `E`  
 - P2 turn 3: `F`  
+
 Let's say the hash value for this board after 6 moves is 74032. Note that we will also be storing hash values for this board after depths 3, 4, and 5. Let's also assume that this board is deemed the best possible outcome for after P1's second turn. In other words, if we have the board where P1 is in spots `A` and `C`, and P2 is in spot `B`, then the "best" board outcome for `depth = 6` would be where P1 is also in `E`, and P2 is also in `D` and `F`. Now let's look at a different sequence:  
+
 - P1 turn 1: `C`  
 - P2 turn 1: `B`  
 - P1 turn 2: `A`  
 - P2 turn 2: `F`  
 - P1 turn 3: `E`  
 - P2 turn 3: `D`  
+
 Notice that these two boards have the pieces played in the same spots, but they were played in a different order. The hash value for the second board will also be 74032, so instead of having to recalculate the score of the board (which takes a relatively long time), we can just look up the hash value in the transpotition table, and get the score from there. **However**, we actually wouldn't even need to look past P1's second move. As stated earlier, we have already found and evaluated the best board for when P1 is in `A` and `C`, and P2 is in `B`. The score of the best board-state after these 3 moves would have been stored in the transposition table. Therefore, after P1's second turn, since the hash value has already been stored and mapped to the score of the best possible board, once we see that positions `A` and `C` are filled by P1 and `B` is filled by P2, we can stop traversing further down the move tree, and simply return the score that we have already found. This saves a huge amount of time, since each level down the tree has exponentially more possible board-states than the previous level.  
 
 #### Determining valid moves
