@@ -5,8 +5,6 @@
 In Gomoku, the objective is to get 5 of your pieces to line up in succession. The player can choose any spot on the board to play their piece. Each player places one piece per turn. One easy way to think of this is that it is basically Tic-Tac-Toe, except it is played on a much bigger board, and you need 5 pieces in a row to win instead of 3.
 
 ### How to use 
-<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Gomoku/gomokuStartingPrompts.png" alt = "starting prompts" width="20%" align = "right">  
-<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Gomoku/gomokuBoardOutput.png" alt = "sample board output" width="20%" align = "right">  
 First, download the `gomoku_client.py` and `strategy.py` files and place them both in the same directory. You can invoke the tool by running  
 ```
 > python3 gomoku_client.py
@@ -22,6 +20,8 @@ There is some customization available as well. Inside of `strategy.py` you can c
     - `MAX_DEPTH = 4` &#8594; `2s`  
     - `MAX_DEPTH = 5` &#8594; `8s`  
     - `MAX_DEPTH = 6` &#8594; `30s`  
+<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Gomoku/gomokuStartingPrompts.png" alt = "starting prompts" width="40%" align = "left">  
+<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Gomoku/gomokuBoardOutput.png" alt = "sample board output" width="20%" align = "left">  
 
 ### Features 
 - As mentioned above, you can change several parameters to fine-tune the A.I. yourself. For more information about that, see the bottom of the [How to use](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#how-to-use) section. 
