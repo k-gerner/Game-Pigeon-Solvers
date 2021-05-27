@@ -21,7 +21,7 @@ There is some customization available as well. Inside of `strategy.py` you can c
     - `MAX_DEPTH = 5` &#8594; `8s`  
     - `MAX_DEPTH = 6` &#8594; `30s`  
 
-<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Gomoku/gomokuStartingPrompts.png" alt = "starting prompts" width="40%">  
+<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Gomoku/gomokuStartingPrompts.png" alt = "starting prompts" width="40%" align = left>  
 <img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Gomoku/gomokuBoardOutput.png" alt = "sample board output" width="20%">  
   
 ### Features 
