@@ -30,7 +30,8 @@ There is some customization available as well. Inside of `strategy.py` you can c
 - The most recently played move is highlighted slightly grey.
 - If you want to be able to recreate the current board upon relaunching the program, you can press `p` at the input move prompt, and you will be given the Python code needed to replicate the board from start. You can copy and paste this code into the `createGameBoard` function in `gomoku_client.py` after commenting the original code inside of that method. The next time you run the program, that board will be the starting board. 
 - During the A.I. evaluation, a progress bar is shown for each depth of the search. This will display how far along the A.I. is with calculating the best move by giving a percentage as well as a fraction.
-<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Gomoku/gomokuProgressBar.png" alt = "progress bar" width="50%" align = "left">  
+<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Gomoku/gomokuProgressBar.png" alt = "progress bar" width="50%">  
+
 - Once the A.I. chooses a move, there are a few things printed out:
     - `Score for move` - This gives the numerical score that the A.I. has calculated for the move it just played. A higher value means the end result of the board is good for the A.I., whereas a lower value corresponds to a worse move for the A.I.  
     - `Time taken` - How long it took the A.I. to calculate its best move.  
