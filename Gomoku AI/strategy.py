@@ -94,17 +94,12 @@ class Strategy(object):
 			table.append(colorLocationList)
 		return table
 
-	def createZobristValueForBoardState(self, board):
-		'''Creates the Zobrist Hashing value for a boardstate'''
-		totalXOR = 0
-		for row in range(self.BOARD_HEIGHT):
-			for col in range(self.BOARD_WIDTH):
-				piece = board[row][col]
-				if piece != EMPTY:
-					hash_row = BLACK_HASH_ROW_NUM if piece == BLACK else WHITE_HASH_ROW_NUM
-					hash_val = self.RANDOM_HASH_TABLE[hash_row][row*self.BOARD_WIDTH + col]
-					totalXOR = totalXOR ^ hash_val # ^ = XOR operator
-		return totalXOR
+	def createZobristValueForNewMove(self, move, color, prevZobristValue):
+		'''Gives an updated Zobrist value for a board after a new move is played'''
+		row, col = move
+		hash_row = BLACK_HASH_ROW_NUM if color == BLACK else WHITE_HASH_ROW_NUM
+		hash_val = self.RANDOM_HASH_TABLE[hash_row][row*self.BOARD_WIDTH + col]
+		return prevZobristValue ^ hash_val # ^ = XOR operator
 
 	def opponentOf(self, color):
 		'''Get the opposing color'''
@@ -513,7 +508,7 @@ class Strategy(object):
 		moveRow, moveCol, score = -123, -123, -123 # placeholders
 		for i in range(1, MAX_DEPTH + 1): # iterative deepening
 			# this will prioritize game winning movesets that occur with less total moves
-			moveRow, moveCol, score = self.minimax(board, 0, MAX, -math.inf, math.inf, i)
+			moveRow, moveCol, score = self.minimax(board, 0, MAX, -math.inf, math.inf, i, 0)
 			self.BOARD_STATE_DICT.clear() # clear the dict after every depth increase
 			if score >= WIN_SCORE:
 				break
@@ -528,7 +523,7 @@ class Strategy(object):
 		self.BOARD_STATE_DICT = {} 
 		return moveRow, moveCol
 
-	def minimax(self, board, depth, maxOrMin, alpha, beta, localMaxDepth):
+	def minimax(self, board, depth, maxOrMin, alpha, beta, localMaxDepth, zobristValueForBoard):
 		'''
 		Recursively finds the best move for a given board
 		Returns the row in [0], column in [1], and score of the board in [2]
@@ -564,13 +559,11 @@ class Strategy(object):
 
 				boardCopy = list(map(list, board)) # copies board
 				self.performMove(boardCopy, move[0], move[1], self.AI_COLOR)
-				if depth >= 2:
-					# no chance of repeat boards until at least depth = 2
-					dictValOfBoard = self.createZobristValueForBoardState(boardCopy)
-				if depth >= 2 and dictValOfBoard in self.BOARD_STATE_DICT:
+				newZobristValue = self.createZobristValueForNewMove(move, self.AI_COLOR, zobristValueForBoard)
+				if depth >= 2 and newZobristValue in self.BOARD_STATE_DICT:
 					# if we've already evaluated the score of this board state
-					updatedScore = self.BOARD_STATE_DICT[dictValOfBoard]
-
+					# no chance of repeat boards until at least depth = 2
+					updatedScore = self.BOARD_STATE_DICT[newZobristValue]
 				else:
 					winner, gameOver = self.checkIfMoveCausedGameOver(boardCopy, move)
 					if winner == self.AI_COLOR:
@@ -583,9 +576,9 @@ class Strategy(object):
 							# if board filled
 							updatedScore = 0
 						else:
-							_, __, updatedScore = self.minimax(boardCopy, depth + 1, MIN, alpha, beta, localMaxDepth)
+							_, __, updatedScore = self.minimax(boardCopy, depth + 1, MIN, alpha, beta, localMaxDepth, newZobristValue)
 					if depth >= 2:
-						self.BOARD_STATE_DICT[dictValOfBoard] = updatedScore
+						self.BOARD_STATE_DICT[newZobristValue] = updatedScore
 				if updatedScore > score:
 					score = updatedScore
 					bestMove = move
@@ -606,10 +599,9 @@ class Strategy(object):
 					abc = 0
 				boardCopy = list(map(list, board)) # copies board
 				self.performMove(boardCopy, move[0], move[1], self.HUMAN_COLOR)
-				if depth >= 2:
-					dictValOfBoard = self.createZobristValueForBoardState(boardCopy)
-				if depth >= 2 and dictValOfBoard in self.BOARD_STATE_DICT:
-					updatedScore = self.BOARD_STATE_DICT[dictValOfBoard]
+				newZobristValue = self.createZobristValueForNewMove(move, self.HUMAN_COLOR, zobristValueForBoard)
+				if depth >= 2 and newZobristValue in self.BOARD_STATE_DICT:
+					updatedScore = self.BOARD_STATE_DICT[newZobristValue]
 				else:
 					winner, gameOver = self.checkIfMoveCausedGameOver(boardCopy, move)
 					if winner == self.AI_COLOR:
@@ -622,9 +614,9 @@ class Strategy(object):
 							# if board filled
 							updatedScore = 0
 						else:
-							_, __, updatedScore = self.minimax(boardCopy, depth + 1, MAX, alpha, beta, localMaxDepth)
+							_, __, updatedScore = self.minimax(boardCopy, depth + 1, MAX, alpha, beta, localMaxDepth, newZobristValue)
 					if depth >= 2:
-						self.BOARD_STATE_DICT[dictValOfBoard] = updatedScore
+						self.BOARD_STATE_DICT[newZobristValue] = updatedScore
 				if updatedScore < score:
 					score = updatedScore
 					bestMoveForHuman = move

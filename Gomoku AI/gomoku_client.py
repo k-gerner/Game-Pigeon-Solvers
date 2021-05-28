@@ -117,7 +117,6 @@ def main():
 	ai = strategy.Strategy(int(boardDimension), playerColor)
 	print(f"\nYou: {MY_COLOR}%s{NO_COLOR}\tAI: {ENEMY_COLOR}%s{NO_COLOR}" % (playerColor, ai.opponentOf(playerColor)))
 	print("Press 'q' at any prompt to quit.\nOr, press 'p' to end the game and receive Python code for recreating the gameBoard.")
-	
 	turn = BLACK
 	columnLabels = list(map(chr, range(65, 65 + len(gameBoard))))
 	mostRecentMove = None
