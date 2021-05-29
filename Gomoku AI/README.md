@@ -2,11 +2,15 @@
 <img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Gomoku/sampleGomokuBoard.jpg" alt = "sample board" width="30%" align = "right">  
 
 ### Table of contents
-1. [The Basics](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#the-basics) - An overview of the game of Gomoku.  
-2. [How to use](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#how-to-use) - How to run this application on your computer and a basic walkthrough of the output.  
-3. [Features](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#features) - Some of the other features present in this application.  
-4. [How it works](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#how-it-works) - A more detailed look into how this A.I. works.   
-5. [Further Reading](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#further-reading) - Some helpful links I looked to when designing this A.I.  
+1. [The Basics](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#the-basics)  
+2. [How to use](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#how-to-use)  
+3. [Features](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#features)  
+4. [How it works](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#how-it-works)  
+     i. [Minimax and Alpha-Beta Pruning](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#minimax-and-alpha-beta-pruning)  
+     ii. [Zobrist Hashing and Transposition Tables](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#zobrist-hashing-and-transposition-tables)  
+     iii. [Determining valid moves](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#determining-valid-moves)  
+     iv. [Iterative Deepening and evaluating board states](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#iterative-deepening-and-evaluating-board-states)  
+5. [Further Reading](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#further-reading)  
 
 ### The Basics 
 In Gomoku, the objective is to get 5 of your pieces to line up in succession. The player can choose any spot on the board to play their piece. Each player places one piece per turn. One easy way to think of this is that it is basically Tic-Tac-Toe, except it is played on a much bigger board, and you need 5 pieces in a row to win instead of 3.
