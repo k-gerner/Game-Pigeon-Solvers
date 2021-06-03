@@ -144,9 +144,19 @@ def main():
 			mostRecentMove = [ai_move_row, ai_move_col]
 		turn = ai.opponentOf(turn) # switch the turn
 
-	winner = "BLACK" if ai.opponentOf(turn) == BLACK else "WHITE"
 	printGameBoard(mostRecentMove)
-	print("%s wins!\n" % winner)
+	boardCompletelyFilled = True
+	for row in gameBoard:
+		for spot in row:
+			if spot == EMPTY:
+				boardCompletelyFilled = False
+				break
+				
+	if boardCompletelyFilled:
+		print("Nobody wins, it's a tie!")
+	else:
+		winner = "BLACK" if ai.opponentOf(turn) == BLACK else "WHITE"
+		print("%s wins!\n" % winner)
 
 
 
