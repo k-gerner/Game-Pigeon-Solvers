@@ -595,8 +595,6 @@ class Strategy(object):
 			score = math.inf
 			bestMoveForHuman = validMoves[0]
 			for move in validMoves:
-				if depth == 1 and localMaxDepth == 3 and (move == [5,6]):
-					abc = 0
 				boardCopy = list(map(list, board)) # copies board
 				self.performMove(boardCopy, move[0], move[1], self.HUMAN_COLOR)
 				newZobristValue = self.createZobristValueForNewMove(move, self.HUMAN_COLOR, zobristValueForBoard)
