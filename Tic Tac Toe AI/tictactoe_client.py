@@ -2,6 +2,7 @@
 # Kyle G 6.6.2021
 
 import strategy
+import os
 
 EMPTY, X_PIECE, O_PIECE = ' ', 'X', 'O'
 gameBoard = [[EMPTY, EMPTY, EMPTY], 
@@ -52,6 +53,7 @@ def main():
 	global ai 
 	global gameBoard
 	global playerPiece
+	os.system("") # allows colored terminal to work on Windows OS
 	print("""
   _______ _        _______           _______                    _____ 
  |__   __(_)      |__   __|         |__   __|             /\\   |_   _|
