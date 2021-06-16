@@ -4,6 +4,7 @@
 
 import strategy
 import time
+import os
 
 EMPTY, BLACK, WHITE = '.', 'X', 'O'
 gameBoard = [] # created later
@@ -95,6 +96,7 @@ def main():
 	global gameBoard
 	global playerColor
 	# print("\nWelcome to Kyle's Gomoku AI!")
+	os.system("") # allows colored terminal to work on Windows OS
 	printAsciiTitleArt()
 	boardDimension = input("What is the dimension of the board? (Default is 13x13)\nEnter a single odd number:\t").strip()
 	if boardDimension.isdigit() and int(boardDimension) % 2 == 1 and 6 < int(boardDimension) < 100:
@@ -151,7 +153,7 @@ def main():
 			if spot == EMPTY:
 				boardCompletelyFilled = False
 				break
-				
+
 	if boardCompletelyFilled:
 		print("Nobody wins, it's a tie!")
 	else:
