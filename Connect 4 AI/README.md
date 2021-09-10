@@ -12,7 +12,7 @@ Once you do this, you will be asked which color you want to be, RED (`o`) or YEL
 
 If you want to use this to beat someone else in Connect 4, just enter their moves as the `player` and then use the A.I.'s moves as your own.  
 
-<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Connect%204/sampleProgramBoard.png" alt = "sample board output" width="20%">  
+<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Connect%204/sampleProgramBoardColor.png" alt = "sample board output" width="20%">  
 
 ### How it works  
 The A.I. works by using a move selection algorithm known as [Minimax](https://en.wikipedia.org/wiki/Minimax), and uses a pruning technique known as [Alpha-Beta Pruning](https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning). Minimax works by assuming that the opponent will make the best possible move at each turn. By doing this, the A.I. can look several moves ahead. Then, it can pick the best possible outcome.  
