@@ -3,6 +3,11 @@
 # Connect 4 Solver, client facing 
 import strategy
 
+YELLOW_COLOR = "\u001b[38;5;226m" # yellow
+RED_COLOR = '\033[91m' # red
+BLUE_COLOR = "\u001b[38;5;39m" # blue
+NO_COLOR = '\033[0m' # white
+
 EMPTY, RED, YELLOW = '.', 'o', '@'
 gameBoard = [[EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY], # bottom row
 			[EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
@@ -17,11 +22,17 @@ def printBoard(board):
 	'''Prints the given game board'''
 	print("\n  1 2 3 4 5 6 7")
 	for rowNum in range(len(board)-1, -1, -1):
-		print("| ", end = '')
+		print(f"{BLUE_COLOR}|{NO_COLOR} ", end = '')
 		for spot in board[rowNum]:
-			print("%s " % spot, end='')
-		print("|")
-	print("-"*17)
+			if spot == RED:
+				pieceColor = RED_COLOR
+			elif spot == YELLOW:
+				pieceColor = YELLOW_COLOR
+			else:
+				pieceColor = NO_COLOR
+			print(f"{pieceColor}%s{NO_COLOR} " % spot, end='')
+		print(f"{BLUE_COLOR}|{NO_COLOR}")
+	print(f"{BLUE_COLOR}%s{NO_COLOR}" % "-"*17)
 
 def getPlayerMove():
 	'''Takes in the user's input and performs that move on the board'''
@@ -40,6 +51,7 @@ def getPlayerMove():
 def main():
 	'''main method that prompts the user for input'''
 	global playerColor 
+	os.system("") # allows colored terminal to work on Windows OS
 	print("\nWelcome to Kyle's Connect 4 AI!")
 	playerColorInput = input("Would you like to be RED ('r') or YELLOW ('y')? (red goes first!):\t").strip().lower()
 	if playerColorInput == 'r':
