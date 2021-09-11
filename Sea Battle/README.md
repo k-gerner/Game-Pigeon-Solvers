@@ -10,7 +10,7 @@ First, download the `sea_battle_tool.py` file. You can invoke the tool by runnin
 ```
 You will be presented with the intro screen with some instructions:  
 
-<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Sea%20Battle/starting_prompts.png" alt = "starting instructions" width="60%" align = "left">&NewLine;  
+<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Sea%20Battle/starting_prompts.png" alt = "starting instructions" width="60%"><br/>  
   
 You will be asked which dimension you want to make the board. Sea Battle has 8x8, 9x9, and 10x10 modes available. Each mode has a different set of ships, as seen below:  
 <img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Sea%20Battle/starting_8board.png" alt = "starting 8x8 board" width="32%" align = "left">
