@@ -23,7 +23,7 @@ You will be prompted to press `enter` to receive the best moves each turn, which
 <img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Sea%20Battle/starting_bestmoves.png" alt = "starting 10x10 board best moves" width="40%" align = "left">
 <img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Sea%20Battle/starting_densities.png" alt = "starting 10x10 space densities" width="45%"><br/>    
   
-As the game progresses, ships will be destroyed and removed from the ship counter. This will also affect how the densities are computed. A 10x10 match in mid-game is shown below, as well as the corresponding space densities table. The white `.` represent open spaces (available moves), the red `^` represent misses, the yellow `H` represent hits, and the green `D` represent destroyed ships.  
+As the game progresses, ships will be destroyed and removed from the ship counter. This will also affect how the densities are computed. A 10x10 match in mid-game is shown below, as well as the corresponding space densities table. The white `-` represent open spaces (available moves), the red `^` represent misses, the yellow `H` represent hits, and the green `D` represent destroyed ships.  
 
 <img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Sea%20Battle/midgame_board.png" alt = "mid-game 10x10 board" width="40%" align = "left">
 <img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Sea%20Battle/midgame_densities.png" alt = "mid-game space densitites" width="45%"><br/>  
