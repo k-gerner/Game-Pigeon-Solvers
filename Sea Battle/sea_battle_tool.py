@@ -141,7 +141,7 @@ def print_space_densities(color_mode = False):
 			if value == 0:
 				print(f"{COLOR}0{NO_COLOR}    ", end='')
 			else:
-				print(f"{COLOR}%s{NO_COLOR}" % (str(value) + (4-int(math.log10(value)))*" "), end='')
+				print(f"{COLOR}%s{NO_COLOR}" % (str(int(value)) + (4-int(math.log10(value)))*" "), end='')
 		print("|")
 	print("   %s\n" % ("-"*55))
 
@@ -216,11 +216,26 @@ def generate_space_densities():
 			index -= 1
 		return pos, neg
 
+	def get_num_immediate_neighbors(row, col):
+		'''
+		Find the number of open spaces that are immediately next to the specified coordinate.
+		0 < num_open < 8
+		'''
+		num_open = 0
+		for row_add in [-1, 0, 1]:
+			for col_add in [-1, 0, 1]:
+				if row_add == col_add == 0:
+					continue
+				if 0 <= row + row_add < SIZE and 0 <= col + col_add < SIZE and game_board[row+row_add][col+col_add] == EMPTY:
+					num_open += 1
+		return num_open
+
+
 	space_densities = []
 	for i in range(SIZE):
 		space_densities.append([0]*SIZE)
 
-	# horizontal
+	# Look at horizontal open space and fill space_densities accordingly
 	for row_index in range(SIZE):
 		row = game_board[row_index]
 		next_unavailable_index = 0
@@ -240,7 +255,7 @@ def generate_space_densities():
 			next_open_spot = next_unavailable_index + 1
 			next_unavailable_index += 1
 
-	# vertical
+	# Look at vertical open space and fill space_densities accordingly
 	for col_index in range(SIZE):
 		col = [row[col_index] for row in game_board]
 		next_unavailable_index = 0
@@ -263,15 +278,16 @@ def generate_space_densities():
 			next_open_spot = next_unavailable_index + 1
 			next_unavailable_index += 1
 
+	# Give preference to spots where a hit/sink would clear the most space on the board (spaces with more open immediate neighbors)
+	for row_index in range(SIZE):
+		for col_index in range(SIZE):
+			space_densities[row_index][col_index] *= (1 + 0.05 * get_num_immediate_neighbors(row_index, col_index))
+
 	# high scores for partially-sunken ships; also change hits to 0 scores
-	largest_remaining_ship_size = 4
-	while REMAINING_SHIPS[largest_remaining_ship_size] == 0:
-		largest_remaining_ship_size -= 1
+	largest_remaining_ship_size = max(ship_size for ship_size, num_left in REMAINING_SHIPS.items() if num_left > 0)
 	max_density = max(max(val) for val in space_densities)
 	for row_index in range(SIZE):
 		for col_index in range(SIZE):
-			if row_index == 0 and col_index == 4:
-				y = 0
 			spot = game_board[row_index][col_index]
 			if spot == HIT:
 				space_densities[row_index][col_index] = 0
@@ -282,10 +298,10 @@ def generate_space_densities():
 						col, row_index, largest_remaining_ship_size
 					)
 					if 0 <= row_index - 1 and game_board[row_index-1][col_index] == EMPTY:
-						space_densities[row_index - 1][col_index] = max_density + upward_space
+						space_densities[row_index - 1][col_index] = (max_density + upward_space) * (1 + 0.02 * get_num_immediate_neighbors(row_index-1, col_index))
 						# space_densities[row_index - 1][col_index] *= (upward_space + 1)
 					if row_index + 1 < SIZE and game_board[row_index+1][col_index] == EMPTY:
-						space_densities[row_index + 1][col_index] = max_density + downward_space
+						space_densities[row_index + 1][col_index] = (max_density + downward_space) * (1 + 0.02 * get_num_immediate_neighbors(row_index+1, col_index))
 						# space_densities[row_index + 1][col_index] *= (downward_space + 1)
 				elif (0 <= col_index - 1 and game_board[row_index][col_index - 1] == HIT) or (col_index + 1 < SIZE and game_board[row_index][col_index + 1] == HIT):
 					# ship aligned horizontally
@@ -293,10 +309,10 @@ def generate_space_densities():
 						game_board[row_index], col_index, largest_remaining_ship_size
 					)
 					if 0 <= col_index - 1 and game_board[row_index][col_index - 1] == EMPTY:
-						space_densities[row_index][col_index - 1] = max_density + leftward_space
+						space_densities[row_index][col_index - 1] = (max_density + leftward_space) * (1 + 0.02 * get_num_immediate_neighbors(row_index, col_index-1))
 						# space_densities[row_index][col_index - 1] *= (leftward_space + 1)
 					if col_index + 1 < SIZE and game_board[row_index][col_index + 1] == EMPTY:
-						space_densities[row_index][col_index + 1] = max_density + rightward_space
+						space_densities[row_index][col_index + 1] = (max_density + rightward_space) * (1 + 0.02 * get_num_immediate_neighbors(row_index, col_index+1))
 						# space_densities[row_index][col_index + 1] *= (rightward_space + 1)
 				else:
 					# no neighboring spaces have been hit, so we don't know the alignment of the ship
@@ -308,16 +324,16 @@ def generate_space_densities():
 						game_board[row_index], col_index, largest_remaining_ship_size
 					)
 					if 0 <= row_index - 1 and game_board[row_index-1][col_index] == EMPTY:
-						space_densities[row_index - 1][col_index] = max_density + upward_space
+						space_densities[row_index - 1][col_index] = (max_density + upward_space) * (1 + 0.02 * get_num_immediate_neighbors(row_index-1, col_index))
 						# space_densities[row_index - 1][col_index] *= (upward_space + 1)
 					if row_index + 1 < SIZE and game_board[row_index+1][col_index] == EMPTY:
-						space_densities[row_index + 1][col_index] = max_density + downward_space
+						space_densities[row_index + 1][col_index] = (max_density + downward_space) * (1 + 0.02 * get_num_immediate_neighbors(row_index+1, col_index))
 						# space_densities[row_index + 1][col_index] *= (downward_space + 1)
 					if 0 <= col_index - 1 and game_board[row_index][col_index - 1] == EMPTY:
-						space_densities[row_index][col_index - 1] = max_density + leftward_space
+						space_densities[row_index][col_index - 1] = (max_density + leftward_space) * (1 + 0.02 * get_num_immediate_neighbors(row_index, col_index-1))
 						# space_densities[row_index][col_index - 1] *= (leftward_space + 1)
 					if col_index + 1 < SIZE and game_board[row_index][col_index + 1] == EMPTY:
-						space_densities[row_index][col_index + 1] = max_density + rightward_space
+						space_densities[row_index][col_index + 1] = (max_density + rightward_space) * (1 + 0.02 * get_num_immediate_neighbors(row_index, col_index+1))
 						# space_densities[row_index][col_index + 1] *= (rightward_space + 1)
 
 	return space_densities
