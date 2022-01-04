@@ -248,21 +248,22 @@ class Strategy(object):
 
 		def locateEmptyNearSpots(filledCoord, distFromPiece):
 			'''Finds all the empty spots near this coordinate and adds them to the list of valid spots'''
-			row, col = filledCoord[0], filledCoord[1]
+			row, col = filledCoord
 			for i in range(-distFromPiece, distFromPiece + 1): # e.g. -1, 0, 1
 				for j in range(-distFromPiece, distFromPiece + 1): # e.g. -1, 0, 1
 					if i != distFromPiece and i != -distFromPiece and j != distFromPiece and j != -distFromPiece: 
 						# if not in the right distance circle
 						continue
-					if (row + i) % self.BOARD_HEIGHT != (row + i) or (col + j) % self.BOARD_WIDTH != (col + j):
+					curr_row, curr_col = row + i, col + j
+					if not self.isCoordinateInBoardRange((curr_row, curr_col)):
 						# if outside of the board range
 						continue
-					neighborSpot = board[row + i][col + j]
-					neighborCoordAsTuple = (row + i, col + j)
+					neighborSpot = board[curr_row][curr_col]
+					neighborCoordAsTuple = (curr_row, curr_col)
 					if neighborSpot == EMPTY and neighborCoordAsTuple not in emptiesFoundSoFar:
 						# if there is an empty spot here and we haven't validated it yet
 						emptiesFoundSoFar.add(neighborCoordAsTuple)
-						lists_of_valids[distFromPiece - 1].append([row + i, col + j])
+						lists_of_valids[distFromPiece - 1].append([curr_row, curr_col])
 
 		# check each distance level around each filled piece
 		for distFromPiece in range(1, MAX_NEIGHBOR_DIST + 1):
