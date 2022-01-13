@@ -24,7 +24,7 @@ class Strategy(object):
 	def checkGameState(self, board):
 		'''Sets the GAME_OVER var to True if there is a winner'''
 		if self.isTerminal(board)[0]: 
-		 	self.GAME_OVER = True
+			self.GAME_OVER = True
 
 	def isTerminal(self, board):
 		'''
@@ -74,7 +74,11 @@ class Strategy(object):
 
 	def findBestMove(self, board):
 		'''Calculates and performs the best move for the AI for the given board'''
-		moveRow, moveCol, _ = self.minimax(board, MAX, -math.inf, math.inf)
+		for depth_to_search in range(1, 10): # iterative deepening
+			# this will prioritize game winning movesets that occur with less total moves
+			moveRow, moveCol, score = self.minimax(board, 0, MAX, -math.inf, math.inf, depth_to_search)
+			if score == WIN_SCORE:
+				break
 		self.performMove(board, moveRow, moveCol, self.AI_COLOR)
 		self.checkGameState(board)
 		return [moveRow, moveCol]
@@ -88,19 +92,19 @@ class Strategy(object):
 					validLocations.append([rowNum, colNum])
 		return validLocations
 
-	def minimax(self, board, maxOrMin, alpha, beta):
+	def minimax(self, board, depth, maxOrMin, alpha, beta, localMaxDepth):
 		'''
 		Recursively finds the best move for a given board
 		Returns the row in [0], column in [1], and score of the board in [2]
 		'''
 		gameOver, winner = self.isTerminal(board)
-		if gameOver:
-			if winner == AI_COLOR:
-				return WIN_SCORE
-			elif winner == HUMAN_COLOR:
-				return -1 * WIN_SCORE
+		if gameOver or depth == localMaxDepth:
+			if winner == self.AI_COLOR:
+				return None, None, WIN_SCORE
+			elif winner == self.HUMAN_COLOR:
+				return None, None, -1 * WIN_SCORE
 			else:
-				return 0
+				return None, None, 0
 
 		validMoves = self.getValidMoves(board)
 		if len(validMoves) == 0:
@@ -127,7 +131,7 @@ class Strategy(object):
 						# if board filled
 						updatedScore = 0
 					else:
-						_, __, updatedScore = self.minimax(boardCopy, MIN, alpha, beta)
+						_, __, updatedScore = self.minimax(boardCopy, depth + 1, MIN, alpha, beta, localMaxDepth)
 				if updatedScore > score:
 					score = updatedScore
 					bestMove = move
@@ -155,7 +159,7 @@ class Strategy(object):
 						# if board filled
 						updatedScore = 0
 					else:
-						_, __, updatedScore = self.minimax(boardCopy, MAX, alpha, beta)
+						_, __, updatedScore = self.minimax(boardCopy, depth + 1, MAX, alpha, beta, localMaxDepth)
 				if updatedScore < score:
 					score = updatedScore
 					bestMoveForHuman = move
