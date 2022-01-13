@@ -1,0 +1,18 @@
+# none of the word lists used for the word games
+word\ lists
+
+# Tic Tac Toe GUI version is too buggy and unpolished
+Tic\ Tac\ Toe\ AI/GUI\ Version
+
+# no cache files
+**/__pycache__
+
+# no Java .class files
+*.class
+
+# Anagrams irrelevant files
+Anagrams\ Tool/Old\ version\ helper\ files
+Anagrams\ Tool/original\ with\ password
+
+# Word Hunt Tool older versions
+Word\ Hunt\ Tool/Older\ Versions
