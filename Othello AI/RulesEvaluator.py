@@ -50,9 +50,9 @@ def isMoveInRange(row, col):
     return 0 <= row < BOARD_DIMENSION and 0 <= col < BOARD_DIMENSION
 
 
-def isMoveValid(piece, row, col, board):
+def isMoveValid(piece, row, col, board, confirmedInRange=False):
     """Determines if a move is valid for the given color"""
-    if not isMoveInRange(row, col) or board[row][col] != EMPTY:
+    if not confirmedInRange and not isMoveInRange(row, col) or board[row][col] != EMPTY:
         return False
     for rowIncrement in [-1, 0, 1]:
         for colIncrement in [-1, 0, 1]:
@@ -74,7 +74,7 @@ def hasValidMoves(piece, board):
     """Checks if the given color has any available moves"""
     for row in range(BOARD_DIMENSION):
         for col in range(BOARD_DIMENSION):
-            if isMoveValid(piece, row, col, board):
+            if isMoveValid(piece, row, col, board, confirmedInRange=True):
                 return True
     return False
 
@@ -83,7 +83,7 @@ def getValidMoves(piece, board):
     validMoves = []
     for row in range(BOARD_DIMENSION):
         for col in range(BOARD_DIMENSION):
-            if isMoveValid(piece, row, col, board):
+            if isMoveValid(piece, row, col, board, confirmedInRange=True):
                 validMoves.append([row, col])
     return validMoves
 

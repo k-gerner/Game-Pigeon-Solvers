@@ -7,7 +7,7 @@ from RulesEvaluator import EMPTY, BOARD_DIMENSION
 from functools import cmp_to_key
 from collections import defaultdict
 
-MAX_DEPTH = 5
+MAX_DEPTH = 7
 WIN_SCORE = 1000000000
 
 CORNER_COORDINATES = {(0, 0), (0, BOARD_DIMENSION - 1), (BOARD_DIMENSION - 1, 0),
@@ -33,15 +33,15 @@ class OthelloStrategy:
         self.movesPlayed = BOARD_DIMENSION**2 - eval.numberOfPieceOnBoard(EMPTY, board)
         return self.minimax(self.aiColor, -math.inf, math.inf, 0, board)[:2]
 
-    def minimax(self, turn, alpha, beta, depth, board, noMoveForPreviousPlayer=False):
+    def minimax(self, turn, alpha, beta, depth, board, noMoveForOpponent=False):
         if depth == MAX_DEPTH or depth + self.movesPlayed == BOARD_DIMENSION ** 2:
             return -1, -1, self.evaluateBoard(board, depth)
         validMoves = eval.getValidMoves(turn, board)
         validMoves.sort(key=validMoveSortKey)
         if len(validMoves) == 0:
-            if noMoveForPreviousPlayer:
+            if noMoveForOpponent:
                 return -1, -1, self.evaluateBoard(board, BOARD_DIMENSION**2 - self.movesPlayed)
-            return self.minimax(eval.opponentOf(turn), alpha, beta, depth, board, True)
+            return self.minimax(eval.opponentOf(turn), alpha, beta, depth, board, noMoveForOpponent=True)
         if turn == self.aiColor:
             # maximize
             highScore = -math.inf
