@@ -6,6 +6,8 @@ from strategy import OthelloStrategy
 import RulesEvaluator as eval
 from RulesEvaluator import BLACK, WHITE, EMPTY, BOARD_DIMENSION
 
+import random
+
 # Escape sequences for terminal color output
 GREEN_COLOR = '\033[92m'
 RED_COLOR = '\033[91m'
@@ -103,9 +105,6 @@ class GameRunner:
                         self.printBoard(eval.getValidMoves(turn, self.board))
                         input("AI's available moves have been highlighted. Press enter to continue.")
                     row, col = self.ai.findBestMove(self.board)
-                    # print(
-                    #     "Note: temporarily broken because I check against user's valid moves instead of AI's")
-                    # row, col = self.getUserCoordinateInput()
                     eval.playMove(turn, row, col, self.board)
                     self.printBoard([[row, col]])
                     print("The AI played in spot %s%d" % (COLUMN_LABELS[col], row + 1))

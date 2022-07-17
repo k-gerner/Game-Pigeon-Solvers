@@ -33,13 +33,15 @@ class OthelloStrategy:
         self.movesPlayed = BOARD_DIMENSION**2 - eval.numberOfPieceOnBoard(EMPTY, board)
         return self.minimax(self.aiColor, -math.inf, math.inf, 0, board)[:2]
 
-    def minimax(self, turn, alpha, beta, depth, board):
+    def minimax(self, turn, alpha, beta, depth, board, noMoveForPreviousPlayer=False):
         if depth == MAX_DEPTH or depth + self.movesPlayed == BOARD_DIMENSION ** 2:
             return -1, -1, self.evaluateBoard(board, depth)
         validMoves = eval.getValidMoves(turn, board)
         validMoves.sort(key=validMoveSortKey)
         if len(validMoves) == 0:
-            return self.minimax(eval.opponentOf(turn), alpha, beta, depth, board)
+            if noMoveForPreviousPlayer:
+                return -1, -1, self.evaluateBoard(board, BOARD_DIMENSION**2 - self.movesPlayed)
+            return self.minimax(eval.opponentOf(turn), alpha, beta, depth, board, True)
         if turn == self.aiColor:
             # maximize
             highScore = -math.inf

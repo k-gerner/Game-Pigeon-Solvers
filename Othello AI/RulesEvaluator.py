@@ -47,7 +47,7 @@ def currentScore(userPiece, board):
 
 def isMoveInRange(row, col):
     """Checks if the given coordinates are in range of the board"""
-    return row in range(0, BOARD_DIMENSION) and col in range(0, BOARD_DIMENSION)
+    return 0 <= row < BOARD_DIMENSION and 0 <= col < BOARD_DIMENSION
 
 
 def isMoveValid(piece, row, col, board):
