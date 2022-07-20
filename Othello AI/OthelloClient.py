@@ -2,6 +2,7 @@
 # Started 7.15.22
 # Othello AI, client facing
 import os
+import time
 from strategy import OthelloStrategy
 import RulesEvaluator as eval
 from RulesEvaluator import BLACK, WHITE, EMPTY, BOARD_DIMENSION
@@ -25,10 +26,10 @@ class GameRunner:
         self.playerPiece = self.getPieceColorInput()
         self.enemyPiece = eval.opponentOf(self.playerPiece)
         self.board = [[EMPTY for _ in range(BOARD_DIMENSION)] for __ in range(BOARD_DIMENSION)]
-        self.board[BOARD_DIMENSION // 2][BOARD_DIMENSION // 2 - 1] = BLACK
-        self.board[BOARD_DIMENSION // 2 - 1][BOARD_DIMENSION // 2] = BLACK
-        self.board[BOARD_DIMENSION // 2][BOARD_DIMENSION // 2] = WHITE
-        self.board[BOARD_DIMENSION // 2 - 1][BOARD_DIMENSION // 2 - 1] = WHITE
+        self.board[BOARD_DIMENSION // 2][BOARD_DIMENSION // 2 - 1] = WHITE
+        self.board[BOARD_DIMENSION // 2 - 1][BOARD_DIMENSION // 2] = WHITE
+        self.board[BOARD_DIMENSION // 2][BOARD_DIMENSION // 2] = BLACK
+        self.board[BOARD_DIMENSION // 2 - 1][BOARD_DIMENSION // 2 - 1] = BLACK
         self.ai = OthelloStrategy(self.enemyPiece, self.enemyPiece == BLACK)
 
     def endGame(self, winner=None):
@@ -48,6 +49,14 @@ class GameRunner:
             COLUMN_LABELS[-1], BOARD_DIMENSION)).strip().upper()
         while True:
             if coord == 'Q':
+                self.endGame()
+            elif coord == 'S':
+                self.printOutSaveState()
+                print("\nSave state for the current game has been printed.")
+                coord = input("It's your turn, which spot would you like to play? (A1 - %s%d):\t" % (
+                    COLUMN_LABELS[-1], BOARD_DIMENSION)).strip().upper()
+            elif coord == 'QS':
+                self.printOutSaveState()
                 self.endGame()
             elif coord == 'P':
                 self.printBoard(eval.getValidMoves(self.playerPiece, self.board))
@@ -90,7 +99,10 @@ class GameRunner:
     def start(self):
         """Starts the game and handles all basic gameplay functionality"""
         turn = BLACK
-        self.printBoard()
+        if turn == self.playerPiece:
+            self.printBoard(eval.getValidMoves(self.playerPiece, self.board))
+        else:
+            self.printBoard()
         while True:
             if eval.hasValidMoves(turn, self.board):
                 if turn == self.playerPiece:
@@ -101,13 +113,23 @@ class GameRunner:
                     userInput = input("Press enter for the AI to play.   ").strip().lower()
                     if userInput == 'q':
                         self.endGame()
+                    elif userInput == 's':
+                        self.printOutSaveState()
+                        input("\nSave state for the current game has been printed. Press enter to continue. ")
+                    elif userInput == 'qs':
+                        self.printOutSaveState()
+                        self.endGame()
                     elif userInput == 'p':
                         self.printBoard(eval.getValidMoves(turn, self.board))
                         input("AI's available moves have been highlighted. Press enter to continue.")
-                    row, col = self.ai.findBestMove(self.board)
+                    startTime = time.time()
+                    row, col, numBoardsEvaluated = self.ai.findBestMove(self.board)
+                    endTime = time.time()
+                    timeToPlayMove = round(endTime - startTime, 2)
                     eval.playMove(turn, row, col, self.board)
-                    self.printBoard([[row, col]])
-                    print("The AI played in spot %s%d" % (COLUMN_LABELS[col], row + 1))
+                    self.printBoard([[row, col]] + eval.getValidMoves(self.playerPiece, self.board))
+                    print("The AI played in spot %s%d  (%0.2f sec, %d possible futures)" % (
+                        COLUMN_LABELS[col], row + 1, timeToPlayMove, numBoardsEvaluated))
             else:
                 print("%s has no valid moves this turn! %s will play again." % (
                     self.nameOfPieceColor(turn), self.nameOfPieceColor(eval.opponentOf(turn))))
@@ -135,6 +157,19 @@ class GameRunner:
         additionalIndent = " " * ((2 + (2 * (BOARD_DIMENSION // 2 - 1))) - (1 if userScore >= 10 else 0))
         print(f"\t{additionalIndent}{GREEN_COLOR}{userScore}{NO_COLOR} to {RED_COLOR}{aiScore}{NO_COLOR}\n")
 
+    def printOutSaveState(self):
+        """Prints out the current state of the board as Python code"""
+        print("# copy and paste this at the end of the __init__ function in the client")
+        outputStr = "self.board = \n["
+        for row in self.board:
+            rowStr = "["
+            for spot in row:
+                rowStr += f"\"{spot}\", "
+            rowStr = rowStr[:-2] + "],\n"
+            outputStr += rowStr
+        outputStr = outputStr[:-2] + "]"
+        print(outputStr)
+
     def getPieceColorInput(self):
         """Gets input from the user to determine which color they will be"""
         color_input = input("Would you like to be BLACK ('b') or WHITE ('w')?   ").strip().lower()
@@ -151,7 +186,8 @@ class GameRunner:
 def printGameRules():
     """Gives the user the option to view the rules of the game"""
     print("\nType 'q' at any move prompt to quit the game.")
-    print("Type 'p' to show the available moves")
+    print("Type 'p' to show the available moves.")
+    print("Type 's' to print out the board's save state.")
     showRules = input("Would you like to see the rules? (y/n)   ").strip().lower()
     if showRules == 'q':
         print("\nThanks for playing!")
