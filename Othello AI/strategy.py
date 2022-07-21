@@ -103,7 +103,7 @@ class OthelloStrategy:
 
         scores[self.aiColor] += evaluateBoardByFilledRows(board, self.aiColor)
         scores[self.humanColor] += evaluateBoardByFilledRows(board, self.humanColor)
-        if spotsRemaining <= (BOARD_DIMENSION**2) * 0.3:
+        if spotsRemaining <= 15:
             scores[self.aiColor] *= (1 + (numOccurences[self.aiColor]/(spotsRemaining*25)))
             scores[self.humanColor] *= (1 + (numOccurences[self.humanColor]/(spotsRemaining*25)))
         return scores[self.aiColor] - scores[self.humanColor]
