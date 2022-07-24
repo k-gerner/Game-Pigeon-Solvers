@@ -3,7 +3,7 @@
 # Othello AI, client facing
 import os
 import time
-from strategy import OthelloStrategy, setAiMaxSearchDepth
+from strategy import OthelloStrategy, setAiMaxSearchDepth, copyOfBoard
 import RulesEvaluator as eval
 from RulesEvaluator import BLACK, WHITE, EMPTY, BOARD_DIMENSION, setBoardDimension
 
@@ -25,6 +25,7 @@ SAVE_STATE_OUTPUT_HEIGHT = BOARD_DIMENSION + 6
 ERASE_MODE_ON = True
 CONFIG_FILENAME = "config.json"
 ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
+INFO_SYMBOL = f"{BLUE_COLOR}<!>{NO_COLOR}"
 
 
 class GameRunner:
@@ -40,6 +41,7 @@ class GameRunner:
         self.board[BOARD_DIMENSION // 2 - 1][BOARD_DIMENSION // 2 - 1] = BLACK
         self.ai = OthelloStrategy(self.enemyPiece, self.enemyPiece == BLACK)
         self.overrideTurn = BLACK
+        self.boardHistory = [[[], copyOfBoard(self.board)]]
         # paste board save state here
 
     def endGame(self, winner=None):
@@ -78,6 +80,16 @@ class GameRunner:
                 coord = input("It's your turn, which spot would you like to play? (A1 - %s%d):\t" % (
                     COLUMN_LABELS[-1], BOARD_DIMENSION)).strip().upper()
                 linesWrittenToConsole = BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 2
+            elif coord == 'H':
+                numMovesPrevious = input("How many moves ago do you want to see?  ").strip()
+                linesWrittenToConsole += 1
+                if numMovesPrevious.isdigit() and 1 <= int(numMovesPrevious) <= len(self.boardHistory):
+                    erasePreviousLines(linesWrittenToConsole)
+                    self.printMoveHistory(int(numMovesPrevious))
+                    coord = input(f"{INFO_SYMBOL} You're back in play mode. Which spot would you like to play?   ").strip().upper()
+                    linesWrittenToConsole = BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 2
+                else:
+                    coord = input(f"{ERROR_SYMBOL} Invalid input. Enter a valid move to play:   ").strip().upper()
             elif len(coord) in ([2] if BOARD_DIMENSION < 10 else [2, 3]) and coord[0] in COLUMN_LABELS and \
                     coord[1:].isdigit() and int(coord[1:]) in range(1, BOARD_DIMENSION + 1):
                 row, col = int(coord[1]) - 1, COLUMN_LABELS.index(coord[0])
@@ -129,6 +141,7 @@ class GameRunner:
                 if turn == self.playerPiece:
                     row, col, linesWrittenToConsole = self.getUserCoordinateInput()
                     eval.playMove(turn, row, col, self.board)
+                    self.boardHistory.append([[row, col], copyOfBoard(self.board)])
                     erasePreviousLines(linesWrittenToConsole)
                     self.printBoard([[row, col]])
                     print("You played in spot %s%d." % (COLUMN_LABELS[col], row + 1))
@@ -156,6 +169,7 @@ class GameRunner:
                     endTime = time.time()
                     timeToPlayMove = round(endTime - startTime, 2)
                     eval.playMove(turn, row, col, self.board)
+                    self.boardHistory.append([[row, col], copyOfBoard(self.board)])
                     erasePreviousLines(linesWrittenToConsole)
                     self.printBoard([[row, col]] + eval.getValidMoves(self.playerPiece, self.board))
                     print("The AI played in spot %s%d  (%0.2f sec, %d possible futures)" % (
@@ -172,24 +186,43 @@ class GameRunner:
                 self.endGame(winner)
             turn = eval.opponentOf(turn)
 
-    def printBoard(self, highlightedCoordinates=None):
+    def printBoard(self, highlightedCoordinates=None, board=None):
         """Prints the gameBoard in a human-readable format"""
         if highlightedCoordinates is None:
             highlightedCoordinates = []
+        if board is None:
+            board = self.board
         print("\n\t    %s" % " ".join(COLUMN_LABELS))
         for rowNum in range(BOARD_DIMENSION):
             print("\t%d%s| " % (rowNum + 1, "" if rowNum > 8 else " "), end='')
             for colNum in range(BOARD_DIMENSION):
-                piece = eval.pieceAt(rowNum, colNum, self.board)
+                piece = eval.pieceAt(rowNum, colNum, board)
                 pieceColor = HIGHLIGHT if [rowNum, colNum] in highlightedCoordinates else ''
                 pieceColor += self.textColorOf(piece)
                 print(f"{pieceColor}%s{NO_COLOR} " % piece, end='')
             if rowNum == BOARD_DIMENSION // 2:
-                print("   %d turns remain." % (eval.numberOfPieceOnBoard(EMPTY, self.board)), end='')
+                print("   %d turns remain." % (eval.numberOfPieceOnBoard(EMPTY, board)), end='')
             print()
-        userScore, aiScore = eval.currentScore(self.playerPiece, self.board)
+        userScore, aiScore = eval.currentScore(self.playerPiece, board)
         additionalIndent = " " * ((2 + (2 * (BOARD_DIMENSION // 2 - 1))) - (1 if userScore >= 10 else 0))
         print(f"\t{additionalIndent}{GREEN_COLOR}{userScore}{NO_COLOR} to {RED_COLOR}{aiScore}{NO_COLOR}\n")
+
+    def printMoveHistory(self, numMovesPrevious):
+        """Prints the move history of the current game"""
+        while True:
+            self.printBoard(self.boardHistory[-numMovesPrevious][0], self.boardHistory[-numMovesPrevious][1])
+            print("(%d moves before current board state)" % numMovesPrevious)
+            numMovesPrevious -= 1
+            if numMovesPrevious == 0:
+                return
+            userInput = input("Press enter for next move, or 'e' to return to game.  ").strip().lower()
+            if userInput == 'q':
+                self.endGame()
+            elif userInput == 'e':
+                erasePreviousLines(1)
+                return
+            else:
+                erasePreviousLines(BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 2)
 
     def printOutSaveState(self, turn):
         """Prints out the current state of the board as Python code"""
@@ -229,7 +262,7 @@ def loadConfiguration():
         import json5 as json
     except ImportError:
         print(
-            f"{ERROR_SYMBOL} json5 package no found. Remove all comments from config.json to make it readable.")
+            f"{ERROR_SYMBOL} json5 package not found. Remove all comments from config.json to make it readable.")
         import json
     try:
         with open(CONFIG_FILENAME, 'r') as configFile:
@@ -264,6 +297,7 @@ def printGameRules():
     print("\nType 'q' at any move prompt to quit the game.")
     print("Type 'p' to show the available moves.")
     print("Type 's' to print out the board's save state.")
+    print("Type 'h' at your turn to see previous moves.")
     print("Game constants are modifiable in the config.json file.")
     showRules = input("Would you like to see the rules? (y/n)   ").strip().lower()
     erasePreviousLines(1)
