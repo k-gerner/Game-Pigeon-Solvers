@@ -12,6 +12,13 @@ BOARD_DIMENSION = 8
 
 # Contains functions that return data about the state of a board
 
+def setBoardDimension(dimension):
+    global BOARD_DIMENSION
+    if 4 <= dimension <= 26:
+        BOARD_DIMENSION = dimension
+    else:
+        print("Board dimension must be between 4 and 26. Using default size (8x8).")
+
 def pieceAt(row, col, board):
     """Gets the piece at the given coordinate"""
     return board[row][col]

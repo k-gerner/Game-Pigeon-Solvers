@@ -1,0 +1,11 @@
+// You may edit these values. Valid values are listed next to the entries.
+
+    // The maximum moves ahead the AI will look to determine its move. Recommended: 5-7
+    "aiMaxSearchDepth":"7", // >1
+
+    // Use Blue/Orange instead of Green/Red for piece colorings
+    "colorblindMode":"false", // "true", "false"
+
+    // The height/width of the board. Recommended: 8
+    "boardDimension":"8" // Range of [4, 26]
+}

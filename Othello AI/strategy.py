@@ -41,6 +41,9 @@ class OthelloStrategy:
             return -1, -1, self.evaluateBoard(board, depth)
         validMoves = eval.getValidMoves(turn, board)
         validMoves.sort(key=validMoveSortKey)
+        if len(validMoves) > 20:
+            # check a maximum of 20 moves per board state
+            validMoves = validMoves[:20]
         if len(validMoves) == 0:
             if noMoveForOpponent:
                 self.numBoardsEvaluated += 1
@@ -182,7 +185,10 @@ def evaluateBoardByFilledRows(board, color):
 
     return score
 
-
+def setAiMaxSearchDepth(maxDepth):
+    """Sets the MAX_DEPTH constant"""
+    global MAX_DEPTH
+    MAX_DEPTH = maxDepth
 
 def validMovesComparator(move1, move2):
     """

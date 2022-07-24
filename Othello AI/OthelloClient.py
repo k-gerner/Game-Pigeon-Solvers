@@ -3,24 +3,28 @@
 # Othello AI, client facing
 import os
 import time
-from strategy import OthelloStrategy
+import json5 as json
+from strategy import OthelloStrategy, setAiMaxSearchDepth
 import RulesEvaluator as eval
-from RulesEvaluator import BLACK, WHITE, EMPTY, BOARD_DIMENSION
+from RulesEvaluator import BLACK, WHITE, EMPTY, BOARD_DIMENSION, setBoardDimension
 
 # Escape sequences for terminal color output
 GREEN_COLOR = '\033[92m'
 RED_COLOR = '\033[91m'
+BLUE_COLOR = '\033[38;5;39m'
+ORANGE_COLOR = '\033[38;5;208m'
 NO_COLOR = '\033[0m'
-HIGHLIGHT = '\u001b[48;5;238m'
+HIGHLIGHT = '\033[48;5;238m'
 
-CURSOR_UP_ONE = '\x1b[1A'
-ERASE_LINE = '\x1b[2K'
+CURSOR_UP_ONE = '\033[1A'
+ERASE_LINE = '\033[2K'
 
 # Miscellaneous
 COLUMN_LABELS = list(map(chr, range(65, 65 + BOARD_DIMENSION)))
 BOARD_OUTLINE_HEIGHT = 4
-SAVE_STATE_OUTPUT_HEIGHT = BOARD_DIMENSION + 5
+SAVE_STATE_OUTPUT_HEIGHT = BOARD_DIMENSION + 6
 ERASE_MODE_ON = True
+CONFIG_FILENAME = "config.json"
 
 
 class GameRunner:
@@ -74,7 +78,7 @@ class GameRunner:
                 coord = input("It's your turn, which spot would you like to play? (A1 - %s%d):\t" % (
                     COLUMN_LABELS[-1], BOARD_DIMENSION)).strip().upper()
                 linesWrittenToConsole = BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 2
-            elif len(coord) == (2 if BOARD_DIMENSION < 10 else 3) and coord[0] in COLUMN_LABELS and \
+            elif len(coord) in ([2] if BOARD_DIMENSION < 10 else [2, 3]) and coord[0] in COLUMN_LABELS and \
                     coord[1:].isdigit() and int(coord[1:]) in range(1, BOARD_DIMENSION + 1):
                 row, col = int(coord[1]) - 1, COLUMN_LABELS.index(coord[0])
                 if eval.isMoveValid(self.playerPiece, row, col, self.board):
@@ -131,6 +135,7 @@ class GameRunner:
                     linesWrittenToConsole += 1
                 else:
                     userInput = input("Press enter for the AI to play.   ").strip().lower()
+                    linesWrittenToConsole += 1
                     if userInput == 'q':
                         self.endGame()
                     elif userInput == 's':
@@ -145,6 +150,7 @@ class GameRunner:
                         erasePreviousLines(linesWrittenToConsole)
                         self.printBoard(eval.getValidMoves(turn, self.board))
                         input("AI's available moves have been highlighted. Press enter to continue.")
+                        linesWrittenToConsole = BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 1
                     startTime = time.time()
                     row, col, numBoardsEvaluated = self.ai.findBestMove(self.board)
                     endTime = time.time()
@@ -187,7 +193,7 @@ class GameRunner:
 
     def printOutSaveState(self, turn):
         """Prints out the current state of the board as Python code"""
-        print("# copy and paste this at the end of the __init__ function in the client")
+        print("\n# copy and paste this at the end of the __init__ function in the client")
         outputStr = "self.board = [\n"
         for row in self.board:
             rowStr = "["
@@ -209,9 +215,36 @@ class GameRunner:
             print(f"You will be BLACK {GREEN_COLOR}{BLACK}{NO_COLOR}!")
         else:
             print(f"You will be WHITE {GREEN_COLOR}{WHITE}{NO_COLOR}!")
-        print(f"Your pieces are shown in {GREEN_COLOR}green{NO_COLOR}!")
-        print(f"Enemy pieces are shown in {RED_COLOR}red{NO_COLOR}!")
+        print(f"Your pieces are shown in {GREEN_COLOR}%s{NO_COLOR}!" % (
+            "blue" if GREEN_COLOR == BLUE_COLOR else "green"))
+        print(f"Enemy pieces are shown in {RED_COLOR}%s{NO_COLOR}!" % (
+            "orange" if RED_COLOR == ORANGE_COLOR else "red"))
         return color
+
+
+def loadConfiguration():
+    """Loads in the saved configuration from config.json"""
+    global RED_COLOR, GREEN_COLOR, ERASE_MODE_ON
+    try:
+        with open(CONFIG_FILENAME, 'r') as configFile:
+            configuration = json.load(configFile)
+    except FileNotFoundError:
+        print(f"{RED_COLOR}> {NO_COLOR}No configuration file found. Using default values.")
+        return
+    except:
+        print(
+            f"{RED_COLOR}<!> {NO_COLOR}There was an issue reading from config.json. If config.json is properly " +
+            "formatted, try removing the comments from config.json, and changing the 'json5' import to just 'json'.")
+        return
+    if configuration.get("colorblindMode", "").lower() == "true":
+        RED_COLOR = ORANGE_COLOR
+        GREEN_COLOR = BLUE_COLOR
+    if configuration.get("aiMaxSearchDepth", "").isdigit():
+        setAiMaxSearchDepth(max(int(configuration["aiMaxSearchDepth"]), 1))
+    if configuration.get("boardDimension", "").isdigit():
+        setBoardDimension(int(configuration["boardDimension"]))
+    if configuration.get("eraseMode", "").lower() == "false":
+        ERASE_MODE_ON = False
 
 
 def erasePreviousLines(numLines, overrideEraseMode=False):
@@ -226,6 +259,7 @@ def printGameRules():
     print("\nType 'q' at any move prompt to quit the game.")
     print("Type 'p' to show the available moves.")
     print("Type 's' to print out the board's save state.")
+    print("Game constants are modifiable in the config.json file.")
     showRules = input("Would you like to see the rules? (y/n)   ").strip().lower()
     erasePreviousLines(1)
     if showRules == 'q':
@@ -243,6 +277,7 @@ def main():
     """Prompts user for input and creates a new GameRunner"""
     os.system("")  # allows output text coloring for Windows OS
     print("Welcome to Kyle's Othello AI!")
+    loadConfiguration()
     printGameRules()
     game = GameRunner()
     game.start()
