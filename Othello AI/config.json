@@ -1,5 +1,5 @@
 // You may edit these values. Valid values are listed next to the entries.
-
+{
     // The maximum moves ahead the AI will look to determine its move. Recommended: 5-7
     "aiMaxSearchDepth":"7", // >1
 
