@@ -1,4 +1,5 @@
 // You may edit these values. Valid values are listed next to the entries.
+// If you are missing the json5 package import, remove all comments from this file.'
 {
     // The maximum moves ahead the AI will look to determine its move. Recommended: 5-7
     "aiMaxSearchDepth":"7", // >1

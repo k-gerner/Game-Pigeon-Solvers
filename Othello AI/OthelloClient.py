@@ -3,7 +3,6 @@
 # Othello AI, client facing
 import os
 import time
-import json5 as json
 from strategy import OthelloStrategy, setAiMaxSearchDepth
 import RulesEvaluator as eval
 from RulesEvaluator import BLACK, WHITE, EMPTY, BOARD_DIMENSION, setBoardDimension
@@ -225,6 +224,11 @@ class GameRunner:
 def loadConfiguration():
     """Loads in the saved configuration from config.json"""
     global RED_COLOR, GREEN_COLOR, ERASE_MODE_ON
+    try:
+        import json5 as json
+    except ImportError:
+        print("json5 package no found. Remove all comments from config.json to make it readable.")
+        import json
     try:
         with open(CONFIG_FILENAME, 'r') as configFile:
             configuration = json.load(configFile)
