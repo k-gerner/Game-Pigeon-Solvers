@@ -24,6 +24,7 @@ BOARD_OUTLINE_HEIGHT = 4
 SAVE_STATE_OUTPUT_HEIGHT = BOARD_DIMENSION + 6
 ERASE_MODE_ON = True
 CONFIG_FILENAME = "config.json"
+ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
 
 
 class GameRunner:
@@ -85,15 +86,15 @@ class GameRunner:
                 elif eval.isMoveInRange(row, col) and eval.pieceAt(row, col, self.board) != EMPTY:
                     erasePreviousLines(1)
                     coord = input(
-                        "That spot is already taken! Please choose a different spot:   ").strip().upper()
+                        f"{ERROR_SYMBOL} That spot is already taken! Please choose a different spot:   ").strip().upper()
                 else:
                     erasePreviousLines(linesWrittenToConsole)
                     self.printBoard(eval.getValidMoves(self.playerPiece, self.board))
-                    coord = input("Please choose one of the highlighted spaces:   ").strip().upper()
+                    coord = input(f"{ERROR_SYMBOL} Please choose one of the highlighted spaces:   ").strip().upper()
                     linesWrittenToConsole = BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 1
             else:
                 erasePreviousLines(1)
-                coord = input("Please enter a valid move (A1 - %s%d):   " % (
+                coord = input(f"{ERROR_SYMBOL} Please enter a valid move (A1 - %s%d):   " % (
                     COLUMN_LABELS[-1], BOARD_DIMENSION)).strip().upper()
 
     def nameOfPieceColor(self, piece):
@@ -227,17 +228,18 @@ def loadConfiguration():
     try:
         import json5 as json
     except ImportError:
-        print(f"{RED_COLOR}<!> {NO_COLOR}json5 package no found. Remove all comments from config.json to make it readable.")
+        print(
+            f"{ERROR_SYMBOL} json5 package no found. Remove all comments from config.json to make it readable.")
         import json
     try:
         with open(CONFIG_FILENAME, 'r') as configFile:
             configuration = json.load(configFile)
     except FileNotFoundError:
-        print(f"{RED_COLOR}<!> {NO_COLOR}No configuration file found. Using default values.")
+        print(f"{ERROR_SYMBOL}No configuration file found. Using default values.")
         return
     except:
         print(
-            f"{RED_COLOR}<!> {NO_COLOR}There was an issue reading from config.json.")
+            f"{ERROR_SYMBOL}There was an issue reading from config.json.")
         return
     if configuration.get("colorblindMode", "").lower() == "true":
         RED_COLOR = ORANGE_COLOR
