@@ -227,18 +227,17 @@ def loadConfiguration():
     try:
         import json5 as json
     except ImportError:
-        print("json5 package no found. Remove all comments from config.json to make it readable.")
+        print(f"{RED_COLOR}<!> {NO_COLOR}json5 package no found. Remove all comments from config.json to make it readable.")
         import json
     try:
         with open(CONFIG_FILENAME, 'r') as configFile:
             configuration = json.load(configFile)
     except FileNotFoundError:
-        print(f"{RED_COLOR}> {NO_COLOR}No configuration file found. Using default values.")
+        print(f"{RED_COLOR}<!> {NO_COLOR}No configuration file found. Using default values.")
         return
     except:
         print(
-            f"{RED_COLOR}<!> {NO_COLOR}There was an issue reading from config.json. If config.json is properly " +
-            "formatted, try removing the comments from config.json, and changing the 'json5' import to just 'json'.")
+            f"{RED_COLOR}<!> {NO_COLOR}There was an issue reading from config.json.")
         return
     if configuration.get("colorblindMode", "").lower() == "true":
         RED_COLOR = ORANGE_COLOR
