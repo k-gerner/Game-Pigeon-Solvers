@@ -13,6 +13,6 @@
     // Use Blue/Orange instead of Green/Red for piece colorings
     "colorblindMode":"false", // "true", "false"
 
-    // Condense the output into a single, self-updating gameboard (instead of printing out the gameboard and instructions on new lines each move)
+    // Condense the output into a single, self-updating gameboard (instead of printing out the game board and instructions on new lines each move)
     "eraseMode": "true" // "true", "false"
 }
