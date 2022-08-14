@@ -41,7 +41,7 @@ class GameRunner:
         self.board[BOARD_DIMENSION // 2 - 1][BOARD_DIMENSION // 2 - 1] = BLACK
         self.ai = OthelloStrategy(self.enemyPiece, self.enemyPiece == BLACK)
         self.overrideTurn = BLACK
-        self.boardHistory = [[[], copyOfBoard(self.board)]]
+        self.boardHistory = [[[], copyOfBoard(self.board)]] # [0]: highlighted coordinates  [1]: game board
         # paste board save state here
 
     def endGame(self, winner=None):
@@ -81,15 +81,19 @@ class GameRunner:
                     COLUMN_LABELS[-1], BOARD_DIMENSION)).strip().upper()
                 linesWrittenToConsole = BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 2
             elif coord == 'H':
-                numMovesPrevious = input("How many moves ago do you want to see?  ").strip()
-                linesWrittenToConsole += 1
-                if numMovesPrevious.isdigit() and 1 <= int(numMovesPrevious) <= len(self.boardHistory):
-                    erasePreviousLines(linesWrittenToConsole)
-                    self.printMoveHistory(int(numMovesPrevious))
-                    coord = input(f"{INFO_SYMBOL} You're back in play mode. Which spot would you like to play?   ").strip().upper()
-                    linesWrittenToConsole = BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 2
+                if len(self.boardHistory) < 2:
+                    coord = input("No previous moves to see. Enter a valid move to play:   ").strip().upper()
+                    linesWrittenToConsole += 1
                 else:
-                    coord = input(f"{ERROR_SYMBOL} Invalid input. Enter a valid move to play:   ").strip().upper()
+                    numMovesPrevious = input(f"How many moves ago do you want to see? (1 to {len(self.boardHistory) - 1})  ").strip()
+                    linesWrittenToConsole += 1
+                    if numMovesPrevious.isdigit() and 1 <= int(numMovesPrevious) <= len(self.boardHistory):
+                        erasePreviousLines(linesWrittenToConsole)
+                        self.printMoveHistory(int(numMovesPrevious))
+                        coord = input(f"{INFO_SYMBOL} You're back in play mode. Which spot would you like to play?   ").strip().upper()
+                        linesWrittenToConsole = BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 1
+                    else:
+                        coord = input(f"{ERROR_SYMBOL} Invalid input. Enter a valid move to play:   ").strip().upper()
             elif len(coord) in ([2] if BOARD_DIMENSION < 10 else [2, 3]) and coord[0] in COLUMN_LABELS and \
                     coord[1:].isdigit() and int(coord[1:]) in range(1, BOARD_DIMENSION + 1):
                 row, col = int(coord[1]) - 1, COLUMN_LABELS.index(coord[0])
@@ -210,11 +214,11 @@ class GameRunner:
     def printMoveHistory(self, numMovesPrevious):
         """Prints the move history of the current game"""
         while True:
-            self.printBoard(self.boardHistory[-numMovesPrevious][0], self.boardHistory[-numMovesPrevious][1])
-            print("(%d moves before current board state)" % numMovesPrevious)
-            numMovesPrevious -= 1
+            self.printBoard(self.boardHistory[-(numMovesPrevious + 1)][0], self.boardHistory[-(numMovesPrevious + 1)][1])
             if numMovesPrevious == 0:
                 return
+            print("(%d move%s before current board state)" % (numMovesPrevious, "s" if numMovesPrevious != 1 else ""))
+            numMovesPrevious -= 1
             userInput = input("Press enter for next move, or 'e' to return to game.  ").strip().lower()
             if userInput == 'q':
                 self.endGame()
