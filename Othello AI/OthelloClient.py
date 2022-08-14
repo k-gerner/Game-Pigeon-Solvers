@@ -223,7 +223,7 @@ class GameRunner:
             if userInput == 'q':
                 self.endGame()
             elif userInput == 'e':
-                erasePreviousLines(1)
+                erasePreviousLines(2)
                 return
             else:
                 erasePreviousLines(BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 2)
