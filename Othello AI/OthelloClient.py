@@ -3,7 +3,7 @@
 # Othello AI, client facing
 import os
 import time
-from strategy import OthelloStrategy, setAiMaxSearchDepth, copyOfBoard
+from strategy import OthelloStrategy, setAiMaxSearchDepth, setAiMaxValidMovesToEvaluate, copyOfBoard
 import RulesEvaluator as eval
 from RulesEvaluator import BLACK, WHITE, EMPTY, BOARD_DIMENSION, setBoardDimension
 
@@ -283,6 +283,8 @@ def loadConfiguration():
         setBoardDimension(int(configuration["boardDimension"]))
     if configuration.get("eraseMode", "").lower() == "false":
         ERASE_MODE_ON = False
+    if configuration.get("aiMaxValidMovesToEvaluateEachTurn", "").isdigit():
+        setAiMaxValidMovesToEvaluate(int(configuration["aiMaxValidMovesToEvaluateEachTurn"]))
 
 
 def erasePreviousLines(numLines, overrideEraseMode=False):

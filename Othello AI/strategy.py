@@ -8,6 +8,7 @@ from functools import cmp_to_key
 from collections import defaultdict
 
 MAX_DEPTH = 7
+MAX_VALID_MOVES_TO_EVALUATE = 20
 WIN_SCORE = 1000000000
 
 CORNER_COORDINATES = {(0, 0), (0, BOARD_DIMENSION - 1), (BOARD_DIMENSION - 1, 0),
@@ -27,6 +28,17 @@ class OthelloStrategy:
         self.aiColor = aiColor
         self.humanColor = eval.opponentOf(aiColor)
         self.movesPlayed = 0 if aiGoesFirst else 1
+        self.numBoardsEvaluated = 0
+        self.positionsScores = {}
+        self.buildPositionScoresDictionary()
+
+    def buildPositionScoresDictionary(self):
+        """Builds the dictionary that maps coordinate positions to scores"""
+        for row in range(BOARD_DIMENSION):
+            for col in range(BOARD_DIMENSION):
+                positionScore = evaluatePosition(row, col)
+                self.positionsScores[(row, col)] = positionScore
+
 
     def findBestMove(self, board):
         """Gets the best move for the AI on the given board"""
@@ -36,14 +48,15 @@ class OthelloStrategy:
         return  row, col, self.numBoardsEvaluated
 
     def minimax(self, turn, alpha, beta, depth, board, noMoveForOpponent=False):
+        """Recursively searches the move tree to find the best move. Prunes when optimal."""
         if depth == MAX_DEPTH or depth + self.movesPlayed == BOARD_DIMENSION ** 2:
             self.numBoardsEvaluated += 1
             return -1, -1, self.evaluateBoard(board, depth)
         validMoves = eval.getValidMoves(turn, board)
         validMoves.sort(key=validMoveSortKey)
-        if len(validMoves) > 20:
-            # check a maximum of 20 moves per board state
-            validMoves = validMoves[:20]
+        if len(validMoves) > MAX_VALID_MOVES_TO_EVALUATE:
+            # check a maximum of MAX_VALID_MOVES_TO_EVALUATE moves per board state
+            validMoves = validMoves[:MAX_VALID_MOVES_TO_EVALUATE]
         if len(validMoves) == 0:
             if noMoveForOpponent:
                 self.numBoardsEvaluated += 1
@@ -96,19 +109,19 @@ class OthelloStrategy:
 
 
         scores = defaultdict(int)
-        numOccurences = defaultdict(int)
+        numOccurrences = defaultdict(int)
         for rowIndex in range(BOARD_DIMENSION):
             for colIndex in range(BOARD_DIMENSION):
                 piece = board[rowIndex][colIndex]
-                score = evaluatePosition(rowIndex, colIndex)
+                score = self.positionsScores[(rowIndex, colIndex)]
                 scores[piece] += score
-                numOccurences[piece] += 1
+                numOccurrences[piece] += 1
 
         scores[self.aiColor] += evaluateBoardByFilledRows(board, self.aiColor)
         scores[self.humanColor] += evaluateBoardByFilledRows(board, self.humanColor)
         if spotsRemaining <= 15:
-            scores[self.aiColor] *= (1 + (numOccurences[self.aiColor]/(spotsRemaining*25)))
-            scores[self.humanColor] *= (1 + (numOccurences[self.humanColor]/(spotsRemaining*25)))
+            scores[self.aiColor] *= (1 + (numOccurrences[self.aiColor]/(spotsRemaining*25)))
+            scores[self.humanColor] *= (1 + (numOccurrences[self.humanColor]/(spotsRemaining*25)))
         return scores[self.aiColor] - scores[self.humanColor]
 
 
@@ -116,8 +129,8 @@ def copyOfBoard(board):
     """Returns a copy of the given board"""
     return list(map(list, board))  # use numpy if this becomes bottleneck
 
-
 def evaluatePosition(row, col):
+    """Gets the score of a position on the board"""
     move = row, col
     if move in CORNER_COORDINATES:
         return 10
@@ -190,6 +203,11 @@ def setAiMaxSearchDepth(maxDepth):
     global MAX_DEPTH
     MAX_DEPTH = maxDepth
 
+def setAiMaxValidMovesToEvaluate(maxNumValidMoves):
+    """Sets the MAX_VALID_MOVES_TO_EVALUATE constant"""
+    global MAX_VALID_MOVES_TO_EVALUATE
+    MAX_VALID_MOVES_TO_EVALUATE = maxNumValidMoves
+
 def validMovesComparator(move1, move2):
     """
     Defines a way to sort two possible moves.
@@ -205,4 +223,5 @@ def validMovesComparator(move1, move2):
     else:
         return 0
 
+# sets the sorting key for valid move comparisons
 validMoveSortKey = cmp_to_key(validMovesComparator)
