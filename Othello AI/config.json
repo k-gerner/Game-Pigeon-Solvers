@@ -7,9 +7,12 @@
     // The maximum moves that the AI will consider. Smaller numbers will be faster but may cause the AI to miss the best move. Recommended: 12-20
     "aiMaxValidMovesToEvaluateEachTurn": "20", // >=1
 
+    // The height/width of the board. Recommended: 8
+    "boardDimension":"8", // Range of [4, 26]
+
     // Use Blue/Orange instead of Green/Red for piece colorings
     "colorblindMode":"false", // "true", "false"
 
-    // The height/width of the board. Recommended: 8
-    "boardDimension":"8" // Range of [4, 26]
+    // Condense the output into a single, self-updating gameboard (instead of printing out the gameboard and instructions on new lines each move)
+    "eraseMode": "true" // "true", "false"
 }

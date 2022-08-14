@@ -289,7 +289,7 @@ def loadConfiguration():
 
 def erasePreviousLines(numLines, overrideEraseMode=False):
     """Erases the specified previous number of lines from the terminal"""
-    eraseMode = ERASE_MODE_ON if overrideEraseMode == False else (not ERASE_MODE_ON)
+    eraseMode = ERASE_MODE_ON if not overrideEraseMode else (not ERASE_MODE_ON)
     if eraseMode:
         print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(numLines, 0), end='')
 
