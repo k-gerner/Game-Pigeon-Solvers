@@ -20,7 +20,7 @@ You can invoke the tool by running
 ```
 Once you do this, you will be see some info about how to interact with the tool, further explained in the [Additional Features](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Othello#additional-features) section. You will be asked if you would like to see the rules, and then you will be prompted to choose which color you want to be, BLACK (`0`) or WHITE (`O`). Whoever is BLACK will go first. You will then be prompted to either enter your move, or press `enter` for the A.I. to play.  
 
-<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Othello/othelloGameBoard.png" alt = "sample board output" width="20%">  
+<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Othello/othelloGameBoard.png" alt = "sample board output" width="40%">  
 
 ### How it works
 The A.I. works by using a move selection algorithm known as [Minimax](https://en.wikipedia.org/wiki/Minimax), and uses a pruning technique known as [Alpha-Beta Pruning](https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning). Minimax works by assuming that the opponent will make the best possible move at each turn. By doing this, the A.I. can look several moves ahead. Then, it can pick the best possible outcome.
@@ -40,7 +40,7 @@ I chose to implement a (hopefully) more straightforward way of modifying the con
 * `colorblindMode`: Use Blue/Orange instead of Green/Red for piece colorings
 * `eraseMode`: Condense the output into a single, self-updating game board (instead of printing out the game board and instructions on new lines each move)
 
-<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Othello/colorblindGameBoard.png" alt = "colorblind board output" width="20%">
+<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Othello/colorblindGameBoard.png" alt = "colorblind board output" width="40%">
 
 ### Additional Features
 At the input prompt, you can enter one of several commands.  
