@@ -5,7 +5,7 @@
     "aiMaxSearchDepth":"7", // >=1
 
     // The maximum moves that the AI will consider. Smaller numbers will be faster but may cause the AI to miss the best move. Recommended: 12-20
-    "aiMaxValidMovesToEvaluateEachTurn": "20" // >=1
+    "aiMaxValidMovesToEvaluateEachTurn": "20", // >=1
 
     // Use Blue/Orange instead of Green/Red for piece colorings
     "colorblindMode":"false", // "true", "false"
