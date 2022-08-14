@@ -10,7 +10,7 @@ EMPTY = "."
 BOARD_DIMENSION = 8
 
 
-# Contains functions that return data about the state of a board
+# Contains functions that return information about the state of a board
 
 def setBoardDimension(dimension):
     global BOARD_DIMENSION

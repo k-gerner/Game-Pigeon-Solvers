@@ -307,10 +307,10 @@ def printGameRules():
         print("\nThanks for playing!")
         exit(0)
     elif showRules == 'y':
-        print("""\n
-        - OBJECTIVE: Have more pieces on the board than the opponent when all spaces are full
-        - TURNS: Black will go first. Each player will take turns placing one piece each turn
-        - GAMEPLAY: Trap enemy pieces between two friendly pieces to convert them to friendly pieces
+        print("""
+    - OBJECTIVE: Have more pieces on the board than the opponent when all spaces are full
+    - TURNS: Black will go first. Each player will take turns placing one piece each turn
+    - GAMEPLAY: Trap enemy pieces between two friendly pieces to convert them to friendly pieces
         """)
 
 
