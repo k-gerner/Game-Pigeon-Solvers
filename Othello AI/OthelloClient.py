@@ -139,9 +139,11 @@ class GameRunner:
         else:
             self.printBoard()
         print()
+        noValidMovesInARow = 0
         while True:
             linesWrittenToConsole = BOARD_DIMENSION + 5
             if eval.hasValidMoves(turn, self.board):
+                noValidMovesInARow = 0
                 if turn == self.playerPiece:
                     row, col, linesWrittenToConsole = self.getUserCoordinateInput()
                     eval.playMove(turn, row, col, self.board)
@@ -179,6 +181,16 @@ class GameRunner:
                     print("The AI played in spot %s%d  (%0.2f sec, %d possible futures)" % (
                         COLUMN_LABELS[col], row + 1, timeToPlayMove, numBoardsEvaluated))
             else:
+                noValidMovesInARow += 1
+                if noValidMovesInARow == 2:
+                    print("Neither player has any valid moves left!")
+                    userScore, aiScore = eval.currentScore(self.playerPiece, self.board)
+                    if userScore > aiScore:
+                        self.endGame(self.playerPiece)
+                    elif aiScore > userScore:
+                        self.endGame(self.enemyPiece)
+                    else:
+                        self.endGame()
                 noValidMovesColor = self.textColorOf(turn)
                 playAgainColor = self.textColorOf(eval.opponentOf(turn))
                 print(
