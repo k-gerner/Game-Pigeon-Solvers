@@ -13,3 +13,9 @@ First, download `tictactoe_client.py` and `strategy.py` files and place them bot
 Once you do this, you will be asked whether you want to play as `X` or `O`.  
 
 Whoever is `X` will go first. Your pieces will be colored <span style="color:lightgreen">green</span>, and the AI pieces will be colored <span style="color:red">red</span>. If it is your turn, you will enter the name of the spot you want to play (e.g. `B2`). Then, you will be prompted to press `enter` to have the A.I. play its best move. At any point, if you want to quit, you can simply type `q` as your move input.
+
+### How it works
+The A.I. works by using a move selection algorithm known as [Minimax](https://en.wikipedia.org/wiki/Minimax), and uses a pruning technique known as [Alpha-Beta Pruning](https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning). Minimax works by assuming that the opponent will make the best possible move at each turn. By doing this, the A.I. can look several moves ahead. Then, it can pick the best possible outcome.
+
+### ✨ New in Version 1.1  
+The game will now be played on a single game board instead of printing a new board after each turn. This can be turned off with the command line argument `-e` or `-eraseModeOff`.
