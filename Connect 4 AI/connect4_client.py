@@ -9,6 +9,7 @@ YELLOW_COLOR = "\u001b[38;5;226m"  # yellow
 RED_COLOR = '\033[91m'             # red
 BLUE_COLOR = "\u001b[38;5;39m"     # blue
 GREEN_COLOR = "\x1B[38;5;47m"      # green
+GREY_COLOR = "\x1B[38;5;247m"       # grey
 NO_COLOR = '\033[0m'               # white
 
 ERASE_MODE_ON = True
@@ -35,6 +36,8 @@ def printBoard(board, recentMove=None):
     for i in range(7):
         if i == recentMove:
             columnColor = GREEN_COLOR
+        elif not ai.isValidMove(board, i):
+            columnColor = GREY_COLOR
         print(f"{columnColor}{i+1}{NO_COLOR} ", end='')
         columnColor = NO_COLOR
     print()
