@@ -13,7 +13,7 @@ GREY_COLOR = "\x1B[38;5;247m"       # grey
 NO_COLOR = '\033[0m'               # white
 
 ERASE_MODE_ON = True
-BOARD_OUTPUT_HEIGHT = 8
+BOARD_OUTPUT_HEIGHT = 9
 
 CURSOR_UP_ONE = '\033[1A'
 ERASE_LINE = '\033[2K'
@@ -60,14 +60,18 @@ def getPlayerMove():
     col = input("It's your turn, which column would you like to play? (1-7):\t").strip().lower()
     while True:
         if col == 'q':
+            erasePreviousLines(1)
             print("Thanks for playing!")
             exit(0)
-        if not col.isdigit() or int(col) not in range(1, 8):
+        elif not col.isdigit() or int(col) not in range(1, 8):
+            erasePreviousLines(1)
             col = input("Invalid input. Please enter a number 1 through 7:\t")
         elif not ai.isValidMove(gameBoard, int(col) - 1):
+            erasePreviousLines(1)
             col = input("That column is full, please choose another:\t")
         else:
             break
+    erasePreviousLines(2)
     return int(col) - 1
 
 
@@ -110,27 +114,33 @@ def main():
     winningPiece = None
     printBoard(gameBoard)
     print()
+    firstTurn = True
     while not gameOver:
         if turn == playerPiece:
             move = getPlayerMove()
+            erasePreviousLines(0)
         else:
             userInput = input("It's the AI's turn, press enter for it to play.\t").strip().lower()
             if userInput == 'q':
+                erasePreviousLines(1)
                 print("Thanks for playing!")
                 exit(0)
+            erasePreviousLines(2)
             move = ai.playBestMove(gameBoard)
         ai.performMove(gameBoard, move, turn)
+        erasePreviousLines(BOARD_OUTPUT_HEIGHT + (0 if firstTurn else 1))
         printBoard(gameBoard, move)
         print("%s played in spot %d\n" % ("You" if turn == playerPiece else "AI", move + 1))
         turn = ai.opponentOf(turn)  # switch the turn
+        firstTurn = False
         gameOver, winningPiece = ai.checkIfGameOver(gameBoard)
 
     if winningPiece == RED:
-        print(f"{RED_COLOR}RED{NO_COLOR} wins!")
+        print(f"{RED_COLOR}RED{NO_COLOR} wins!\n")
     elif winningPiece == YELLOW:
-        print(f"{YELLOW_COLOR}YELLOW{NO_COLOR} wins!")
+        print(f"{YELLOW_COLOR}YELLOW{NO_COLOR} wins!\n")
     else:
-        print("The game ended in a tie!")
+        print("The game ended in a tie!\n")
 
 
 if __name__ == "__main__":
