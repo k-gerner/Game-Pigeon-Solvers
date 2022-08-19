@@ -17,6 +17,7 @@ BOARD_OUTPUT_HEIGHT = 9
 
 CURSOR_UP_ONE = '\033[1A'
 ERASE_LINE = '\033[2K'
+ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
 
 EMPTY, RED, YELLOW = '.', 'o', '@'
 gameBoard = [[EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],  # bottom row
@@ -65,10 +66,10 @@ def getPlayerMove():
             exit(0)
         elif not col.isdigit() or int(col) not in range(1, 8):
             erasePreviousLines(1)
-            col = input("Invalid input. Please enter a number 1 through 7:\t")
+            col = input(f"{ERROR_SYMBOL} Invalid input. Please enter a number 1 through 7:\t")
         elif not ai.isValidMove(gameBoard, int(col) - 1):
             erasePreviousLines(1)
-            col = input("That column is full, please choose another:\t")
+            col = input(f"{ERROR_SYMBOL} That column is full, please choose another:\t")
         else:
             break
     erasePreviousLines(2)
@@ -105,7 +106,7 @@ def main():
         playerPiece = RED
         playerHighlightColor = RED_COLOR
         aiHighlightColor = YELLOW_COLOR
-        print(f"Invalid input. You'll be {RED_COLOR}RED{NO_COLOR}!")
+        print(f"{ERROR_SYMBOL} Invalid input. You'll be {RED_COLOR}RED{NO_COLOR}!")
     print("Type 'q' at any prompt to quit.")
     print(f"You: {playerHighlightColor}{playerPiece}{NO_COLOR}\tAI: {aiHighlightColor}{ai.opponentOf(playerPiece)}{NO_COLOR}")
     ai.setPlayerColor(playerPiece)
