@@ -6,12 +6,13 @@ import os
 import sys
 
 YELLOW_COLOR = "\u001b[38;5;226m"  # yellow
-RED_COLOR = '\033[91m'  # red
-BLUE_COLOR = "\u001b[38;5;39m"  # blue
-NO_COLOR = '\033[0m'  # white
+RED_COLOR = '\033[91m'             # red
+BLUE_COLOR = "\u001b[38;5;39m"     # blue
+GREEN_COLOR = "\x1B[38;5;47m"      # green
+NO_COLOR = '\033[0m'               # white
 
 ERASE_MODE_ON = True
-BOARD_OUTPUT_HEIGHT = 7
+BOARD_OUTPUT_HEIGHT = 8
 
 CURSOR_UP_ONE = '\033[1A'
 ERASE_LINE = '\033[2K'
@@ -27,9 +28,16 @@ playerPiece = YELLOW
 ai = strategy.Strategy()
 
 
-def printBoard(board):
+def printBoard(board, recentMove=None):
     '''Prints the given game board'''
-    print("\n  1 2 3 4 5 6 7")
+    columnColor = NO_COLOR
+    print("\n  ", end='')
+    for i in range(7):
+        if i == recentMove:
+            columnColor = GREEN_COLOR
+        print(f"{columnColor}{i+1}{NO_COLOR} ", end='')
+        columnColor = NO_COLOR
+    print()
     for rowNum in range(len(board) - 1, -1, -1):
         print(f"{BLUE_COLOR}|{NO_COLOR} ", end='')
         for spot in board[rowNum]:
@@ -46,15 +54,18 @@ def printBoard(board):
 
 def getPlayerMove():
     '''Takes in the user's input and performs that move on the board'''
-    col = input("It's your turn, which column would you like to play? (1-7):\t")
+    col = input("It's your turn, which column would you like to play? (1-7):\t").strip().lower()
     while True:
-        if not col.isdigit() or int(col.strip()) not in range(1, 8):
+        if col == 'q':
+            print("Thanks for playing!")
+            exit(0)
+        if not col.isdigit() or int(col) not in range(1, 8):
             col = input("Invalid input. Please enter a number 1 through 7:\t")
         elif not ai.isValidMove(gameBoard, int(col) - 1):
             col = input("That column is full, please choose another:\t")
         else:
             break
-    ai.performMove(gameBoard, int(col) - 1, playerPiece)
+    return int(col) - 1
 
 
 def erasePreviousLines(numLines, overrideEraseMode=False):
@@ -88,22 +99,29 @@ def main():
         playerHighlightColor = RED_COLOR
         aiHighlightColor = YELLOW_COLOR
         print(f"Invalid input. You'll be {RED_COLOR}RED{NO_COLOR}!")
+    print("Type 'q' at any prompt to quit.")
     print(f"You: {playerHighlightColor}{playerPiece}{NO_COLOR}\tAI: {aiHighlightColor}{ai.opponentOf(playerPiece)}{NO_COLOR}")
     ai.setPlayerColor(playerPiece)
     turn = YELLOW
     gameOver = False
     winningPiece = None
+    printBoard(gameBoard)
+    print()
     while not gameOver:
-        printBoard(gameBoard)
         if turn == playerPiece:
-            getPlayerMove()
+            move = getPlayerMove()
         else:
-            ai_move = ai.playBestMove(gameBoard)
-            print("\nAI played in spot %d" % (ai_move + 1))
+            userInput = input("It's the AI's turn, press enter for it to play.\t").strip().lower()
+            if userInput == 'q':
+                print("Thanks for playing!")
+                exit(0)
+            move = ai.playBestMove(gameBoard)
+        ai.performMove(gameBoard, move, turn)
+        printBoard(gameBoard, move)
+        print("%s played in spot %d\n" % ("You" if turn == playerPiece else "AI", move + 1))
         turn = ai.opponentOf(turn)  # switch the turn
         gameOver, winningPiece = ai.checkIfGameOver(gameBoard)
 
-    printBoard(gameBoard)
     if winningPiece == RED:
         print(f"{RED_COLOR}RED{NO_COLOR} wins!")
     elif winningPiece == YELLOW:
