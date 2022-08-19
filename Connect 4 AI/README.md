@@ -8,7 +8,7 @@ First, download the `connect4_client.py` and `strategy.py` files and place them 
 ```
 > python3 connect4_client.py
 ```
-Once you do this, you will be asked which color you want to be, RED (`o`) or YELLOW (`@`). Whoever is RED will go first. Each empty space on the board is represented by a `.` in the slot. If it is your turn, you will enter the column number (1-7) of which column you want to play. Then, you will be prompted to press `enter` to have the A.I. play its best move.  
+Once you do this, you will be asked which color you want to be, RED (`o`) or YELLOW (`@`). Whoever is YELLOW will go first. Each empty space on the board is represented by a `.` in the slot. If it is your turn, you will enter the column number (1-7) of which column you want to play. Then, you will be prompted to press `enter` to have the A.I. play its best move.  
 
 If you want to use this to beat someone else in Connect 4, just enter their moves as the `player` and then use the A.I.'s moves as your own.  
 
