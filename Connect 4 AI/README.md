@@ -18,3 +18,8 @@ If you want to use this to beat someone else in Connect 4, just enter their move
 The A.I. works by using a move selection algorithm known as [Minimax](https://en.wikipedia.org/wiki/Minimax), and uses a pruning technique known as [Alpha-Beta Pruning](https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning). Minimax works by assuming that the opponent will make the best possible move at each turn. By doing this, the A.I. can look several moves ahead. Then, it can pick the best possible outcome.  
 
 Alpha-Beta pruning works by keeping track of the best already explored option along the path to the root for the maximizer (alpha), and the best already explored option along the path to the root for the minimizer (beta). A good explanatory video can be found [here](https://www.youtube.com/watch?v=xBXHtz4Gbdo&ab_channel=CS188Spring2013).
+
+### ✨ New in Version 1.1
+* The game will now be played on a single game board instead of printing a new board after each turn. This can be turned off with the command line argument `-e` or `-eraseModeOff`.
+* The column number of the most recently played move will be colored green.
+* The column numbers of columns that are full will be colored grey.
