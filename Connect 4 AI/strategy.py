@@ -91,15 +91,12 @@ class Strategy(object):
 
 	def playBestMove(self, board):
 		'''Calculates and performs the best move for the AI for the given board'''
-		# input("Press enter for the AI to perform its move.")
-		col = input("It's the AI's turn, press enter for it to play.\t")
 		move, score = -123, -123 # placeholders
 		for i in range(1, MAX_DEPTH + 1): # iterative deepening
-			# this will prioritize game winning movesets that occur with less total moves
+			# this will prioritize game winning move sequences that finish in less moves
 			move, score = self.minimax(board, 0, MAX, -math.inf, math.inf, i)
 			if score == WIN_SCORE:
 				break
-		self.performMove(board, move, self.AI_COLOR)
 		return move
 
 	def opponentOf(self, color):
