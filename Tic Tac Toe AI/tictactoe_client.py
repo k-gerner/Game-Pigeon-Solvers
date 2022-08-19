@@ -11,13 +11,16 @@ gameBoard = [[EMPTY, EMPTY, EMPTY],
 			 [EMPTY, EMPTY, EMPTY],
 			 [EMPTY, EMPTY, EMPTY]]
 
-HUMAN_COLOR, AI_COLOR, NO_COLOR = '\033[92m', '\033[91m', '\033[0m' 		# green, red, white
+GREEN_COLOR = '\033[92m'  # green
+RED_COLOR = '\033[91m'	  # red
+NO_COLOR = '\033[0m' 	  # white
 
 ERASE_MODE_ON = True
 BOARD_OUTPUT_HEIGHT = 7
 
 CURSOR_UP_ONE = '\033[1A'
 ERASE_LINE = '\033[2K'
+ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
 
 def printGameBoard():
 	'''Prints the gameBoard in a human readable format'''
@@ -30,9 +33,9 @@ def printGameBoard():
 			if piece == EMPTY:
 				pieceColor = NO_COLOR
 			elif piece == playerPiece:
-				pieceColor = HUMAN_COLOR
+				pieceColor = GREEN_COLOR
 			else:
-				pieceColor = AI_COLOR
+				pieceColor = RED_COLOR
 			print(f" {pieceColor}%s{NO_COLOR} %s" % (piece, '|' if colNum < 2 else '\n'), end = '')
 		if rowNum < 2:
 			print("\t   ---+---+---")
@@ -47,9 +50,9 @@ def getPlayerMove():
 			print("\nThanks for playing!\n")
 			exit(0)
 		elif len(spot) >= 3 or len(spot) == 0 or spot[0] not in ROW_LABELS or not spot[1:].isdigit() or int(spot[1:]) > len(gameBoard) or int(spot[1:]) < 1:
-			spot = input("Invalid input. Please try again.\t").strip().upper()
+			spot = input(f"{ERROR_SYMBOL} Invalid input. Please try again.\t").strip().upper()
 		elif gameBoard[ROW_LABELS.index(spot[0])][int(spot[1:]) - 1] != EMPTY:
-			spot = input("That spot is already taken, please choose another:\t").strip().upper()
+			spot = input(f"{ERROR_SYMBOL} That spot is already taken, please choose another:\t").strip().upper()
 		else:
 			break
 	erasePreviousLines(1)
@@ -86,7 +89,7 @@ def main():
 	playerPieceSelect = input("\nDo you want to be X or O? (X goes first)\t").strip().lower()
 	erasePreviousLines(1)
 	while playerPieceSelect not in ['x', 'o']:
-		playerPieceSelect = input("Invalid input. Please choose either 'x' or 'o':\t").strip().lower()
+		playerPieceSelect = input(f"{ERROR_SYMBOL} Invalid input. Please choose either 'x' or 'o':\t").strip().lower()
 		erasePreviousLines(1)
 	if playerPieceSelect == 'x':
 		playerPiece = X_PIECE
@@ -94,8 +97,8 @@ def main():
 	else:
 		playerPiece = O_PIECE
 		aiPiece = X_PIECE
-	print(f"Human: {HUMAN_COLOR}{playerPiece}{NO_COLOR}")
-	print(f"AI: {AI_COLOR}{aiPiece}{NO_COLOR}")
+	print(f"Human: {GREEN_COLOR}{playerPiece}{NO_COLOR}")
+	print(f"AI: {RED_COLOR}{aiPiece}{NO_COLOR}")
 
 	printGameBoard()
 
@@ -134,7 +137,7 @@ def main():
 		print("Nobody wins, it's a tie!\n")
 	else:
 		winner = "X" if ai.opponentOf(turn) == X_PIECE else "O"
-		highlightColor = HUMAN_COLOR if winner == playerPiece else AI_COLOR
+		highlightColor = GREEN_COLOR if winner == playerPiece else RED_COLOR
 		print(f"{highlightColor}{winner}{NO_COLOR} player wins!\n")
 
 
