@@ -284,11 +284,11 @@ def loadConfiguration():
         with open(CONFIG_FILENAME, 'r') as configFile:
             configuration = json.load(configFile)
     except FileNotFoundError:
-        print(f"{ERROR_SYMBOL}No configuration file found. Using default values.")
+        print(f"{ERROR_SYMBOL} No configuration file found. Using default values.")
         return
     except:
         print(
-            f"{ERROR_SYMBOL}There was an issue reading from config.json.")
+            f"{ERROR_SYMBOL} There was an issue reading from config.json.")
         return
     if configuration.get("colorblindMode", "").lower() == "true":
         RED_COLOR = ORANGE_COLOR
