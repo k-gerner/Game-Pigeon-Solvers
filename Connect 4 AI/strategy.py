@@ -14,15 +14,9 @@ WIN_SCORE = 1000000 # large enough to always be the preferred outcome
 
 class Strategy(object):
 
-	GAME_OVER = False
 	HUMAN_COLOR, AI_COLOR = YELLOW, RED # defaults
 
-	def checkGameState(self, board):
-		'''Sets the GAME_OVER var to True if there is a winner'''
-		if self.isTerminal(board)[0]: 
-		 	self.GAME_OVER = True
-
-	def isTerminal(self, board):
+	def checkIfGameOver(self, board):
 		'''
 		Checks if the current board state is Game Over
 		Returns a tuple, with [0] being the True or False value
@@ -97,16 +91,12 @@ class Strategy(object):
 
 	def playBestMove(self, board):
 		'''Calculates and performs the best move for the AI for the given board'''
-		# input("Press enter for the AI to perform its move.")
-		col = input("It's the AI's turn, press enter for it to play.\t")
 		move, score = -123, -123 # placeholders
 		for i in range(1, MAX_DEPTH + 1): # iterative deepening
-			# this will prioritize game winning movesets that occur with less total moves
+			# this will prioritize game winning move sequences that finish in less moves
 			move, score = self.minimax(board, 0, MAX, -math.inf, math.inf, i)
 			if score == WIN_SCORE:
 				break
-		self.performMove(board, move, self.AI_COLOR)
-		self.checkGameState(board)
 		return move
 
 	def opponentOf(self, color):
@@ -125,7 +115,7 @@ class Strategy(object):
 		'''
 		validMoves = self.getValidMoves(board)
 		random.shuffle(validMoves)
-		gameOver, winner = self.isTerminal(board)
+		gameOver, winner = self.checkIfGameOver(board)
 		if gameOver:
 			if winner == self.AI_COLOR:
 				return None, WIN_SCORE
