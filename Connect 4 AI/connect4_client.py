@@ -32,7 +32,7 @@ ai = strategy.Strategy()
 def printBoard(board, recentMove=None):
     '''Prints the given game board'''
     columnColor = NO_COLOR
-    print("\n  ", end='')
+    print("\n   ", end='')
     for i in range(7):
         if i == recentMove:
             columnColor = GREEN_COLOR
@@ -42,7 +42,7 @@ def printBoard(board, recentMove=None):
         columnColor = NO_COLOR
     print()
     for rowNum in range(len(board) - 1, -1, -1):
-        print(f"{BLUE_COLOR}|{NO_COLOR} ", end='')
+        print(f" {BLUE_COLOR}|{NO_COLOR} ", end='')
         for spot in board[rowNum]:
             if spot == RED:
                 pieceColor = RED_COLOR
@@ -52,7 +52,7 @@ def printBoard(board, recentMove=None):
                 pieceColor = NO_COLOR
             print(f"{pieceColor}%s{NO_COLOR} " % spot, end='')
         print(f"{BLUE_COLOR}|{NO_COLOR}")
-    print(f"{BLUE_COLOR}%s{NO_COLOR}" % "-" * 17)
+    print(" " + f"{BLUE_COLOR}%s{NO_COLOR}" % "-" * 17)
 
 
 def getPlayerMove():
