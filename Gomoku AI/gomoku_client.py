@@ -5,14 +5,16 @@
 import strategy
 import time
 import os
+import sys
 
 EMPTY, BLACK, WHITE = '.', 'X', 'O'
 gameBoard = [] # created later
+playerColor = None
 GREEN_COLOR, RED_COLOR, NO_COLOR = '\033[92m', '\033[91m', '\033[0m' 		# green, red, white
 MOST_RECENT_HIGHLIGHT_COLOR = '\u001b[48;5;238m' # dark grey; to make lighter, increase 238 to anything 255 or below
 
 ERASE_MODE_ON = True
-BOARD_OUTPUT_HEIGHT = 7
+BOARD_OUTPUT_HEIGHT = -1
 
 CURSOR_UP_ONE = '\033[1A'
 ERASE_LINE = '\033[2K'
@@ -25,8 +27,9 @@ def createGameBoard(dimension):
 		for j in range(dimension):
 			row.append(EMPTY)
 		gameBoard.append(row)
+	# paste board save state here if applicable
 
-def printGameBoard(mostRecentMove):
+def printGameBoard(mostRecentMove=None):
 	'''Prints the gameBoard in a human readable format'''
 	columnLabels = list(map(chr, range(65, 65 + len(gameBoard))))
 	print("\n\t    %s" % " ".join(columnLabels))
@@ -49,14 +52,13 @@ def givePythonCodeForBoardInput():
 	Prints out the Python code needed to recreate the game board at this state
 	For debugging purposes
 	'''
-	print("\n# Copy and paste this code into createGameBoard() and comment out the for loop:\n")
+	print("\n# Copy and paste this code into createGameBoard():\n")
+	print("gameBoard = []")
 	for i in range(len(gameBoard)):
 		strRepOfRow = ""
 		for spot in gameBoard[i]:
 			strRepOfRow += spot + " "
-		print("row%d = \"%s\".split()" % (i + 1, strRepOfRow))
-	for i in range(len(gameBoard)):
-		print("gameBoard.append(row%d)" % (i + 1))
+		print("gameBoard.append(\"%s\".split())" % (strRepOfRow))
 	print()
 
 def printAsciiTitleArt():
@@ -84,17 +86,21 @@ def getPlayerMove():
 	'''Takes in the user's input and performs that move on the board, returns the move'''
 	columnLabels = list(map(chr, range(65, 65 + len(gameBoard))))
 	spot = input("It's your turn, which spot would you like to play? (A1 - %s%d):\t" % (columnLabels[-1], len(gameBoard))).strip().upper()
+	erasePreviousLines(1)
 	while True:
-		if spot == 'Q':
+		if spot.lower() == 'q':
 			print("\nThanks for playing!\n")
 			exit(0)
-		elif spot == 'P':
+		elif spot.lower() == 's':
 			givePythonCodeForBoardInput()
 			spot = input("Enter a coordinates for a move, or press 'q' to quit:\t").strip().upper()
+			erasePreviousLines(BOARD_OUTPUT_HEIGHT + 2)
 		elif len(spot) >= 4 or len(spot) == 0 or spot[0] not in columnLabels or not spot[1:].isdigit() or int(spot[1:]) > len(gameBoard) or int(spot[1:]) < 1:
 			spot = input("Invalid input. Please try again.\t").strip().upper()
+			erasePreviousLines(1)
 		elif gameBoard[int(spot[1:]) - 1][columnLabels.index(spot[0])] != EMPTY:
 			spot = input("That spot is already taken, please choose another:\t").strip().upper()
+			erasePreviousLines(1)
 		else:
 			break
 	row = int(spot[1:]) - 1
@@ -108,57 +114,69 @@ def main():
 	global ai
 	global gameBoard
 	global playerColor
+	global BOARD_OUTPUT_HEIGHT
 	os.system("") # allows colored terminal to work on Windows OS
+	if len(sys.argv) == 2 and sys.argv[1] in ["-e", "-eraseModeOff"]:
+		global ERASE_MODE_ON
+		ERASE_MODE_ON = False
 	printAsciiTitleArt()
 	boardDimension = input("What is the dimension of the board? (Default is 13x13)\nEnter a single odd number:\t").strip()
+	erasePreviousLines(2)
 	if boardDimension.isdigit() and int(boardDimension) % 2 == 1 and 6 < int(boardDimension) < 100:
-		print("The board will be %sx%s!" % (boardDimension, boardDimension))
+		boardDimension = int(boardDimension)
+		print("The board will be %dx%d!" % (boardDimension, boardDimension))
 	else:
 		boardDimension = 13
 		print("Invalid input. The board will be 13x13!")
-	createGameBoard(int(boardDimension))
+	BOARD_OUTPUT_HEIGHT = boardDimension + 4
 	playerColorInput = input("Would you like to be BLACK ('b') or WHITE ('w')? (black goes first!):\t").strip().lower()
+	erasePreviousLines(2)
 	if playerColorInput == 'b':
 		playerColor = BLACK
-		print("You will be black!")
+		print(f"You will be {GREEN_COLOR}BLACK{NO_COLOR}!")
 	else:
 		playerColor = WHITE
 		if playerColorInput == 'w':
-			print("You will be white!")
+			print(f"You will be {GREEN_COLOR}WHITE{NO_COLOR}!")
 		else:
-			print("Invalid input. You'll be white!")
+			print(f"Invalid input. You'll be {GREEN_COLOR}WHITE{NO_COLOR}!")
 
 	ai = strategy.Strategy(int(boardDimension), playerColor)
 	print(f"\nYou: {GREEN_COLOR}%s{NO_COLOR}\tAI: {RED_COLOR}%s{NO_COLOR}" % (playerColor, ai.opponentOf(playerColor)))
-	print("Press 'q' at any prompt to quit.\nOr, press 'p' to end the game and receive Python code for recreating the gameBoard.")
+	print("Press 'q' at any prompt to quit.\nType 's' to print out the board's save state.")
 	turn = BLACK
+	createGameBoard(int(boardDimension))
 	columnLabels = list(map(chr, range(65, 65 + len(gameBoard))))
-	mostRecentMove = None
+	printGameBoard()
+	firstTurn = True
 
 	while not ai.GAME_OVER:
-		printGameBoard(mostRecentMove)
 		if turn == playerColor:
-			mostRecentMove = getPlayerMove()
+			additionalOutput = ""
+			rowPlayed, colPlayed = getPlayerMove()
 		else:
 			userInput = input("It's the AI's turn, press enter for it to play.\t").strip().lower()
-			while userInput == 'q' or userInput == 'p':
+			while userInput == 'q' or userInput == 's':
 				if userInput == 'q':
 					print("\nThanks for playing!\n")
 					exit(0)
 				else:
 					givePythonCodeForBoardInput()
 					userInput = input("Press enter for the AI to play, or press 'q' to quit:\t").strip().lower()
+					erasePreviousLines(BOARD_OUTPUT_HEIGHT + 2)
 			startTime = time.time()
-			ai_move_row, ai_move_col = ai.playBestMove(gameBoard)
+			rowPlayed, colPlayed = ai.playBestMove(gameBoard)
 			endTime = time.time()
 			minutesTaken, secondsTaken = int(endTime - startTime) // 60, (endTime - startTime) % 60
-			print("Time taken: %s %.2fs" % ('' if minutesTaken == 0 else '%dm' % minutesTaken, secondsTaken))
-			ai_move_formatted = columnLabels[ai_move_col] + str(ai_move_row + 1)
-			print("AI played in spot %s\n" % ai_move_formatted)
-			mostRecentMove = [ai_move_row, ai_move_col]
+			additionalOutput = ("  (%dm " if minutesTaken > 0 else "  (") + ("%.2fs)" % secondsTaken)
+
+		erasePreviousLines(BOARD_OUTPUT_HEIGHT + (0 if firstTurn else 2) + (-1 if turn == playerColor else -0))
+		printGameBoard([rowPlayed, colPlayed])
+		moveFormatted = columnLabels[colPlayed] + str(rowPlayed + 1)
+		print("%s played in spot %s%s\n" % ("You" if turn == playerColor else "AI", moveFormatted, additionalOutput))
+		firstTurn = False
 		turn = ai.opponentOf(turn) # switch the turn
 
-	printGameBoard(mostRecentMove)
 	boardCompletelyFilled = True
 	for row in gameBoard:
 		for spot in row:
@@ -169,8 +187,9 @@ def main():
 	if boardCompletelyFilled:
 		print("Nobody wins, it's a tie!")
 	else:
+		highlightColor = GREEN_COLOR if turn == ai.opponentOf(playerColor) else RED_COLOR
 		winner = "BLACK" if ai.opponentOf(turn) == BLACK else "WHITE"
-		print("%s wins!\n" % winner)
+		print(f"{highlightColor}{winner}{NO_COLOR} wins!\n")
 
 
 
