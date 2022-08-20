@@ -85,7 +85,6 @@ def erasePreviousLines(numLines, overrideEraseMode=False):
 
 def getPlayerMove(linesToEraseOnSave=0):
 	'''Takes in the user's input and performs that move on the board, returns the move'''
-	linesToEraseOnSave
 	columnLabels = list(map(chr, range(65, 65 + len(gameBoard))))
 	spot = input("It's your turn, which spot would you like to play? (A1 - %s%d):\t" % (columnLabels[-1], len(gameBoard))).strip().upper()
 	erasePreviousLines(1)
@@ -190,7 +189,7 @@ def main():
 					givePythonCodeForBoardInput()
 					userInput = input("Press enter for the AI to play, or press 'q' to quit:\t").strip().lower()
 					erasePreviousLines(SAVE_STATE_OUTPUT_HEIGHT + 1)
-			if displayingSave:
+			if displayingSave and ERASE_MODE_ON:
 				erasePreviousLines(1)
 				printGameBoard()
 				print("\n\n")
