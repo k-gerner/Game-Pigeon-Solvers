@@ -46,7 +46,7 @@ There is some customization available as well. Inside of `strategy.py` you can c
 - Once the A.I. chooses a move, there are two things printed out:
     - `Time taken` - How long it took the A.I. to calculate its best move.  
     - `AI played in spot __` - Says which spot on the board the A.I. just played.  
-- The board will update in place by default. If you instead would like a new board the board to be printed after each move, you can add the command line argument `-e` or `-eraseModeOff`.
+- The board will update in place by default. If you instead would like a new board to be printed after each move, you can add the command line argument `-e` or `-eraseModeOff`.
 
 ### How it works  
 #### Minimax and Alpha-Beta Pruning
