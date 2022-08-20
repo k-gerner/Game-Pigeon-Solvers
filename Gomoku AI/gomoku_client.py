@@ -121,6 +121,9 @@ def getPlayerMove(linesToEraseOnSave=0):
 			linesToEraseOnSave = BOARD_OUTPUT_HEIGHT + 1
 		else:
 			break
+	if displayingSave:
+		printGameBoard()
+		print("\n")
 	row = int(spot[1:]) - 1
 	col = columnLabels.index(spot[0])
 	ai.performMove(gameBoard, row, col, playerColor)
@@ -181,14 +184,12 @@ def main():
 					print("\nThanks for playing!\n")
 					exit(0)
 				else:
-					if displayingSave:
-						erasePreviousLines(1)
-					else:
-						erasePreviousLines(BOARD_OUTPUT_HEIGHT + 2 + (-1 if turn == playerColor else 0))
+					if not displayingSave:
+						erasePreviousLines(BOARD_OUTPUT_HEIGHT + 1 + (-1 if turn == playerColor else 0))
 					displayingSave = True
 					givePythonCodeForBoardInput()
 					userInput = input("Press enter for the AI to play, or press 'q' to quit:\t").strip().lower()
-					erasePreviousLines(SAVE_STATE_OUTPUT_HEIGHT)
+					erasePreviousLines(SAVE_STATE_OUTPUT_HEIGHT + 1)
 			if displayingSave:
 				erasePreviousLines(1)
 				printGameBoard()
