@@ -513,7 +513,6 @@ class Strategy(object):
 			self.BOARD_STATE_DICT.clear() # clear the dict after every depth increase
 			if score >= WIN_SCORE:
 				break
-		print("Score for move: %d" % score)
 		if moveRow != -1 and moveCol != -1:
 			# board not filled
 			self.performMove(board, moveRow, moveCol, self.AI_COLOR)
