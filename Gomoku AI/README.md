@@ -39,14 +39,14 @@ There is some customization available as well. Inside of `strategy.py` you can c
 - As mentioned above, you can change several parameters to fine-tune the A.I. yourself. For more information about that, see the bottom of the [How to use](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#how-to-use) section. 
 - Each move on the board is color-coded to make it easier to distinguish between friendly and enemy pieces.
 - The most recently played move is highlighted slightly grey.
-- If you want to be able to recreate the current board upon relaunching the program, you can press `p` at the input move prompt, and you will be given the Python code needed to replicate the board from start. You can copy and paste this code into the `createGameBoard` function in `gomoku_client.py` after commenting the original code inside of that method. The next time you run the program, that board will be the starting board. 
+- If you want to be able to recreate the current board upon relaunching the program, you can press `s` at the input move prompt, and you will be given the Python code needed to replicate the board from start. You can copy and paste this code into the `createGameBoard` function in `gomoku_client.py`. The next time you run the program, that board will be the starting board. 
 - During the A.I. evaluation, a progress bar is shown for each depth of the search. This will display how far along the A.I. is with calculating the best move by giving a percentage as well as a fraction. It will also show you which depth it is currently searching.
 <img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Gomoku/gomokuProgressBar.png" alt = "progress bar" width="50%">  
 
-- Once the A.I. chooses a move, there are a few things printed out:
-    - `Score for move` - This gives the numerical score that the A.I. has calculated for the move it just played. A higher value means the end result of the board is good for the A.I., whereas a lower value corresponds to a worse move for the A.I.  
+- Once the A.I. chooses a move, there are two things printed out:
     - `Time taken` - How long it took the A.I. to calculate its best move.  
     - `AI played in spot __` - Says which spot on the board the A.I. just played.  
+- The board will update in place by default. If you instead would like a new board the board to be printed after each move, you can add the command line argument `-e` or `-eraseModeOff`.
 
 ### How it works  
 #### Minimax and Alpha-Beta Pruning
@@ -109,4 +109,8 @@ https://stackoverflow.com/questions/6952607/what-would-be-a-good-ai-strategy-to-
 https://webdocs.cs.ualberta.ca/~mmueller/courses/2014-AAAI-games-tutorial/slides/AAAI-14-Tutorial-Games-3-AlphaBeta.pdf  
 https://medium.com/@LukeASalamone/creating-an-ai-for-gomoku-28a4c84c7a52  
 
-Thanks for checking out my Gomoku AI! I hope you enjoy!
+Thanks for checking out my Gomoku AI! I hope you enjoy!  
+
+### ✨ New in Version 1.1
+* The game will now be played on a single game board instead of printing a new board after each turn. This can be turned off with the command line argument `-e` or `-eraseModeOff`.
+* Printing the current save state will now be invoked with `s` instead of `p`. Also, the output is now less verbose.
