@@ -273,7 +273,6 @@ class GameRunner:
 
 def loadConfiguration():
     """Loads in the saved configuration from config.json"""
-    global RED_COLOR, GREEN_COLOR, ERASE_MODE_ON
     try:
         import json5 as json
     except ImportError:
@@ -284,20 +283,25 @@ def loadConfiguration():
         with open(CONFIG_FILENAME, 'r') as configFile:
             configuration = json.load(configFile)
     except FileNotFoundError:
-        print(f"{ERROR_SYMBOL} No configuration file found. Using default values.")
+        print(f"{ERROR_SYMBOL} No configuration file found in the current directory. Using default values.")
         return
     except:
         print(
             f"{ERROR_SYMBOL} There was an issue reading from config.json.")
         return
     if configuration.get("colorblindMode", "").lower() == "true":
+        global RED_COLOR, GREEN_COLOR
         RED_COLOR = ORANGE_COLOR
         GREEN_COLOR = BLUE_COLOR
     if configuration.get("aiMaxSearchDepth", "").isdigit():
         setAiMaxSearchDepth(max(int(configuration["aiMaxSearchDepth"]), 1))
     if configuration.get("boardDimension", "").isdigit():
+        global SAVE_STATE_OUTPUT_HEIGHT, COLUMN_LABELS
         setBoardDimension(int(configuration["boardDimension"]))
+        SAVE_STATE_OUTPUT_HEIGHT = BOARD_DIMENSION + 6
+        COLUMN_LABELS = list(map(chr, range(65, 65 + BOARD_DIMENSION)))
     if configuration.get("eraseMode", "").lower() == "false":
+        global ERASE_MODE_ON
         ERASE_MODE_ON = False
     if configuration.get("aiMaxValidMovesToEvaluateEachTurn", "").isdigit():
         setAiMaxValidMovesToEvaluate(int(configuration["aiMaxValidMovesToEvaluateEachTurn"]))
