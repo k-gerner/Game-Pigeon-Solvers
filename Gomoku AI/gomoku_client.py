@@ -8,8 +8,15 @@ import os
 
 EMPTY, BLACK, WHITE = '.', 'X', 'O'
 gameBoard = [] # created later
-MY_COLOR, ENEMY_COLOR, NO_COLOR = '\033[92m', '\033[91m', '\033[0m' 		# green, red, white
+GREEN_COLOR, RED_COLOR, NO_COLOR = '\033[92m', '\033[91m', '\033[0m' 		# green, red, white
 MOST_RECENT_HIGHLIGHT_COLOR = '\u001b[48;5;238m' # dark grey; to make lighter, increase 238 to anything 255 or below
+
+ERASE_MODE_ON = True
+BOARD_OUTPUT_HEIGHT = 7
+
+CURSOR_UP_ONE = '\033[1A'
+ERASE_LINE = '\033[2K'
+ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
 
 def createGameBoard(dimension):
 	'''Creates the gameBoard with the specified number of rows and columns'''
@@ -26,10 +33,9 @@ def printGameBoard(mostRecentMove):
 	for rowNum in range(len(gameBoard)):
 		print("\t%d%s| " % (rowNum+1, "" if rowNum > 8 else " "), end = '')
 		for colNum in range(len(gameBoard[rowNum])):
-			# print("%s " % spot, end='')
 			spot = gameBoard[rowNum][colNum]
 			pieceColor = MOST_RECENT_HIGHLIGHT_COLOR if [rowNum, colNum] == mostRecentMove else ''
-			pieceColor += MY_COLOR if spot == playerColor else ENEMY_COLOR
+			pieceColor += GREEN_COLOR if spot == playerColor else RED_COLOR
 			if spot == EMPTY:
 				print("%s " % spot, end='')
 			else:
@@ -65,6 +71,13 @@ def printAsciiTitleArt():
 	print('| |  _ / _ \\| \'_ ` _ \\ / _ \\| |/ / | | |   / _ \\  | |')
 	print('| |_| | (_) | | | | | | (_) |   <| |_| |  / ___ \\ | |')
 	print(' \\____|\\___/|_| |_| |_|\\___/|_|\\\\_\\__,_| /_/   \\_\\___|\n')
+
+
+def erasePreviousLines(numLines, overrideEraseMode=False):
+	"""Erases the specified previous number of lines from the terminal"""
+	eraseMode = ERASE_MODE_ON if not overrideEraseMode else (not ERASE_MODE_ON)
+	if eraseMode:
+		print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(numLines, 0), end='')
                                                        
 
 def getPlayerMove():
@@ -95,7 +108,6 @@ def main():
 	global ai
 	global gameBoard
 	global playerColor
-	# print("\nWelcome to Kyle's Gomoku AI!")
 	os.system("") # allows colored terminal to work on Windows OS
 	printAsciiTitleArt()
 	boardDimension = input("What is the dimension of the board? (Default is 13x13)\nEnter a single odd number:\t").strip()
@@ -117,7 +129,7 @@ def main():
 			print("Invalid input. You'll be white!")
 
 	ai = strategy.Strategy(int(boardDimension), playerColor)
-	print(f"\nYou: {MY_COLOR}%s{NO_COLOR}\tAI: {ENEMY_COLOR}%s{NO_COLOR}" % (playerColor, ai.opponentOf(playerColor)))
+	print(f"\nYou: {GREEN_COLOR}%s{NO_COLOR}\tAI: {RED_COLOR}%s{NO_COLOR}" % (playerColor, ai.opponentOf(playerColor)))
 	print("Press 'q' at any prompt to quit.\nOr, press 'p' to end the game and receive Python code for recreating the gameBoard.")
 	turn = BLACK
 	columnLabels = list(map(chr, range(65, 65 + len(gameBoard))))
@@ -163,4 +175,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+	main()
