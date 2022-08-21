@@ -3,6 +3,8 @@
 # Anagrams Game Pigeon tool
 
 from functools import cmp_to_key
+import os
+import sys
 
 englishWords = set()
 wordStarts = set()
@@ -13,17 +15,20 @@ INPUT_FILENAME = "letters7.txt"
 RED_COLOR = '\033[91m'
 NO_COLOR = '\033[0m'
 ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
+CURSOR_UP_ONE = '\033[1A'
+ERASE_LINE = '\033[2K'
+ERASE_MODE_ON = True
 
-def findWords(letters, currStr=""):
+def findWords(remainingLetters, currStr=""):
 	"""Finds all the words that can be made with the given letters. Populates the foundWords set"""
 	if len(currStr) >= 3 and currStr not in wordStarts:
 		return
 	if currStr in englishWords:
 		foundWords.add(currStr)
-	if len(letters) == 0:
+	if len(remainingLetters) == 0:
 		return
-	for i in range(len(letters)):
-		findWords(letters[:i] + letters[i+1:], currStr + letters[i])
+	for i in range(len(remainingLetters)):
+		findWords(remainingLetters[:i] + remainingLetters[i+1:], currStr + remainingLetters[i])
 
 def wordCompare(a, b):
 	"""The comparison function used for sorting words. Sorts by length, then alphabetically"""
@@ -60,7 +65,8 @@ def printFoundWords(words):
 				grammar = "final %d words" % wordsLeft
 			else:
 				grammar = "final word"
-		cmd = input("Press enter for %s, or 'q' to quit, or 'a' for all:\t" % grammar).rstrip()
+		cmd = input("Press enter for %s, or 'q' to quit, or 'a' for all remaining words:\t" % grammar).strip().lower()
+		erasePreviousLines(11)
 
 def populateWordSets(numLetters):
 	"""Fills the sets that will contain words we can search for"""
@@ -79,22 +85,35 @@ def populateWordSets(numLetters):
 		print(f"\n{ERROR_SYMBOL} Could not open the file. Please make sure %s is in the current directory, and run this file from inside the current directory.\n" % INPUT_FILENAME)
 		exit(0)
 
+def erasePreviousLines(numLines, overrideEraseMode=False):
+	"""Erases the specified previous number of lines from the terminal"""
+	eraseMode = ERASE_MODE_ON if not overrideEraseMode else (not ERASE_MODE_ON)
+	if eraseMode:
+		print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(numLines, 0), end='')
+
 def main():
 	# initial setup
-	print("Welcome to Kyle's Anagrams Solver Tool!\n")
+	os.system("")  # allows output text coloring for Windows OS
+	if len(sys.argv) == 2 and sys.argv[1] in ["-e", "-eraseModeOff"]:
+		global ERASE_MODE_ON
+		ERASE_MODE_ON = False
+	print("\nWelcome to Kyle's Anagrams Solver Tool!\n")
 	numLetters = input("How many letters are on the board? (6 or 7):\t").strip()
-	if numLetters.isnumeric() and (int(numLetters) == 6 or int(numLetters) == 7):
+	if numLetters.isdigit() and (int(numLetters) == 6 or int(numLetters) == 7):
 		numLetters = int(numLetters)
 	else:
+		erasePreviousLines(1)
 		print(f"{ERROR_SYMBOL} Invalid input. Using default value of 6 instead.")
 		numLetters = 6
 	populateWordSets(numLetters)
 
 	# read in user input
-	letters = input("Enter the letters on the board, with no spaces in between:  ").strip()
+	letters = input("Enter the letters on the board, with no spaces in between:  ").strip().lower()
 	while len(letters) != numLetters:
-		print(f"{ERROR_SYMBOL} The number of letters did not match the specified max length. Try again.\n")
-		letters = input("Enter the letters on the board, with no spaces in between:\t").rstrip()
+		erasePreviousLines(1)
+		letters = input(f"{ERROR_SYMBOL} The number of letters did not match the specified max length. Try again:\t").strip().lower()
+	erasePreviousLines(1)
+	print("The letters are: %s" % " ".join(letters.upper()))
 
 	# call function to find words
 	findWords(letters)
