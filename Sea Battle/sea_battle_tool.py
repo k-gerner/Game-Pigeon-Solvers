@@ -165,6 +165,8 @@ def game_over():
 	'''
 	Checks if the game is over
 	'''
+	if not any(EMPTY in row for row in game_board):
+		return True
 	for ship_size in REMAINING_SHIPS:
 		if REMAINING_SHIPS[ship_size] > 0:
 			return False
