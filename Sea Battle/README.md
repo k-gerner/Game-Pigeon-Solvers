@@ -29,3 +29,6 @@ As the game progresses, ships will be destroyed and removed from the ship counte
 <img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Sea%20Battle/midgame_densities.png" alt = "mid-game space densitites" width="45%"><br/>  
 
 After the player selects a move, they will be asked whether the move resulted in a miss, hit, or sink. It will then update the board and space densities accordingly. If the player chooses a space that is not in the optimal move set, the player will be asked to confirm that they meant to choose that location. This is to prevent accidental incorrect input.
+
+### ✨ New in Version 1.1
+* The game will now be played on a single game board instead of printing a new board after each turn. This can be turned off with the command line argument `-e` or `-eraseModeOff`.
