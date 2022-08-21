@@ -21,4 +21,4 @@ Alpha-Beta pruning works by keeping track of the best already explored option al
 
 
 ### ✨ New in Version 1.1  
-The game will now be played on a single game board instead of printing a new board after each turn. This can be turned off with the command line argument `-e` or `-eraseModeOff`.
+* The game will now be played on a single game board instead of printing a new board after each turn. This can be turned off with the command line argument `-e` or `-eraseModeOff`.
