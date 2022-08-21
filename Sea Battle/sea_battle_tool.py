@@ -2,9 +2,9 @@
 # Started 9.5.2021
 # Sea Battle AI (Battleship clone)
 
-import itertools
 import math
 import os
+import sys
 
 # Board characters
 DESTROY = "D"
@@ -22,6 +22,7 @@ REMAINING_SHIPS = { # ship_length: num_remaining
 	4: 1
 }
 SIZE = 10 # size of board
+COLUMN_LABELS = [] # Letters that correspond to the columns; Gets set when board is created
 
 # Colors (final)
 DESTROY_COLOR = '\033[92m' # green
@@ -31,12 +32,22 @@ MOST_RECENT_HIGHLIGHT_COLOR = '\u001b[48;5;238m' # dark grey; to make lighter, i
 NO_COLOR = '\033[0m' # white
 OPTIMAL_COLOR = '\033[34m' # blue
 
+ERASE_MODE_ON = True
+CURSOR_UP_ONE = '\033[1A'
+ERASE_LINE = '\033[2K'
+ERROR_SYMBOL = f"{MISS_COLOR}<!>{NO_COLOR}"
+
+BOARD_OUTPUT_HEIGHT = -1 # Height of the output from printing the board; Gets set when board is created
+SPACE_DENSITY_TABLE_OUTPUT_HEIGHT = -1 # Height of the output from printing the space density table; Gets set when board is created
+
 
 def create_game_board(dimension):
 	'''Creates the gameBoard with the specified number of rows and columns'''
-	global SIZE
-	global REMAINING_SHIPS
+	global SIZE, REMAINING_SHIPS, BOARD_OUTPUT_HEIGHT, SPACE_DENSITY_TABLE_OUTPUT_HEIGHT, COLUMN_LABELS
 	SIZE = dimension
+	BOARD_OUTPUT_HEIGHT = SIZE + 4
+	SPACE_DENSITY_TABLE_OUTPUT_HEIGHT = SIZE + 5
+	COLUMN_LABELS = list(map(chr, range(65, 65 + SIZE)))
 	for row_num in range(SIZE):
 		game_board.append([EMPTY] * SIZE)
 	if dimension == 10:
@@ -46,22 +57,21 @@ def create_game_board(dimension):
 			3: 5,
 			4: 3
 		}
-	else:
-		# 8x8
+	elif dimension == 8:
 		REMAINING_SHIPS = {
 			2: 3,
 			3: 3,
 			4: 1
 		}
-
+	else:
+		raise ValueError("Board can only be 8x8, 9x9, or 10x10.")
 
 
 def print_board(most_recent_move = None, optimal_locations = []):
 	'''
 	Print the game board in a readable format
 	'''
-	columnLabels = list(map(chr, range(65, 65 + SIZE)))
-	print("\n\t    %s\n" % " ".join(columnLabels))
+	print("\n\t    %s\n" % " ".join(COLUMN_LABELS))
 	ships_remain = []
 	for length in list(reversed(sorted(REMAINING_SHIPS.keys()))):
 		ships_remain.append([length, REMAINING_SHIPS[length]])
@@ -144,6 +154,12 @@ def print_space_densities(color_mode = False):
 				print(f"{COLOR}%s{NO_COLOR}" % (str(int(value)) + (4-int(math.log10(value)))*" "), end='')
 		print("|")
 	print("   %s\n" % ("-"*55))
+
+def erasePreviousLines(numLines, overrideEraseMode=False):
+	"""Erases the specified previous number of lines from the terminal"""
+	eraseMode = ERASE_MODE_ON if not overrideEraseMode else (not ERASE_MODE_ON)
+	if eraseMode:
+		print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(numLines, 0), end='')
 
 def game_over():
 	'''
@@ -355,62 +371,60 @@ def get_optimal_moves():
 				best_move_coordinates = [[row_index, col_index]]
 	return best_move_coordinates
 
-def player_move():
-	'''Takes in the user's input and performs that move on the board, returns the move'''
+def sink_ship(row, col):
+	'''
+    Changes the game board to display that a ship has sunk
+    Updates the density pyramid
+    Updates the ships remaining totals
+    '''
+	game_board[row][col] = DESTROY
+	dir_increments = [
+		[0, -1], # left
+		[0, 1],  # right
+		[-1, 0], # down
+		[1, 0] 	 # up
+	]
+	sunken_coordinates = [[row, col]]
+	for direction_pair in dir_increments:
+		vert_add, horiz_add = direction_pair
+		row_incremented, col_incremented = row, col
+		while 0 <= (row_incremented + vert_add) < SIZE and 0 <= col_incremented + horiz_add < SIZE:
+			# while in range of board
+			spot = game_board[row_incremented + vert_add][col_incremented + horiz_add]
+			if spot == HIT:
+				game_board[row_incremented + vert_add][col_incremented + horiz_add] = DESTROY
+				sunken_coordinates.append([row_incremented + vert_add, col_incremented + horiz_add])
+				row_incremented += vert_add
+				col_incremented += horiz_add
+			else:
+				break
+	try:
+		sunken_ship_size = len(sunken_coordinates)
+		REMAINING_SHIPS[sunken_ship_size] -= 1
+		create_density_pyramid()
+	except:
+		print("Looks like there was some confusion. Ships can only be 1 - 4 units long.\nTerminating session.")
+		exit(0)
 
-	def sink_ship(row, col):
-		'''
-		Changes the game board to display that a ship has sunk
-		Updates the density pyramid
-		Updates the ships remaining totals
-		'''
-		game_board[row][col] = DESTROY
-		dir_increments = [ 
-			[0, -1], # left
-			[0, 1],  # right
-			[-1, 0], # down
-			[1, 0] 	 # up
-		]
-		sunken_coordinates = [[row, col]]
-		for direction_pair in dir_increments:
-			vert_add, horiz_add = direction_pair
-			row_incremented, col_incremented = row, col
-			while 0 <= (row_incremented + vert_add) < SIZE and 0 <= col_incremented + horiz_add < SIZE:
-				# while in range of board
-				spot = game_board[row_incremented + vert_add][col_incremented + horiz_add]
-				if spot == HIT:
-					game_board[row_incremented + vert_add][col_incremented + horiz_add] = DESTROY
-					sunken_coordinates.append([row_incremented + vert_add, col_incremented + horiz_add])
-					row_incremented += vert_add
-					col_incremented += horiz_add
-				else:
-					break
-		try:
-			sunken_ship_size = len(sunken_coordinates)
-			REMAINING_SHIPS[sunken_ship_size] -= 1
-			create_density_pyramid()
-		except:
-			print("Looks like there was some confusion. Ships can only be 1 - 4 units long.\nTerminating session.")
-			exit(0)
+	sunken_neighbor_distances = [
+		[0, -1],  # left
+		[0, 1],   # right
+		[-1, 0],  # down
+		[1, 0],   # up
+		[-1, -1], # lower left
+		[-1, 1],  # lower right
+		[1, -1],  # upper left
+		[1, 1]    # upper right
+	]
+	for coord in sunken_coordinates:
+		for increment in sunken_neighbor_distances:
+			new_row, new_col = coord[0] + increment[0], coord[1] + increment[1]
+			if 0 <= new_row < SIZE and 0 <= new_col < SIZE and game_board[new_row][new_col] == EMPTY:
+				game_board[new_row][new_col] = MISS
 
-		sunken_neighbor_distances = [
-			[0, -1],  # left
-			[0, 1],   # right
-			[-1, 0],  # down
-			[1, 0],   # up
-			[-1, -1], # lower left
-			[-1, 1],  # lower right
-			[1, -1],  # upper left
-			[1, 1]    # upper right
-		]
-		for coord in sunken_coordinates:
-			for increment in sunken_neighbor_distances:
-				new_row, new_col = coord[0] + increment[0], coord[1] + increment[1]
-				if 0 <= new_row < SIZE and 0 <= new_col < SIZE and game_board[new_row][new_col] == EMPTY:
-					game_board[new_row][new_col] = MISS
-
-	columnLabels = list(map(chr, range(65, 65 + SIZE)))
-	spot = input("Which spot would you like to play? (A1 - %s%d):\t" % (columnLabels[-1], SIZE)).strip().upper()
+def get_player_move():
+	'''Takes in the user's input and performs that move on the board, returns the coordinates of the move'''
+	spot = input("Which spot would you like to play? (A1 - %s%d):\t" % (COLUMN_LABELS[-1], SIZE)).strip().upper()
 	while True:
 		if spot == 'Q':
 			print("\nThanks for playing!\n")
@@ -418,45 +432,36 @@ def player_move():
 		elif spot == 'SD' or spot == "SDC":
 			print_space_densities(spot == "SDC")
 			print("The space densities table is shown above.")
-			spot = input("Which spot would you like to play? (A1 - %s%d):\t" % (columnLabels[-1], SIZE)).strip().upper()
-		elif spot == "SB":
+			spot = input("Which spot would you like to play? (A1 - %s%d):\t" % (COLUMN_LABELS[-1], SIZE)).strip().upper()
+			erasePreviousLines(SPACE_DENSITY_TABLE_OUTPUT_HEIGHT + 2)
+		elif spot == "SB" and not ERASE_MODE_ON:
 			print_board(optimal_locations=get_optimal_moves())
 			print("The current game board is shown above.")
-			spot = input("Which spot would you like to play? (A1 - %s%d):\t" % (columnLabels[-1], SIZE)).strip().upper()
-		elif len(spot) >= 4 or len(spot) == 0 or spot[0] not in columnLabels or not spot[1:].isdigit() or int(spot[1:]) > SIZE or int(spot[1:]) < 1:
-			spot = input("Invalid input. Please try again.\t").strip().upper()
-		elif game_board[int(spot[1:]) - 1][columnLabels.index(spot[0])] != EMPTY:
-			spot = input("That spot is already taken, please choose another:\t").strip().upper()
+			spot = input("Which spot would you like to play? (A1 - %s%d):\t" % (COLUMN_LABELS[-1], SIZE)).strip().upper()
+			erasePreviousLines(BOARD_OUTPUT_HEIGHT + 2)
+		elif len(spot) >= 4 or len(spot) == 0 or spot[0] not in COLUMN_LABELS or not spot[1:].isdigit() or int(spot[1:]) > SIZE or int(spot[1:]) < 1:
+			spot = input(f"{ERROR_SYMBOL} Invalid input. Please try again.\t").strip().upper()
+			erasePreviousLines(1)
+		elif game_board[int(spot[1:]) - 1][COLUMN_LABELS.index(spot[0])] != EMPTY:
+			spot = input(f"{ERROR_SYMBOL} That spot is already taken, please choose another:\t").strip().upper()
+			erasePreviousLines(1)
 		else:
 			optimal_locations = get_optimal_moves()
 			row = int(spot[1:]) - 1
-			col = columnLabels.index(spot[0])
+			col = COLUMN_LABELS.index(spot[0])
 			if [row, col] not in optimal_locations:
-				fail_safe = input(f"{spot} is not in the list of optimal moves. Are you sure you want to make that move? (y/n)\t").strip().upper()
+				fail_safe = input(f"{ERROR_SYMBOL} {spot} is not in the list of optimal moves. Are you sure you want to make that move? (y/n)\t").strip().upper()
+				erasePreviousLines(1)
 				while fail_safe not in ["Y", "N"]:
-					fail_safe = input("Please enter 'y' or 'n':\t").strip().upper()
+					fail_safe = input(f"{ERROR_SYMBOL} Please enter 'y' or 'n':\t").strip().upper()
+					erasePreviousLines(1)
 				if  fail_safe == "N":
-					spot = input("Phew! Okay, where would you like to play? (A1 - %s%d):\t" % (columnLabels[-1], SIZE)).strip().upper()
+					spot = input("Phew! Okay, where would you like to play? (A1 - %s%d):\t" % (COLUMN_LABELS[-1], SIZE)).strip().upper()
+					erasePreviousLines(1)
 				else:
 					break
 			else:
 				break
-	outcome = input("Was that shot a miss (M), a partial-hit (H), or a sink (S)?\t").strip().upper()
-	while True:
-		if outcome == 'Q':
-			print("\nThanks for playing!\n")
-			exit(0)
-		elif outcome == "H":
-			game_board[row][col] = HIT
-			break
-		elif outcome == "S":
-			sink_ship(row, col)
-			break
-		elif outcome == "M":
-			game_board[row][col] = MISS
-			break
-		else:
-			outcome = input("Invalid input. Try again:\t").strip().upper()
 	return [row, col]
 
 def main():
@@ -465,6 +470,9 @@ def main():
 	'''
 
 	os.system("") # allows colored terminal to work on Windows OS
+	if len(sys.argv) == 2 and sys.argv[1] in ["-e", "-eraseModeOff"]:
+		global ERASE_MODE_ON
+		ERASE_MODE_ON = False
 	print("""
    _____              ____        _   _   _      
   / ____|            |  _ \\      | | | | | |     
@@ -476,34 +484,57 @@ def main():
 	print("The default board size is 10x10.")
 	print("To show the space density table, type 'sd' at the move selection prompt.")
 	print("To color the space density table, type 'sdc' at the move selection prompt.")
-	print("To re-display the current game board, type 'sb' at the move selection prompt.")
+	if not ERASE_MODE_ON:
+		print("To re-display the current game board, type 'sb' at the move selection prompt.")
 	print("To quit, type 'q' at any prompt.\n")
 
 	board_dimension = input("What is the dimension of the board (8, 9, or 10)? (Default is 10x10)\nEnter a single number:\t").strip()
+	erasePreviousLines(2)
 	if board_dimension.isdigit() and int(board_dimension) in [8, 9, 10]:
 		print("The board will be %sx%s!" % (board_dimension, board_dimension))
 	else:
 		board_dimension = 10
-		print("Invalid input. The board will be 10x10!")
+		print(f"{ERROR_SYMBOL} Invalid input. The board will be 10x10!")
 	create_game_board(int(board_dimension))
 	create_density_pyramid()
 
 	most_recent_move = None
-	while not game_over():
-		print_board(most_recent_move)
-		best_move_coordinates_list = get_optimal_moves()
-		cont = input("Press enter to show optimal moves for the current board. ").strip().lower()
-		if cont == 'q':
-			print("\nThanks for playing!\n")
-			exit(0)
-		print_board(most_recent_move, best_move_coordinates_list)
+	best_move_coordinates_list = get_optimal_moves()
+	print_board(optimal_locations=best_move_coordinates_list)
+	while True:
 		if len(best_move_coordinates_list) > 1:
 			words = ["spots", "are", "have"]
 		else:
 			words = ["spot", "is", "has"]
 		print(f"\nThe %s that %s most likely to contain a ship %s been colored {OPTIMAL_COLOR}blue{NO_COLOR}." % (words[0], words[1], words[2]))
-		most_recent_move = player_move()
+		most_recent_move = get_player_move()
+		row, col = most_recent_move
+		humanReadableMoveCoordinate = COLUMN_LABELS[col] + str(row + 1)
+		outcome = input(f"Was that shot at {humanReadableMoveCoordinate} a miss (M), a partial-hit (H), or a sink (S)?\t").strip().upper()
+		erasePreviousLines(1)
+		while True:
+			if outcome == 'Q':
+				print("\nThanks for playing!\n")
+				exit(0)
+			elif outcome == "H":
+				game_board[row][col] = HIT
+				break
+			elif outcome == "S":
+				sink_ship(row, col)
+				break
+			elif outcome == "M":
+				game_board[row][col] = MISS
+				break
+			else:
+				outcome = input(f"{ERROR_SYMBOL} Invalid input. Try again:\t").strip().upper()
+				erasePreviousLines(1)
+		if game_over():
+			break
+		best_move_coordinates_list = get_optimal_moves()
+		erasePreviousLines(BOARD_OUTPUT_HEIGHT + 3)
+		print_board([row, col], best_move_coordinates_list)
 
+	erasePreviousLines(BOARD_OUTPUT_HEIGHT + 3)
 	print_board(most_recent_move)
 	print("\nGood job, you won!\n")
 
