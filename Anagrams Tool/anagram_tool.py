@@ -8,6 +8,8 @@ englishWords = set()
 wordStarts = set()
 foundWords = set()
 
+INPUT_FILENAME = "letters7.txt"
+
 # call the helper function, which is recursive
 def findWords(letters):
 	for i in range(len(letters)):
@@ -61,6 +63,23 @@ def printFoundWords(words):
 				grammar = "final word"
 		cmd = input("Press enter for %s, or 'q' to quit, or 'a' for all:\t" % grammar).rstrip()
 
+def populateWordSets(numLetters):
+	"""Fills the sets that will contain words we can search for"""
+	try :
+		inputFile = open(INPUT_FILENAME, 'r')
+		for word in inputFile:
+			strippedWord = word.rstrip() #removes newline char
+			if len(strippedWord) > numLetters:
+				continue
+			englishWords.add(strippedWord)
+			# add each word start to the set of word starts
+			for i in range(3, len(strippedWord) + 1):
+				wordStarts.add(strippedWord[:i])
+		inputFile.close()
+	except FileNotFoundError:
+		print("\nCould not open the file. Please make sure %s is in the current directory, and run this file from inside the current directory.\n" % INPUT_FILENAME)
+		exit(0)
+
 # main method
 def main():
 	# initial setup
@@ -72,22 +91,7 @@ def main():
 		print("Invalid input. Using default value of 6 instead.")
 		numLetters = 6
 
-	# populate the word sets
-	inputFileName = "letters7.txt"
-	try :
-		inputFile = open(inputFileName, 'r')
-	except:
-		print("\nCould not open the file. Please make sure %s is in the current directory, and run this file from inside the current directory.\n" % filename)
-		exit(0)
-	for word in inputFile:
-		strippedWord = word.rstrip() #removes newline char
-		if len(strippedWord) > numLetters:
-			continue
-		englishWords.add(strippedWord)
-		# add each word start to the set of word starts
-		for i in range(3, len(strippedWord) + 1):
-			wordStarts.add(strippedWord[:i])
-	inputFile.close()
+	populateWordSets(numLetters)
 
 	# read in user input
 	letters = input("Enter the letters on the board, with no spaces in between:  ").rstrip()
