@@ -10,32 +10,27 @@ foundWords = set()
 
 INPUT_FILENAME = "letters7.txt"
 
-# call the helper function, which is recursive
-def findWords(letters):
-	for i in range(len(letters)):
-		findWordsHelper(letters[:i] + letters[i + 1:], letters[i])
-
-# check for word validity, continue with remaining letters if there are any left
-def findWordsHelper(letters, curStr):
-	if len(curStr) >= 3 and curStr not in wordStarts:
+def findWords(letters, currStr=""):
+	"""Finds all the words that can be made with the given letters. Populates the foundWords set"""
+	if len(currStr) >= 3 and currStr not in wordStarts:
 		return
-	if curStr in englishWords:
-		foundWords.add(curStr)
+	if currStr in englishWords:
+		foundWords.add(currStr)
 	if len(letters) == 0:
 		return
 	for i in range(len(letters)):
-		findWordsHelper(letters[:i] + letters[i+1:], curStr + letters[i])
+		findWords(letters[:i] + letters[i+1:], currStr + letters[i])
 
-# for custom sorting of valid words, sorts by length and then alphabetically
 def wordCompare(a, b):
+	"""The comparison function used for sorting words. Sorts by length, then alphabetically"""
 	if len(a) < len(b):
-		return -1
+		return 1
 	elif len(a) == len(b):
-		return 1 if a < b else -1
-	return 1
+		return -1 if a < b else 1
+	return -1
 
-# print the valid words that were found, according to user input
 def printFoundWords(words):
+	"""Prints the valid words that were found, according to user input"""
 	count = 1
 	print("\n%d word%s found.\n" % (len(words), '' if len(words) == 1 else 's'))
 	cmd = ''
@@ -80,21 +75,19 @@ def populateWordSets(numLetters):
 		print("\nCould not open the file. Please make sure %s is in the current directory, and run this file from inside the current directory.\n" % INPUT_FILENAME)
 		exit(0)
 
-# main method
 def main():
 	# initial setup
 	print("Welcome to Kyle's Anagrams Solver Tool!\n")
-	numLetters = input("How many letters are on the board? (6 or 7):\t")
+	numLetters = input("How many letters are on the board? (6 or 7):\t").strip()
 	if numLetters.isnumeric() and (int(numLetters) == 6 or int(numLetters) == 7):
 		numLetters = int(numLetters)
 	else:
 		print("Invalid input. Using default value of 6 instead.")
 		numLetters = 6
-
 	populateWordSets(numLetters)
 
 	# read in user input
-	letters = input("Enter the letters on the board, with no spaces in between:  ").rstrip()
+	letters = input("Enter the letters on the board, with no spaces in between:  ").strip()
 	while len(letters) != numLetters:
 		print("The number of letters did not match the specified max length. Try again.\n")
 		letters = input("Enter the letters on the board, with no spaces in between:\t").rstrip()
@@ -102,11 +95,11 @@ def main():
 	# call function to find words
 	findWords(letters)
 	word_cmp_key = cmp_to_key(wordCompare)
-	validWords = sorted(list(foundWords), key=word_cmp_key, reverse=True)
+	validWords = sorted(list(foundWords), key=word_cmp_key)
 	if len(validWords) == 0:
 		print("There were no valid words for the board.")
-		exit(0)
-	printFoundWords(validWords)
+	else:
+		printFoundWords(validWords)
 	print("Thanks for using my Anagrams Solver Tool!\n")
 
 
