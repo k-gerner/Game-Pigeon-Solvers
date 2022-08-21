@@ -9,4 +9,7 @@ First, download the `anagram_tool.py` and `letters7.txt` files and place them al
 ```
 > python3 anagram_tool.py
 ```  
-Once you do this, you will be asked how many letters are given (either 6 or 7). Next, you will be prompted for the letters on the board. After entering them, there will be 10 words displayed at a time, unless you type 'a' to see the entire list at once.
+Once you do this, you will be asked how many letters are given (either 6 or 7). Next, you will be prompted for the letters on the board. After entering them, there will be 10 words displayed at a time, unless you type 'a' to see the entire list at once.  
+
+### ✨ New in Version 1.1
+* The results will now be displayed in place (10 at a time), erasing the previously displayed output when the user requests to see additional words. This can be turned off with the command line argument `-e` or `-eraseModeOff`.
