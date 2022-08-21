@@ -10,6 +10,10 @@ foundWords = set()
 
 INPUT_FILENAME = "letters7.txt"
 
+RED_COLOR = '\033[91m'
+NO_COLOR = '\033[0m'
+ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
+
 def findWords(letters, currStr=""):
 	"""Finds all the words that can be made with the given letters. Populates the foundWords set"""
 	if len(currStr) >= 3 and currStr not in wordStarts:
@@ -72,7 +76,7 @@ def populateWordSets(numLetters):
 				wordStarts.add(strippedWord[:i])
 		inputFile.close()
 	except FileNotFoundError:
-		print("\nCould not open the file. Please make sure %s is in the current directory, and run this file from inside the current directory.\n" % INPUT_FILENAME)
+		print(f"\n{ERROR_SYMBOL} Could not open the file. Please make sure %s is in the current directory, and run this file from inside the current directory.\n" % INPUT_FILENAME)
 		exit(0)
 
 def main():
@@ -82,14 +86,14 @@ def main():
 	if numLetters.isnumeric() and (int(numLetters) == 6 or int(numLetters) == 7):
 		numLetters = int(numLetters)
 	else:
-		print("Invalid input. Using default value of 6 instead.")
+		print(f"{ERROR_SYMBOL} Invalid input. Using default value of 6 instead.")
 		numLetters = 6
 	populateWordSets(numLetters)
 
 	# read in user input
 	letters = input("Enter the letters on the board, with no spaces in between:  ").strip()
 	while len(letters) != numLetters:
-		print("The number of letters did not match the specified max length. Try again.\n")
+		print(f"{ERROR_SYMBOL} The number of letters did not match the specified max length. Try again.\n")
 		letters = input("Enter the letters on the board, with no spaces in between:\t").rstrip()
 
 	# call function to find words
@@ -97,7 +101,7 @@ def main():
 	word_cmp_key = cmp_to_key(wordCompare)
 	validWords = sorted(list(foundWords), key=word_cmp_key)
 	if len(validWords) == 0:
-		print("There were no valid words for the board.")
+		print(f"{ERROR_SYMBOL} There were no valid words for the board.")
 	else:
 		printFoundWords(validWords)
 	print("Thanks for using my Anagrams Solver Tool!\n")
