@@ -4,6 +4,9 @@ from AvalancheBoard import AvalancheBoard
 from Player import Player
 from AvalancheSolver import AvalancheSolver
 
+ONE_BY_ONE = 1
+ALL_AT_ONCE = 2
+
 # reads in the input for the board from the user
 def inputForBoard():
     while True:
@@ -36,7 +39,7 @@ def createSolver(boardVals):
 
 # prints the player's best moves in the selected mode
 def printSequence(mode, solver, pointsGained, bestMoves):
-    if mode == 1:
+    if mode == ONE_BY_ONE:
         solver.printBestMovesOneByOne(pointsGained, bestMoves)
     else: solver.printBestMoveStatus(pointsGained, bestMoves)
 
@@ -44,10 +47,10 @@ def printSequence(mode, solver, pointsGained, bestMoves):
 def main():
     print("\nWelcome to Kyle's Mancala Avalanche AI! Written on 7.9.2020")
     if input("\nWould you like to receive your moveset one at a time (as opposed to a printed list)? (y/n): ").strip() == "y":
-        printMode = 1
+        printMode = ONE_BY_ONE
         print("Moves will be presented one at a time.\n")
     else:
-        printMode = 2
+        printMode = ALL_AT_ONCE
         print("Moves will be presented all at once.\n")
     boardVals = inputForBoard()
     solver = createSolver(boardVals)
@@ -61,14 +64,17 @@ def main():
         pointsGained, bestMoves = solver.findBestMove(solver.board, 0)
         printSequence(printMode, solver, pointsGained, bestMoves)
         solver.makeMovesOnMoveset(bestMoves, solver.board)
-        print("\nThat's the end of the moveset.\n")
-        if input("To see the board after these moves, enter \"y\": ").strip() == "y":
+        print("\nThat's the end of the move set.\n")
+        if input("To see the board after these moves, enter \"y\": ").strip().lower() == "y":
             solver.board.printBoardHorizontal()
-        if input("If you would not like to continue to the next turn, type 'q':  ").strip() == "q":
+        if input("If you would not like to continue to the next turn, type 'q':  ").strip().lower() == "q":
             print("Thanks for playing!")
             break
         print("You will now be asked to input the new version of the board")
-        oldEnemyPoints = int(input("How many points does the enemy have after that turn? ").strip())
+        oldEnemyPoints = input("How many points does the enemy have after that turn? ").strip()
+        while not oldEnemyPoints.isdigit():
+            oldEnemyPoints = input("Please enter a number: ").strip()
+        oldEnemyPoints = int(oldEnemyPoints)
         boardVals = inputForBoard()
         oldPlayerPoints = solver.board.p1.score
         solver = createSolver(boardVals)
