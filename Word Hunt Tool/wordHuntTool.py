@@ -4,6 +4,7 @@
 
 from classes import Board, Letter
 from functools import cmp_to_key
+import sys
 
 # Direction Constants #
 UPLEFT = 0 	# _____________
@@ -21,6 +22,10 @@ LIST = 0
 DIAGRAM = 1
 ##################
 
+WORDS_LIST_FILENAME = "letters10.txt"
+MORE_INFO_OUTPUT_HEIGHT = 26
+DIAGRAM_OUTPUT_HEIGHT = 6
+
 englishWords = set() # LARGE set that will contain every possible word. Using set for O(1) lookup
 validWordsOnly = set() # set of only the valid word strings (no tuple pairing)
 valids = set() # set of valid words paired with their starting position ( pos, word )
@@ -28,13 +33,20 @@ MAX_LENGTH = 10 # max length of the words to find; can be changed by user input
 positionsList = [] # used to keep the lists of positions in diagram mode, since nested lists cannot be hashed
 wordStarts = set() # set that holds every valid part of every word from beginning to some point in the middle
 
+RED_COLOR = '\033[91m'
+NO_COLOR = '\033[0m'
+ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
+CURSOR_UP_ONE = '\033[1A'
+ERASE_LINE = '\033[2K'
+ERASE_MODE_ON = True
+
 # read in the user's input for the board letters
 def readInBoard():
 	print("Please enter each row of letters (one row at a time) in the format \"a b c d\"")
 	inputLetters = []
 	for i in range(4):
+		letters = input("Row %d of letters:\t" % (i+1))
 		while(True):
-			letters = input("Row %d of letters:\t" % (i+1))
 			letters = letters.lower()
 			lettersSplit = letters.split()
 			allSingleChar = True
@@ -45,7 +57,8 @@ def readInBoard():
 				if len(lettersSplit) == 4:
 					# if exactly 4 single letters entered
 					break
-			print("Invalid input. Please type that row again.")
+			erasePreviousLines(1)
+			letters = input("Invalid input. Please try again:\t")
 		for letter in lettersSplit:
 			inputLetters.append(letter)
 	letterObjs = []
@@ -146,14 +159,26 @@ def printOutput(validWords, mode):
 	print("%d words were found." % len(validWords))
 	if mode == LIST:
 		# list mode
-		print("\n   X  |   Word \t|  Starting Position on Board\n" + 
+		print("\n   #  |   Word \t|  Starting Position on Board\n" +
 		      "----------------------------------------------")
-		place = 1
-		for pair in validWords:
-			# pair[0] = start pos
-			# pair[1] = word
-			print("%d:\t%s\t %d" % (place, pair[1], pair[0] + 1))
-			place += 1
+		wordIndex = 0
+		while True:
+			for pair in validWords[wordIndex : wordIndex + 10]:
+				# pair[0] = start pos
+				# pair[1] = word
+				numSpacesToIndentIndexOutput = 14 - len(pair[1])
+				print("%d:\t%s%s%d" % (wordIndex + 1, pair[1], " " * numSpacesToIndentIndexOutput, pair[0] + 1))
+				wordIndex += 1
+			if wordIndex == len(validWords):
+				break
+			userInput = input("\nPress enter to see the next %d words, or 'q' to quit.\t").strip().lower()
+			if userInput == 'q':
+				erasePreviousLines(1)
+				print("Thanks for using my Word Hunt Tool!\n")
+				exit(0)
+			erasePreviousLines(12)
+		print()
+
 	else:
 		# diagram mode
 		place = 1
@@ -162,9 +187,12 @@ def printOutput(validWords, mode):
 			# pair[1] = word
 			if place > 1:
 				# if not first time through
-				next = input("\nPress enter for next word, or 'q' to quit\t")
+				next = input("Press enter for next word, or 'q' to quit\t")
 				if next == 'q':
-					break
+					erasePreviousLines(1)
+					print("Thanks for using my Word Hunt Tool!\n")
+					exit(0)
+				erasePreviousLines(DIAGRAM_OUTPUT_HEIGHT + 1)
 			squares = ["____"] * 16
 			letterPos = 1
 			# populate the board strings
@@ -188,58 +216,69 @@ def printOutput(validWords, mode):
 						print(outStr)
 					outStr = "|"
 				index += 1
+			print()
 			place += 1
-		print("No more words, thanks for using my Word Hunt Tool!")
+	print("No more words, thanks for using my Word Hunt Tool!\n")
 
-
+def erasePreviousLines(numLines, overrideEraseMode=False):
+	"""Erases the specified previous number of lines from the terminal"""
+	eraseMode = ERASE_MODE_ON if not overrideEraseMode else (not ERASE_MODE_ON)
+	if eraseMode:
+		print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(numLines, 0), end='')
 
 # main method
 def main():
 	# initial setup
 	global MAX_LENGTH
+	if len(sys.argv) == 2 and sys.argv[1] in ["-e", "-eraseModeOff"]:
+		global ERASE_MODE_ON
+		ERASE_MODE_ON = False
+	print("Welcome to Kyle's Word Hunt solver!")
 	print("\nNote: This code was designed for the 4x4 (default) board size.")
-	maxLen = input("\nDefault max word length is 10. Note this allocates about\n" + 
-				   "16MB of space for word sets. If you wish to change it, enter\n"  +
-				   "the desired maximum word length (3 <= L <= 10):\t").rstrip()
-	if maxLen.isnumeric():
+	maxLen = input("\nDefault max word length is 10. If you wish to change it, enter\n"  +
+				   "the desired maximum word length (3 <= L <= 10):\t").strip()
+	erasePreviousLines(3)
+	if maxLen.isdigit():
 		if int(maxLen) > 10 or int(maxLen) < 3:
-			print("Invalid length. Using default (10) instead.")
+			print(f"{ERROR_SYMBOL} Invalid length. Using default (10) instead.")
 		else:
 			MAX_LENGTH = int(maxLen)
 			print("New max word length is %d." % MAX_LENGTH)
 	else:
-		print("Using default max word length (10).")
-	filename = 'letters10.txt'
+		print(f"{ERROR_SYMBOL} Using default max word length (10).")
 	# filename = input("What word list file would you like as input?\t")
 	try :
-		inputFile = open(filename, 'r')
-	except:
-		print("\nCould not open the file. Please make sure %s is in the current directory, and run this file from inside the current directory.\n" % filename)
+		inputFile = open(WORDS_LIST_FILENAME, 'r')
+		for word in inputFile:
+			strippedWord = word.strip() # removes newline char
+			if len(strippedWord) > MAX_LENGTH:
+				continue
+			englishWords.add(strippedWord)
+			# add each word start to the set of word starts
+			for i in range(3, len(strippedWord) + 1):
+				wordStarts.add(strippedWord[:i])
+		inputFile.close()
+	except FileNotFoundError:
+		print(f"\n{ERROR_SYMBOL} Could not open the file. Please make sure {WORDS_LIST_FILENAME} is in the current directory, and run this file from inside the current directory.\n")
 		exit(0)
-	for word in inputFile:
-		strippedWord = word.rstrip() #removes newline char
-		if len(strippedWord) > MAX_LENGTH:
-			continue
-		englishWords.add(strippedWord)
-		# add each word start to the set of word starts
-		for i in range(3, len(strippedWord) + 1):
-			wordStarts.add(strippedWord[:i])
-	inputFile.close()
 
 	# display mode select
-	outputMode = LIST
-	modeSelect = input("\nUse Diagram Mode? 'y' for yes, 'i' for more info:\n").rstrip()
-	while modeSelect == 'i':
+	modeSelect = input("\nUse Diagram Mode (d) or List Mode (l)? Type 'i' for more info:\t").strip().lower()
+	erasePreviousLines(2)
+	if modeSelect == 'i':
 		printModeInfo()
-		modeSelect = input("\nUse Diagram Mode? 'y' for yes, 'i' for more info:\n").rstrip()
-	if modeSelect == 'y':
+		modeSelect = input("\nUse Diagram Mode (d) or List Mode (l)?\t").strip().lower()
+		erasePreviousLines(MORE_INFO_OUTPUT_HEIGHT + 2)
+	if modeSelect == 'l':
+		outputMode = LIST
+		print("\nWords will be displayed in List Mode.")
+	else:
 		outputMode = DIAGRAM
 		print("\nWords will be displayed in Diagram Mode.")
-	else:
-		print("\nWords will be displayed in List Mode.")
 
 	# read in user board input
 	board = readInBoard()
+	erasePreviousLines(5)
 	print("\nThe board is: ")
 	printBoard(board)
 	if outputMode == LIST:
@@ -250,11 +289,11 @@ def main():
 				"|_13_|_14_|_15_|_16_|\n\n" + 
 				"^ The above table displays the numbering of the positions\n" + 
 				"  which correspond to each word's start position.\n")
-	word_cmp_key = cmp_to_key(word_compare)
 	findValidWords(board, outputMode)
+	word_cmp_key = cmp_to_key(word_compare)
 	validWords = sorted(list(valids), key=word_cmp_key, reverse=True)
 	if len(validWords) == 0:
-		print("There were no valid words for the board.")
+		print(f"{ERROR_SYMBOL} There were no valid words for the board.")
 		exit(0)
 	printOutput(validWords, outputMode)
 

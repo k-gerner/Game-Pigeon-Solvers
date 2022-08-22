@@ -20,4 +20,8 @@ Diagram mode will display each word one at a time, along with a visual represent
 #### List Mode
 List mode will display every possible word on the board all at once, along with the index on the board at which the first letter is located. Longer words will be displayed first.  
 
-<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Word%20Hunt/sampleListMode.png" alt = "sample list mode" align = "left" width = "30%">  
+<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Word%20Hunt/sampleListMode.png" alt = "sample list mode" width = "30%">  
+
+### ✨ New in Version 1.1
+* The output will now be updated in place, instead of printing additional output to the terminal. This can be turned off with the command line argument `-e` or `-eraseModeOff`.
+* In List mode, 10 words will be displayed at a time, instead of displaying all at once.
