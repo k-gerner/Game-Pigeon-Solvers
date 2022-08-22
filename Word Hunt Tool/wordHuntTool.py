@@ -59,7 +59,6 @@ def readInBoard():
 					break
 			erasePreviousLines(1)
 			letters = input("Invalid input. Please try again:\t")
-			erasePreviousLines(2)
 		for letter in lettersSplit:
 			inputLetters.append(letter)
 	letterObjs = []
@@ -160,14 +159,24 @@ def printOutput(validWords, mode):
 	print("%d words were found." % len(validWords))
 	if mode == LIST:
 		# list mode
-		print("\n   X  |   Word \t|  Starting Position on Board\n" + 
+		print("\n   #  |   Word \t|  Starting Position on Board\n" +
 		      "----------------------------------------------")
-		place = 1
-		for pair in validWords:
-			# pair[0] = start pos
-			# pair[1] = word
-			print("%d:\t%s\t %d" % (place, pair[1], pair[0] + 1))
-			place += 1
+		wordIndex = 0
+		while True:
+			for pair in validWords[wordIndex : wordIndex + 10]:
+				# pair[0] = start pos
+				# pair[1] = word
+				print("%d:\t%s\t %d" % (wordIndex + 1, pair[1], pair[0] + 1))
+				wordIndex += 1
+			if wordIndex == len(validWords):
+				break
+			userInput = input("\nPress enter to see the next %d words, or 'q' to quit.\t").strip().lower()
+			if userInput == 'q':
+				erasePreviousLines(1)
+				print("Thanks for using my Word Hunt Tool!\n")
+				exit(0)
+			erasePreviousLines(12)
+
 	else:
 		# diagram mode
 		place = 1
@@ -177,9 +186,11 @@ def printOutput(validWords, mode):
 			if place > 1:
 				# if not first time through
 				next = input("Press enter for next word, or 'q' to quit\t")
-				erasePreviousLines(DIAGRAM_OUTPUT_HEIGHT + 1)
 				if next == 'q':
-					break
+					erasePreviousLines(1)
+					print("Thanks for using my Word Hunt Tool!\n")
+					exit(0)
+				erasePreviousLines(DIAGRAM_OUTPUT_HEIGHT + 1)
 			squares = ["____"] * 16
 			letterPos = 1
 			# populate the board strings
