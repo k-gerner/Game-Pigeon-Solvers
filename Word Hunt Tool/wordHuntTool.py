@@ -166,7 +166,8 @@ def printOutput(validWords, mode):
 			for pair in validWords[wordIndex : wordIndex + 10]:
 				# pair[0] = start pos
 				# pair[1] = word
-				print("%d:\t%s\t %d" % (wordIndex + 1, pair[1], pair[0] + 1))
+				numSpacesToIndentIndexOutput = 14 - len(pair[1])
+				print("%d:\t%s%s%d" % (wordIndex + 1, pair[1], " " * numSpacesToIndentIndexOutput, pair[0] + 1))
 				wordIndex += 1
 			if wordIndex == len(validWords):
 				break
@@ -176,6 +177,7 @@ def printOutput(validWords, mode):
 				print("Thanks for using my Word Hunt Tool!\n")
 				exit(0)
 			erasePreviousLines(12)
+		print()
 
 	else:
 		# diagram mode
@@ -216,7 +218,7 @@ def printOutput(validWords, mode):
 				index += 1
 			print()
 			place += 1
-		print("No more words, thanks for using my Word Hunt Tool!\n")
+	print("No more words, thanks for using my Word Hunt Tool!\n")
 
 def erasePreviousLines(numLines, overrideEraseMode=False):
 	"""Erases the specified previous number of lines from the terminal"""
