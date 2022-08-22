@@ -21,12 +21,21 @@ LIST = 0
 DIAGRAM = 1
 ##################
 
+WORDS_LIST_FILENAME = "letters10.txt"
+
 englishWords = set() # LARGE set that will contain every possible word. Using set for O(1) lookup
 validWordsOnly = set() # set of only the valid word strings (no tuple pairing)
 valids = set() # set of valid words paired with their starting position ( pos, word )
 MAX_LENGTH = 10 # max length of the words to find; can be changed by user input
 positionsList = [] # used to keep the lists of positions in diagram mode, since nested lists cannot be hashed
 wordStarts = set() # set that holds every valid part of every word from beginning to some point in the middle
+
+RED_COLOR = '\033[91m'
+NO_COLOR = '\033[0m'
+ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
+CURSOR_UP_ONE = '\033[1A'
+ERASE_LINE = '\033[2K'
+ERASE_MODE_ON = True
 
 # read in the user's input for the board letters
 def readInBoard():
@@ -200,31 +209,30 @@ def main():
 	print("\nNote: This code was designed for the 4x4 (default) board size.")
 	maxLen = input("\nDefault max word length is 10. Note this allocates about\n" + 
 				   "16MB of space for word sets. If you wish to change it, enter\n"  +
-				   "the desired maximum word length (3 <= L <= 10):\t").rstrip()
-	if maxLen.isnumeric():
+				   "the desired maximum word length (3 <= L <= 10):\t").strip()
+	if maxLen.isdigit():
 		if int(maxLen) > 10 or int(maxLen) < 3:
-			print("Invalid length. Using default (10) instead.")
+			print(f"{ERROR_SYMBOL} Invalid length. Using default (10) instead.")
 		else:
 			MAX_LENGTH = int(maxLen)
 			print("New max word length is %d." % MAX_LENGTH)
 	else:
-		print("Using default max word length (10).")
-	filename = 'letters10.txt'
+		print(f"{ERROR_SYMBOL} Using default max word length (10).")
 	# filename = input("What word list file would you like as input?\t")
 	try :
-		inputFile = open(filename, 'r')
-	except:
-		print("\nCould not open the file. Please make sure %s is in the current directory, and run this file from inside the current directory.\n" % filename)
+		inputFile = open(WORDS_LIST_FILENAME, 'r')
+		for word in inputFile:
+			strippedWord = word.strip() # removes newline char
+			if len(strippedWord) > MAX_LENGTH:
+				continue
+			englishWords.add(strippedWord)
+			# add each word start to the set of word starts
+			for i in range(3, len(strippedWord) + 1):
+				wordStarts.add(strippedWord[:i])
+		inputFile.close()
+	except FileNotFoundError:
+		print(f"\n{ERROR_SYMBOL} Could not open the file. Please make sure {WORDS_LIST_FILENAME} is in the current directory, and run this file from inside the current directory.\n")
 		exit(0)
-	for word in inputFile:
-		strippedWord = word.rstrip() #removes newline char
-		if len(strippedWord) > MAX_LENGTH:
-			continue
-		englishWords.add(strippedWord)
-		# add each word start to the set of word starts
-		for i in range(3, len(strippedWord) + 1):
-			wordStarts.add(strippedWord[:i])
-	inputFile.close()
 
 	# display mode select
 	outputMode = LIST
