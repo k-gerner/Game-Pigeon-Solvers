@@ -22,7 +22,16 @@ wordStarts = set() # set that holds every valid part of every word from beginnin
 validWordsOnly = set() # set of only the valid word strings (no tuple pairing)
 validsWithDetails = set() # contains the words and direction in LIST mode, as well as index of list of pieces from piecesList in DIAGRAM mode
 piecesList = [] # used to keep the list of pieces for a valid word (in DIAGRAM mode), since lists cannot be hashed in the set
-DISPLAY_MODE = LIST # default display mode
+DISPLAY_MODE = DIAGRAM # default display mode
+
+RED_COLOR = '\033[91m'
+NO_COLOR = '\033[0m'
+ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
+CURSOR_UP_ONE = '\033[1A'
+ERASE_LINE = '\033[2K'
+ERASE_MODE_ON = True
+
+WORD_LIST_FILENAME = 'letters9.txt'
 
 # read in the user's input for the board pieces
 def readInBoard():
@@ -41,12 +50,12 @@ def readInBoard():
 		pieceStr = input("%s piece #1:\t" % pair[0]).lower().strip()
 		while len(pieceStr) != 0:
 			if not pieceStr.isalpha():
-				print("Please make sure your input only contains letters.")
+				print(f"{ERROR_SYMBOL} Please make sure your input only contains letters.")
 			else:
 				if len(pieceStr) != 2 and pair[0] != 'Single Letter':
-					print("All %s pieces should be 2 letters long." % pair[0])
+					print(f"{ERROR_SYMBOL} All %s pieces should be 2 letters long." % pair[0])
 				elif pair[0] == 'Single Letter' and len(pieceStr) > 1:
-					print("You should be entering a single letter right now.")
+					print(f"{ERROR_SYMBOL} You should be entering a single letter right now.")
 				else:
 					pair[1].append(pieceStr)
 					count += 1
@@ -233,7 +242,6 @@ def printOutput(words):
 					print("%s" % line) # 3\t
 					count += 1
 			wordNum += 1
-		# print("this tuple list: %s" % str(piecesList[words[count-1][2]]))
 
 # takes in 3 strings and 'rotates' them so that they print vertically
 def rotateStringsToVertical(leftStr, middleStr, rightStr):
@@ -261,38 +269,42 @@ def printModeInfo():
 	print("\t  a l\n\t  t\n\to h\n\t  e\t\t1:   athetised\n\t  t\n\t  i n\n\t  s\n\t  e\n\t  d\n")
 	print("Press enter for next word.")
 
+def erasePreviousLines(numLines, overrideEraseMode=False):
+	"""Erases the specified previous number of lines from the terminal"""
+	eraseMode = ERASE_MODE_ON if not overrideEraseMode else (not ERASE_MODE_ON)
+	if eraseMode:
+		print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(numLines, 0), end='')
+
 # main method - fills english words sets and calls other functions
 def main():
 	global DISPLAY_MODE
 	# initial setup
 	print("Welcome to the Word Bites Game Pigeon Solver!")
-	filename = 'letters9.txt'
-	# filename = input("What word list file would you like as input?\t")
 	try :
-		inputFile = open(filename, 'r')
-	except:
-		print("\nCould not open the file. Please make sure %s is in the current directory, and run this file from inside the current directory.\n" % filename)
+		inputFile = open(WORD_LIST_FILENAME, 'r')
+		for word in inputFile:
+			strippedWord = word.strip()
+			if len(strippedWord) > max(MAX_LENGTHS.values()):
+				continue
+			englishWords.add(strippedWord)
+			# add each word start to the set of word starts
+			for i in range(3, len(strippedWord) + 1):
+				wordStarts.add(strippedWord[:i])
+		inputFile.close()
+	except FileNotFoundError:
+		print(f"\n{ERROR_SYMBOL} Could not open word list file. Please make sure {WORD_LIST_FILENAME} is in the current directory, and run this file from inside the current directory.\n")
 		exit(0)
-	for word in inputFile:
-		strippedWord = word.rstrip() # removes newline char
-		if len(strippedWord) > 9: # max vertical length
-			continue
-		englishWords.add(strippedWord)
-		# add each word start to the set of word starts
-		for i in range(3, len(strippedWord) + 1):
-			wordStarts.add(strippedWord[:i])
-	inputFile.close()
 
 	# display mode select
-	modeSelect = input("\nUse Diagram Mode? 'y' for yes, 'i' for more info:\n").rstrip()
-	while modeSelect == 'i':
+	modeSelect = input("\nUse Diagram Mode (d) or List Mode (l)? Type 'i' for more info:\t").strip()
+	if modeSelect == 'i':
 		printModeInfo()
-		modeSelect = input("\nUse Diagram Mode? 'y' for yes, 'i' for more info:\n").rstrip()
-	if modeSelect == 'y':
-		DISPLAY_MODE = DIAGRAM
-		print("\nWords will be displayed in Diagram Mode.")
-	else:
+		modeSelect = input("\nUse Diagram Mode (d) or List Mode (l)?\n").rstrip()
+	if modeSelect == 'l':
+		DISPLAY_MODE = LIST
 		print("\nWords will be displayed in List Mode.")
+	else:
+		print("\nWords will be displayed in Diagram Mode.")
 
 	# read in user input and use it to calculate best piece combinations
 	readInBoard()
@@ -300,7 +312,7 @@ def main():
 	findWords()
 	validWords = sorted(list(validsWithDetails), key=word_cmp_key)
 	if len(validWords) == 0:
-		print("There were no valid words for the board.")
+		print(f"{ERROR_SYMBOL} There were no valid words for the board.")
 		exit(0)
 	printOutput(validWords)
 
