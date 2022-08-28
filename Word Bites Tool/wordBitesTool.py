@@ -35,6 +35,7 @@ ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
 CURSOR_UP_ONE = '\033[1A'
 ERASE_LINE = '\033[2K'
 ERASE_MODE_ON = True
+MORE_INFO_OUTPUT_HEIGHT = 30
 
 WORD_LIST_FILENAME = 'letters9.txt'
 
@@ -52,19 +53,27 @@ def readInBoard():
 			  "When you are done with %s pieces, press 'enter' on an empty line\n" % pair[0]+ 
 			  "to %s\n" % nextInput)
 		count = 1
-		pieceStr = input("%s piece #1:\t" % pair[0]).lower().strip()
+		pieceStr = input("%s piece #1:\t" % pair[0]).strip().lower()
 		while len(pieceStr) != 0:
 			if not pieceStr.isalpha():
-				print(f"{ERROR_SYMBOL} Please make sure your input only contains letters.")
+				erasePreviousLines(1)
+				pieceStr = input(f"{ERROR_SYMBOL} Please make sure your input only contains letters.\t").strip().lower()
 			else:
 				if len(pieceStr) != 2 and pair[0] != 'Single Letter':
-					print(f"{ERROR_SYMBOL} All %s pieces should be 2 letters long." % pair[0])
+					erasePreviousLines(1)
+					pieceStr = input(f"{ERROR_SYMBOL} All %s pieces should be 2 letters long.\t" % pair[0]).strip().lower()
 				elif pair[0] == 'Single Letter' and len(pieceStr) > 1:
-					print(f"{ERROR_SYMBOL} You should be entering a single letter right now.")
+					erasePreviousLines(1)
+					pieceStr = input(f"{ERROR_SYMBOL} You should be entering a single letter right now.\t").strip().lower()
 				else:
 					pair[1].append(pieceStr)
 					count += 1
-			pieceStr = input("%s piece #%d:\t" % (pair[0], count)).lower().strip()
+					pieceStr = input("%s piece #%d:\t" % (pair[0], count)).strip().lower()
+		erasePreviousLines(6)
+		if ERASE_MODE_ON:
+			erasePreviousLines(len(pair[1]))
+			pieceListOutput = ", ".join(pair[1])
+			print(f"{pair[0]} pieces: {pieceListOutput}")
 
 # calls the recursive findWordsInDirection method for each direction (H and V)
 def findWords():
@@ -289,7 +298,10 @@ def main():
 	global DISPLAY_MODE
 	# initial setup
 	os.system("")  # allows colored terminal to work on Windows OS
-	print("Welcome to Kyle's Word Bites Solver!")
+	if len(sys.argv) == 2 and sys.argv[1] in ["-e", "-eraseModeOff"]:
+		global ERASE_MODE_ON
+		ERASE_MODE_ON = False
+	print("\nWelcome to Kyle's Word Bites Solver!")
 	try :
 		inputFile = open(WORD_LIST_FILENAME, 'r')
 		for word in inputFile:
@@ -307,9 +319,11 @@ def main():
 
 	# display mode select
 	modeSelect = input("\nUse Diagram Mode (d) or List Mode (l)? Type 'i' for more info:\t").strip().lower()
+	erasePreviousLines(2)
 	if modeSelect == 'i':
 		printModeInfo()
 		modeSelect = input("\nUse Diagram Mode (d) or List Mode (l)?\n").strip().lower()
+		erasePreviousLines(MORE_INFO_OUTPUT_HEIGHT + 2)
 	if modeSelect == 'l':
 		DISPLAY_MODE = LIST
 		print("\nWords will be displayed in List Mode.")
@@ -318,8 +332,8 @@ def main():
 
 	# read in user input and use it to calculate best piece combinations
 	readInBoard()
-	word_cmp_key = cmp_to_key(word_compare)
 	findWords()
+	word_cmp_key = cmp_to_key(word_compare)
 	validWords = sorted(list(validsWithDetails), key=word_cmp_key)
 	if len(validWords) == 0:
 		print(f"{ERROR_SYMBOL} There were no valid words for the board.")
