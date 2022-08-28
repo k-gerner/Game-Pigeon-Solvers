@@ -4,6 +4,7 @@
 
 from classes import Board, Letter
 from functools import cmp_to_key
+import os
 import sys
 
 # Direction Constants #
@@ -230,6 +231,7 @@ def erasePreviousLines(numLines, overrideEraseMode=False):
 def main():
 	# initial setup
 	global MAX_LENGTH
+	os.system("")  # allows output text coloring for Windows OS
 	if len(sys.argv) == 2 and sys.argv[1] in ["-e", "-eraseModeOff"]:
 		global ERASE_MODE_ON
 		ERASE_MODE_ON = False
@@ -259,7 +261,7 @@ def main():
 				wordStarts.add(strippedWord[:i])
 		inputFile.close()
 	except FileNotFoundError:
-		print(f"\n{ERROR_SYMBOL} Could not open the file. Please make sure {WORDS_LIST_FILENAME} is in the current directory, and run this file from inside the current directory.\n")
+		print(f"\n{ERROR_SYMBOL} Could not open the file. Please make sure {WORDS_LIST_FILENAME} is in the current directory.\n")
 		exit(0)
 
 	# display mode select
