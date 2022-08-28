@@ -150,6 +150,9 @@ def printOutput(words):
 			  "-------------------------------")
 		cmd = ''
 		while cmd != 'q':
+			if count > 1:
+				# if not the first time printing words to output
+				erasePreviousLines(12)
 			if cmd == 'a':
 				while count <= len(words):
 					dirSpacing = " "*5 + " "*(9-len(words[count - 1][0]))
@@ -167,7 +170,7 @@ def printOutput(words):
 				count += 1
 				if count - 1 == len(words):
 					# if reached the end of the list
-					print("\nNo more words. ", end='')
+					print("\nNo more words.\n")
 					return
 			if count + 8 < len(words):
 				grammar = "next 10 words"
@@ -177,7 +180,7 @@ def printOutput(words):
 					grammar = "final %d words" % wordsLeft
 				else:
 					grammar = "final word"
-			cmd = input("Press enter for %s, or 'q' to quit, or 'a' for all:\t" % grammar).strip().lower()
+			cmd = input("\nPress enter for %s, or 'q' to quit, or 'a' for all:\t" % grammar).strip().lower()
 	else:
 		# DISPLAY_MODE = DIAGRAM
 		# NOTE: This display mode was written to conform with the Game Pigeon Word Bites 
