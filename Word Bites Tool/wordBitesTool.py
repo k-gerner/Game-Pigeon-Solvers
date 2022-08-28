@@ -3,6 +3,8 @@
 # Tool for Game Pigeon's 'Word Bites' puzzle game
 
 from functools import cmp_to_key
+import sys
+import os
 
 # directional constants
 HORIZONTAL = 'H'
@@ -14,18 +16,21 @@ DIAGRAM = 1
 
 # globals
 MAX_LENGTHS = {HORIZONTAL: 8, VERTICAL: 9} # max length of the words in each direction
+DISPLAY_MODE = DIAGRAM # default display mode
 horizPieces = [] # list of horizontal letter groupings
 vertPieces = []  # list of vertical letter groupings
 singleLetterPieces = [] # list of letter groupings made up of a single letter
 englishWords = set() # LARGE set that will contain every possible word. Using set for O(1) lookup
-wordStarts = set() # set that holds every valid part of every word from beginning to some point in the middle
+wordStarts = set() # set that holds every starting character sequence of every valid word
 validWordsOnly = set() # set of only the valid word strings (no tuple pairing)
-validsWithDetails = set() # contains the words and direction in LIST mode, as well as index of list of pieces from piecesList in DIAGRAM mode
+validsWithDetails = set() # contains the words and direction, as well as index of list of pieces from piecesList if in DIAGRAM mode
 piecesList = [] # used to keep the list of pieces for a valid word (in DIAGRAM mode), since lists cannot be hashed in the set
-DISPLAY_MODE = DIAGRAM # default display mode
 
 RED_COLOR = '\033[91m'
 NO_COLOR = '\033[0m'
+BLUE_COLOR = "\u001b[38;5;39m"
+YELLOW_COLOR = "\u001b[38;5;226m"
+LIST_MODE_DIRECTION_COLORS = {HORIZONTAL: BLUE_COLOR, VERTICAL: YELLOW_COLOR}
 ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
 CURSOR_UP_ONE = '\033[1A'
 ERASE_LINE = '\033[2K'
@@ -61,13 +66,13 @@ def readInBoard():
 					count += 1
 			pieceStr = input("%s piece #%d:\t" % (pair[0], count)).lower().strip()
 
-# calls the recursive findWordsHelper method for each direction (H and V)
+# calls the recursive findWordsInDirection method for each direction (H and V)
 def findWords():
-	findWordsHelper(singleLetterPieces, horizPieces, vertPieces, "", HORIZONTAL, [])
-	findWordsHelper(singleLetterPieces, horizPieces, vertPieces, "", VERTICAL, [])
+	findWordsInDirection(singleLetterPieces, horizPieces, vertPieces, "", HORIZONTAL, [])
+	findWordsInDirection(singleLetterPieces, horizPieces, vertPieces, "", VERTICAL, [])
 
 # find all the valid words for a board in a certain direction
-def findWordsHelper(singles, horiz, vert, currStr, direction, currTuples):
+def findWordsInDirection(singles, horiz, vert, currStr, direction, currTuples):
 	if len(currStr) > MAX_LENGTHS[direction]:
 		# word too long
 		return
@@ -91,7 +96,7 @@ def findWordsHelper(singles, horiz, vert, currStr, direction, currTuples):
 			copyTuples.append(singles[i])
 		else:
 			copyTuples = []
-		findWordsHelper(singles[:i] + singles[i+1:], horiz, vert, currStr + singles[i], direction, copyTuples)
+		findWordsInDirection(singles[:i] + singles[i+1:], horiz, vert, currStr + singles[i], direction, copyTuples)
 	for j in range(len(horiz)):
 		if DISPLAY_MODE == DIAGRAM:
 			copyTuples = currTuples.copy()
@@ -99,10 +104,10 @@ def findWordsHelper(singles, horiz, vert, currStr, direction, currTuples):
 		else:
 			copyTuples = []
 		if direction == HORIZONTAL:
-			findWordsHelper(singles, horiz[:j] + horiz[j+1:], vert, currStr + horiz[j], direction, copyTuples)
+			findWordsInDirection(singles, horiz[:j] + horiz[j+1:], vert, currStr + horiz[j], direction, copyTuples)
 		else:
 			for horizLetter in horiz[j]:
-				findWordsHelper(singles, horiz[:j] + horiz[j+1:], vert, currStr + horizLetter, direction, copyTuples)
+				findWordsInDirection(singles, horiz[:j] + horiz[j+1:], vert, currStr + horizLetter, direction, copyTuples)
 	for k in range(len(vert)):
 		if DISPLAY_MODE == DIAGRAM:
 			copyTuples = currTuples.copy()
@@ -111,9 +116,9 @@ def findWordsHelper(singles, horiz, vert, currStr, direction, currTuples):
 			copyTuples = []
 		if direction == HORIZONTAL:
 			for vertLetter in vert[k]:
-				findWordsHelper(singles, horiz, vert[:k] + vert[k+1:], currStr + vertLetter, direction, copyTuples)
+				findWordsInDirection(singles, horiz, vert[:k] + vert[k+1:], currStr + vertLetter, direction, copyTuples)
 		else:
-			findWordsHelper(singles, horiz, vert[:k] + vert[k+1:], currStr + vert[k], direction, copyTuples)
+			findWordsInDirection(singles, horiz, vert[:k] + vert[k+1:], currStr + vert[k], direction, copyTuples)
 
 # for custom sorting of valid words; sorts longest to shortest, and alphabetically
 def word_compare(a, b):
@@ -132,20 +137,24 @@ def printOutput(words):
 	count = 1
 	print("\n%d word%s found.\n" % (len(words), '' if len(words) == 1 else 's'))
 	if DISPLAY_MODE == LIST:
-		print("   X  |   Word \t|  Direction\n" + 
+		print("   #  |   Word \t|  Direction\n" +
 			  "-------------------------------")
 		cmd = ''
 		while cmd != 'q':
 			if cmd == 'a':
 				while count <= len(words):
 					dirSpacing = " "*5 + " "*(9-len(words[count - 1][0]))
-					print("%d.\t%s%s(%s)" % (count, words[count - 1][0], dirSpacing, words[count - 1][1]))
+					direction = words[count - 1][1]
+					directionLetterOutput = LIST_MODE_DIRECTION_COLORS[direction] + direction + NO_COLOR
+					print("%d.\t%s%s%s" % (count, words[count - 1][0], dirSpacing, directionLetterOutput))
 					count += 1
 				print()
 				return
 			for i in range(10):
 				dirSpacing = " "*5 + " "*(9-len(words[count - 1][0]))
-				print("%d.\t%s%s(%s)" % (count, words[count - 1][0], dirSpacing, words[count - 1][1]))
+				direction = words[count - 1][1]
+				directionLetterOutput = LIST_MODE_DIRECTION_COLORS[direction] + direction + NO_COLOR
+				print("%d.\t%s%s%s" % (count, words[count - 1][0], dirSpacing, directionLetterOutput))
 				count += 1
 				if count - 1 == len(words):
 					# if reached the end of the list
@@ -159,7 +168,7 @@ def printOutput(words):
 					grammar = "final %d words" % wordsLeft
 				else:
 					grammar = "final word"
-			cmd = input("Press enter for %s, or 'q' to quit, or 'a' for all:\t" % grammar).strip()
+			cmd = input("Press enter for %s, or 'q' to quit, or 'a' for all:\t" % grammar).strip().lower()
 	else:
 		# DISPLAY_MODE = DIAGRAM
 		# NOTE: This display mode was written to conform with the Game Pigeon Word Bites 
@@ -168,7 +177,7 @@ def printOutput(words):
 		for wordItem in words:
 			if wordNum > 1:
 				# if not first time through
-				if input("\nPress enter for next word, or 'q' to quit\t").strip() == 'q':
+				if input("\nPress enter for next word, or 'q' to quit\t").strip().lower() == 'q':
 					break
 			# create copies of the pieces lists because they will be edited in the next part
 			singePiecesCopy, horizPiecesCopy, vertPiecesCopy = singleLetterPieces.copy(), horizPieces.copy(), vertPieces.copy()
@@ -258,11 +267,11 @@ def printModeInfo():
 		  "------------------------------------------------------------")
 	print("There are two available display modes:\n")
 	print("List Mode is one large list, where each word has its own row:\n")
-	print("   X  |   Word 	|  Direction\n" + 
+	print("   #  |   Word 	|  Direction\n" +
 		  "-------------------------------\n" + 
-		  "1:\tathetised\t(V)\n" + 
-		  "2:\tbirthdays\t(V)\n" + 
-		  "3:\tdiameters\t(H)\n" +
+		  f"1:\tathetised\t{YELLOW_COLOR}V{NO_COLOR}\n" +
+		  f"2:\tbirthdays\t{YELLOW_COLOR}V{NO_COLOR}\n" +
+		  f"3:\tdiameters\t{BLUE_COLOR}H{NO_COLOR}\n" +
 		  " .\t    .\t\t .\n"*3)
 	print("Diagram Mode feeds the user 1 word at a time, and displays a\n" + 
 		  "visual representation of how to arrange the board pieces:\n")
@@ -279,7 +288,8 @@ def erasePreviousLines(numLines, overrideEraseMode=False):
 def main():
 	global DISPLAY_MODE
 	# initial setup
-	print("Welcome to the Word Bites Game Pigeon Solver!")
+	os.system("")  # allows colored terminal to work on Windows OS
+	print("Welcome to Kyle's Word Bites Solver!")
 	try :
 		inputFile = open(WORD_LIST_FILENAME, 'r')
 		for word in inputFile:
@@ -296,10 +306,10 @@ def main():
 		exit(0)
 
 	# display mode select
-	modeSelect = input("\nUse Diagram Mode (d) or List Mode (l)? Type 'i' for more info:\t").strip()
+	modeSelect = input("\nUse Diagram Mode (d) or List Mode (l)? Type 'i' for more info:\t").strip().lower()
 	if modeSelect == 'i':
 		printModeInfo()
-		modeSelect = input("\nUse Diagram Mode (d) or List Mode (l)?\n").rstrip()
+		modeSelect = input("\nUse Diagram Mode (d) or List Mode (l)?\n").strip().lower()
 	if modeSelect == 'l':
 		DISPLAY_MODE = LIST
 		print("\nWords will be displayed in List Mode.")
