@@ -19,4 +19,8 @@ Diagram mode will display each word one at a time, along with a visual represent
 #### List Mode
 List mode will display every possible word on the board all at once, along with the orientation of the word, either saying `V` for vertical, or `H` for horizontal. Longer words will be displayed first.  
 
-<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Word%20Bites/sampleListMode.png" alt = "sample list mode" align = "left" width = "30%">  
+<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Word%20Bites/sampleListMode.png" alt = "sample list mode" width = "30%">  
+
+### ✨ New in Version 1.1
+* The output will now be updated in place, instead of printing additional output to the terminal. This can be turned off with the command line argument `-e` or `-eraseModeOff`.
+* In List Mode, the direction indicator will now be colored to make it easier to distinguish at a glance. Horizontal `H` will be light blue, and Vertical `V` will be yellow.
