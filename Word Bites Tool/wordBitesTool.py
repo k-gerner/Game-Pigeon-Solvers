@@ -160,7 +160,7 @@ def printOutput(words):
 					directionLetterOutput = LIST_MODE_DIRECTION_COLORS[direction] + direction + NO_COLOR
 					print("%d.\t%s%s%s" % (count, words[count - 1][0], dirSpacing, directionLetterOutput))
 					count += 1
-				print()
+				print("\nThanks for using my Word Bites Tool!\n")
 				return
 			for i in range(10):
 				dirSpacing = " "*5 + " "*(9-len(words[count - 1][0]))
@@ -170,7 +170,7 @@ def printOutput(words):
 				count += 1
 				if count - 1 == len(words):
 					# if reached the end of the list
-					print("\nNo more words.\n")
+					print("\nNo more words. Thanks for using my Word Bites Tool!\n")
 					return
 			if count + 8 < len(words):
 				grammar = "next 10 words"
@@ -181,16 +181,23 @@ def printOutput(words):
 				else:
 					grammar = "final word"
 			cmd = input("\nPress enter for %s, or 'q' to quit, or 'a' for all:\t" % grammar).strip().lower()
+		erasePreviousLines(1)
+		print("Thanks for using my Word Bites Tool!\n")
 	else:
 		# DISPLAY_MODE = DIAGRAM
 		# NOTE: This display mode was written to conform with the Game Pigeon Word Bites 
 		# 		pieces standards, which means all pieces are either length 1 or 2
 		wordNum = 1
+		linesToEraseFromPreviousOutput = 0
 		for wordItem in words:
 			if wordNum > 1:
 				# if not first time through
-				if input("\nPress enter for next word, or 'q' to quit\t").strip().lower() == 'q':
-					break
+				if input("\nPress enter for next word, or 'q' to quit:\t").strip().lower() == 'q':
+					erasePreviousLines(1)
+					print("Thanks for using my Word Bites Tool!\n")
+					exit(0)
+			erasePreviousLines(linesToEraseFromPreviousOutput)
+			linesToEraseFromPreviousOutput = 3
 			# create copies of the pieces lists because they will be edited in the next part
 			singePiecesCopy, horizPiecesCopy, vertPiecesCopy = singleLetterPieces.copy(), horizPieces.copy(), vertPieces.copy()
 			word, direction, pieces = wordItem[0], wordItem[1], piecesList[wordItem[2]]
@@ -224,8 +231,9 @@ def printOutput(words):
 					lineAbove += above
 					line += cur 
 					lineBelow += below
-				afterWordTabs = "\t" * (3 - int(len(line)/8))
-				print("%s\n%s%s%s\n%s\n" % (lineAbove, line, afterWordTabs, wordWithNumber,lineBelow))
+				afterWordTabs = "\t" * (3 - (len(line) - 1)//8)
+				print(f"{lineAbove}\n{line}{afterWordTabs}{wordWithNumber}\n{lineBelow}\n")
+				linesToEraseFromPreviousOutput += 4
 			else:
 				# if word is vertical
 				indexInWord = 0
@@ -255,13 +263,14 @@ def printOutput(words):
 					line += cur 
 					lineRight += right
 				verticalOutputs = rotateStringsToVertical(lineLeft, line, lineRight)
-				indexOfFullWordOuptut = max(int(len(verticalOutputs) / 2) - 1, 1)
+				indexOfFullWordOutput = max(int(len(verticalOutputs) / 2) - 1, 1)
 				count = 0
 				for line in verticalOutputs:
-					if count == indexOfFullWordOuptut:
+					if count == indexOfFullWordOutput:
 						line += "\t\t\t%s" % wordWithNumber
-					print("%s" % line) # 3\t
+					print(line) # 3\t
 					count += 1
+				linesToEraseFromPreviousOutput += len(verticalOutputs)
 			wordNum += 1
 
 # takes in 3 strings and 'rotates' them so that they print vertically
