@@ -12,7 +12,10 @@ First, go into the [Python Version](https://github.com/k-gerner/Game-Pigeon-Solv
 ```
 > python3 MancalaAvalanche.py
 ```  
-You will be prompted for which mode you would like to use (have the moves presented all at once, or one at a time). Next, you will be prompted to enter your side of the board (separated by spaces), followed by the opponent's side of the board. You will be presented with a visualization of the board as you have inputted it. Pressing enter will calculate the best possible moveset for that given board. You will then be asked if you want to see what the board looks like after permorming these moves. Finally, you will be asked if you would like to continue using the program or quit.
+You will be prompted for which mode you would like to use (have the moves presented all at once, or one at a time). Next, you will be prompted to enter your side of the board (separated by spaces), followed by the opponent's side of the board. You will be presented with a visualization of the board as you have inputted it. Pressing enter will calculate the best possible move set for that given board. You will then repeat this process until the game is over or you choose to quit the program.
+
+##### ✨ New in Version 1.1
+* The output will now be updated in place, instead of printing additional output to the terminal. This can be turned off with the command line argument `-e` or `-eraseModeOff`.
 
 ### Java Version  
 #### How to use
