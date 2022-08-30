@@ -1,9 +1,15 @@
 # Kyle Gerner    7.9.2020
 # The class that contains the main method that runs the solver. Also contains
 from Classes import AvalancheBoard, Player, AvalancheSolver
+import os
 
 ONE_BY_ONE = 1
 ALL_AT_ONCE = 2
+
+GREEN_COLOR = '\033[92m'
+RED_COLOR = '\033[91m'
+NO_COLOR = '\033[0m'
+ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
 
 # reads in the input for the board from the user
 def inputForBoard():
@@ -11,16 +17,16 @@ def inputForBoard():
         try:
             playerVals = [int(item) for item in input("From your left to your right (or top to bottom), enter the # of pebbles in each spot on your side of the board, with a space separating each number:\n").split()]
         except ValueError:
-            print("There was an issue with your input. Please try again.")
+            print(f"{ERROR_SYMBOL} There was an issue with your input. Please try again.")
             continue
         if len(playerVals) != 6:
-            print("There should be 6 values entered")
+            print(f"{ERROR_SYMBOL} There should be 6 values entered")
             continue
         break
     while True:
         enemyVals = [int(item) for item in input("From your left to your right (or top to bottom), enter the # of pebbles in each spot on the enemy side of the board, with a space separating each number:\n").split()]
         if len(enemyVals) != 6:
-            print("There should be 6 values entered")
+            print(f"{ERROR_SYMBOL} There should be 6 values entered")
             continue
         break
     enemyVals.reverse()
@@ -43,8 +49,9 @@ def printSequence(mode, solver, pointsGained, bestMoves):
 
 # main method
 def main():
+    os.system("") # allows output text coloring for Windows OS
     print("\nWelcome to Kyle's Mancala Avalanche AI! Written on 7.9.2020")
-    if input("\nWould you like to receive your moveset one at a time (as opposed to a printed list)? (y/n): ").strip() == "y":
+    if input("\nWould you like to receive your move set one at a time (as opposed to a printed list)? (y/n): ").strip().lower() == "y":
         printMode = ONE_BY_ONE
         print("Moves will be presented one at a time.\n")
     else:
@@ -71,7 +78,7 @@ def main():
         print("You will now be asked to input the new version of the board")
         oldEnemyPoints = input("How many points does the enemy have after that turn? ").strip()
         while not oldEnemyPoints.isdigit():
-            oldEnemyPoints = input("Please enter a number: ").strip()
+            oldEnemyPoints = input(f"{ERROR_SYMBOL} Please enter a number: ").strip()
         oldEnemyPoints = int(oldEnemyPoints)
         boardVals = inputForBoard()
         oldPlayerPoints = solver.board.p1.score
