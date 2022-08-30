@@ -1,8 +1,6 @@
 # Kyle Gerner    7.9.2020
-# The class that contains the main method that runs the solver. Also contains  
-from AvalancheBoard import AvalancheBoard
-from Player import Player
-from AvalancheSolver import AvalancheSolver
+# The class that contains the main method that runs the solver. Also contains
+from Classes import AvalancheBoard, Player, AvalancheSolver
 
 ONE_BY_ONE = 1
 ALL_AT_ONCE = 2
