@@ -189,30 +189,3 @@ class AvalancheSolver(object):
             if board.pebblesList[i] != 0:
                 nonZeros.append(i)
         return nonZeros
-
-    # prints the best moveset all at once
-    def printBestMoveStatus(self, pointsGained, bestMoves):
-        print("\nThe max # of points you can score on this turn is %d in %d moves." % (pointsGained, len(bestMoves)))
-        print("The move set is: " + str(self.increaseAllValuesInListByOne(bestMoves)))
-        print("^ Notice: 1 corresponds to the first spot on your side, 6 corresponds to the last spot\n")
-
-    # print the best moveset one by one
-    def printBestMovesOneByOne(self, pointsGained, bestMoves):
-        print("\nThe max # of points you can score on this turn is %d in %d moves." % (pointsGained, len(bestMoves)))
-        print("Notice: 1 corresponds to the first spot on your side, 6 corresponds to the last spot")
-        print("Press enter each time to receive the next move. Press q to quit at any time.")
-        l = self.increaseAllValuesInListByOne(bestMoves)
-        count = 0
-        for e in l:
-            count += 1
-            if input() == 'q':
-                exit(0)
-            print("#%d:  %d" % (count, e))
-
-    # copy a list and return that list with every value increased by one
-    def increaseAllValuesInListByOne(self, l):
-        returnList = l.copy()
-        for i in range(0, len(l)):
-            returnList[i] += 1
-        return returnList
-
