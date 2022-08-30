@@ -16,7 +16,7 @@ You will be prompted for which mode you would like to use (have the moves presen
 
 <img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Mancala%20Avalanche/mancalaBoardOutput.png" alt = "sample board output" width = "30%">  
 
-##### ✨ New in Version 1.1
+#### ✨ New in Version 1.1
 * The output will now be updated in place, instead of printing additional output to the terminal. This can be turned off with the command line argument `-e` or `-eraseModeOff`.
 
 ### Java Version  
