@@ -2,6 +2,7 @@
 # The class that contains the main method that runs the solver. Also contains
 from Classes import AvalancheBoard, Player, AvalancheSolver
 import os
+import sys
 
 ONE_BY_ONE = 1
 ALL_AT_ONCE = 2
@@ -10,6 +11,10 @@ GREEN_COLOR = '\033[92m'
 RED_COLOR = '\033[91m'
 NO_COLOR = '\033[0m'
 ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
+
+CURSOR_UP_ONE = '\033[1A'
+ERASE_LINE = '\033[2K'
+ERASE_MODE_ON = True
 
 # reads in the input for the board from the user
 def inputForBoard():
@@ -47,9 +52,18 @@ def printSequence(mode, solver, pointsGained, bestMoves):
         solver.printBestMovesOneByOne(pointsGained, bestMoves)
     else: solver.printBestMoveStatus(pointsGained, bestMoves)
 
+def erasePreviousLines(numLines, overrideEraseMode=False):
+    """Erases the specified previous number of lines from the terminal"""
+    eraseMode = ERASE_MODE_ON if not overrideEraseMode else (not ERASE_MODE_ON)
+    if eraseMode:
+        print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(numLines, 0), end='')
+
 # main method
 def main():
     os.system("") # allows output text coloring for Windows OS
+    if len(sys.argv) == 2 and sys.argv[1] in ["-e", "-eraseModeOff"]:
+        global ERASE_MODE_ON
+        ERASE_MODE_ON = False
     print("\nWelcome to Kyle's Mancala Avalanche AI! Written on 7.9.2020")
     if input("\nWould you like to receive your move set one at a time (as opposed to a printed list)? (y/n): ").strip().lower() == "y":
         printMode = ONE_BY_ONE
@@ -62,8 +76,6 @@ def main():
     print("\nThe starting board looks like this:\n")
     solver.board.printBoardHorizontal()
     print("(if this is incorrect, restart the program and make sure the values you entered are correct)")
-    oldPlayerPoints = 0
-    oldEnemyPoints = 0
     while True:
         input("Press enter to receive best move set")
         pointsGained, bestMoves = solver.findBestMove(solver.board, 0)
