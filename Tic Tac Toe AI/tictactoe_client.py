@@ -1,6 +1,7 @@
 # Tic Tac Toe AI client facing
 # Kyle G 6.6.2021
 
+from Player import Player
 import strategy
 import os
 import sys
@@ -22,8 +23,33 @@ CURSOR_UP_ONE = '\033[1A'
 ERASE_LINE = '\033[2K'
 ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
 
-def printGameBoard():
-	'''Prints the gameBoard in a human readable format'''
+# class for the Human player
+class HumanPlayer(Player):
+
+	def __init__(self, color):
+		super().__init__(color)
+
+	def getMove(self, board):
+		"""Takes in the user's input and performs that move on the board, returns the move"""
+		spot = input("It's your turn, which spot would you like to play? (A1 - %s%d):\t" % (ROW_LABELS[-1], len(board))).strip().upper()
+		while True:
+			erasePreviousLines(1)
+			if spot == 'Q':
+				print("\nThanks for playing!\n")
+				exit(0)
+			elif len(spot) >= 3 or len(spot) == 0 or spot[0] not in ROW_LABELS or not spot[1:].isdigit() or int(spot[1:]) > len(board) or int(spot[1:]) < 1:
+				spot = input(f"{ERROR_SYMBOL} Invalid input. Please try again.\t").strip().upper()
+			elif board[ROW_LABELS.index(spot[0])][int(spot[1:]) - 1] != EMPTY:
+				spot = input(f"{ERROR_SYMBOL} That spot is already taken, please choose another:\t").strip().upper()
+			else:
+				break
+		erasePreviousLines(1)
+		row = ROW_LABELS.index(spot[0])
+		col = int(spot[1:]) - 1
+		return [row, col]
+
+def printGameBoard(pieceToHighlightGreen):
+	"""Prints the gameBoard in a human-readable format"""
 	print()
 	for rowNum in range(len(gameBoard)):
 		row = gameBoard[rowNum]
@@ -32,7 +58,7 @@ def printGameBoard():
 			piece = gameBoard[rowNum][colNum]
 			if piece == EMPTY:
 				pieceColor = NO_COLOR
-			elif piece == playerPiece:
+			elif piece == pieceToHighlightGreen:
 				pieceColor = GREEN_COLOR
 			else:
 				pieceColor = RED_COLOR
@@ -41,25 +67,6 @@ def printGameBoard():
 			print("\t   ---+---+---")
 	print("\t    1   2   3\n")
 
-def getPlayerMove():
-	'''Takes in the user's input and performs that move on the board, returns the move'''
-	spot = input("It's your turn, which spot would you like to play? (A1 - %s%d):\t" % (ROW_LABELS[-1], len(gameBoard))).strip().upper()
-	while True:
-		erasePreviousLines(1)
-		if spot == 'Q':
-			print("\nThanks for playing!\n")
-			exit(0)
-		elif len(spot) >= 3 or len(spot) == 0 or spot[0] not in ROW_LABELS or not spot[1:].isdigit() or int(spot[1:]) > len(gameBoard) or int(spot[1:]) < 1:
-			spot = input(f"{ERROR_SYMBOL} Invalid input. Please try again.\t").strip().upper()
-		elif gameBoard[ROW_LABELS.index(spot[0])][int(spot[1:]) - 1] != EMPTY:
-			spot = input(f"{ERROR_SYMBOL} That spot is already taken, please choose another:\t").strip().upper()
-		else:
-			break
-	erasePreviousLines(1)
-	row = ROW_LABELS.index(spot[0])
-	col = int(spot[1:]) - 1
-	return [row, col]
-
 def erasePreviousLines(numLines, overrideEraseMode=False):
 	"""Erases the specified previous number of lines from the terminal"""
 	eraseMode = ERASE_MODE_ON if not overrideEraseMode else (not ERASE_MODE_ON)
@@ -67,8 +74,7 @@ def erasePreviousLines(numLines, overrideEraseMode=False):
 		print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(numLines, 0), end='')
 
 def main():
-	'''main method that prompts the user for input'''
-	global ai
+	"""main method that prompts the user for input"""
 	global gameBoard
 	global playerPiece
 	if len(sys.argv) == 2 and sys.argv[1] in ["-e", "-eraseModeOff"]:
@@ -100,15 +106,18 @@ def main():
 	print(f"Human: {GREEN_COLOR}{playerPiece}{NO_COLOR}")
 	print(f"AI: {RED_COLOR}{aiPiece}{NO_COLOR}")
 
-	printGameBoard()
+	greenColorPiece = playerPiece
+	printGameBoard(greenColorPiece)
 
 	ai = strategy.Strategy(X_PIECE if playerPiece == O_PIECE else O_PIECE)
 	turn = X_PIECE
 
+	humanPlayer = HumanPlayer(playerPiece)
+
 	first_turn = True
 	while not ai.GAME_OVER:
 		if turn == playerPiece:
-			recentMove = getPlayerMove()
+			recentMove = humanPlayer.getMove(gameBoard)
 			gameBoard[recentMove[0]][recentMove[1]] = playerPiece
 			ai.checkGameState(gameBoard)
 		else:
@@ -121,7 +130,7 @@ def main():
 			recentMove = ai.findBestMove(gameBoard)
 		erasePreviousLines(BOARD_OUTPUT_HEIGHT + (0 if first_turn else 1))
 		first_turn = False
-		printGameBoard()
+		printGameBoard(greenColorPiece)
 		move_formatted = ROW_LABELS[recentMove[0]] + str(recentMove[1] + 1)
 		print("%s played in spot %s" % ("You" if turn == playerPiece else "AI", move_formatted))
 		turn = ai.opponentOf(turn)
