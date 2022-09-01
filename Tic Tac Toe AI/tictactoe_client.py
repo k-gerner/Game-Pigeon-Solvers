@@ -2,7 +2,7 @@
 # Kyle G 6.6.2021
 
 from Player import Player
-import strategy
+from strategy import Strategy
 import os
 import sys
 
@@ -12,9 +12,10 @@ gameBoard = [[EMPTY, EMPTY, EMPTY],
 			 [EMPTY, EMPTY, EMPTY],
 			 [EMPTY, EMPTY, EMPTY]]
 
-GREEN_COLOR = '\033[92m'  # green
-RED_COLOR = '\033[91m'	  # red
-NO_COLOR = '\033[0m' 	  # white
+GREEN_COLOR = '\033[92m'  	 # green
+RED_COLOR = '\033[91m'	  	 # red
+BLUE_COLOR = '\033[38;5;39m' # blue
+NO_COLOR = '\033[0m' 	  	 # white
 
 ERASE_MODE_ON = True
 BOARD_OUTPUT_HEIGHT = 7
@@ -22,6 +23,7 @@ BOARD_OUTPUT_HEIGHT = 7
 CURSOR_UP_ONE = '\033[1A'
 ERASE_LINE = '\033[2K'
 ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
+INFO_SYMBOL = f"{BLUE_COLOR}<!>{NO_COLOR}"
 
 # class for the Human player
 class HumanPlayer(Player):
@@ -102,18 +104,51 @@ def findWinner(board):
 				return False, None
 	return True, None
 
+def opponentOf(piece):
+	"""Get the opposing piece"""
+	return X_PIECE if piece == O_PIECE else O_PIECE
+
 def erasePreviousLines(numLines, overrideEraseMode=False):
 	"""Erases the specified previous number of lines from the terminal"""
 	eraseMode = ERASE_MODE_ON if not overrideEraseMode else (not ERASE_MODE_ON)
 	if eraseMode:
 		print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(numLines, 0), end='')
 
+def getOpposingAiModuleName():
+	"""Reads the command line arguments to determine the name of module for the opposing AI"""
+	remainingCommandLineArgs = sys.argv[2:]
+	for arg in remainingCommandLineArgs:
+		if "-" not in arg:
+			return arg
+	raise NameError("You need to provide the name of your AI strategy module.")
+
+def getDuelingAiModule():
+	"""Returns the imported module if it is valid"""
+	duelAiModuleName = getOpposingAiModuleName()
+	try:
+		duelingAiModule = __import__(duelAiModuleName)
+		_ = duelingAiModule.Strategy(EMPTY) # temporarily set color to check if class named Strategy
+		if not issubclass(duelingAiModule.Strategy, Player):
+			print("Please make sure your AI is a subclass of 'Player'")
+			exit(0)
+		return duelingAiModule
+	except ImportError:
+		raise ImportError("Please provide a valid module to import.\n" +
+						  "Pass the name of your Python file as a command line argument, WITHOUT the .py extension.\n" +
+						  "Make sure the name of the class that contains the AI is 'Strategy'")
+
 def main():
 	"""main method that prompts the user for input"""
 	global gameBoard
-	if len(sys.argv) == 2 and sys.argv[1] in ["-e", "-eraseModeOff"]:
+	AI_DUEL_MODE = False
+	players = {}
+	if "-e" in sys.argv or "-eraseModeOff" in sys.argv:
 		global ERASE_MODE_ON
 		ERASE_MODE_ON = False
+	if "-d" in sys.argv or "-aiDuel" in sys.argv:
+		duelingAiModule = getDuelingAiModule()
+		print(f"{INFO_SYMBOL} You are in AI Duel Mode!")
+		AI_DUEL_MODE = True
 	os.system("") # allows colored terminal to work on Windows OS
 	print("""
   _______ _        _______           _______                    _____ 
@@ -126,35 +161,41 @@ def main():
                                                                       
 		""")
 	print("Press 'q' at any point to quit.")
-	playerPieceSelect = input("\nDo you want to be X or O? (X goes first)\t").strip().lower()
+	userPieceSelect = input("\nDo you want to be X or O? (X goes first)\t").strip().lower()
 	erasePreviousLines(1)
-	while playerPieceSelect not in ['x', 'o']:
-		playerPieceSelect = input(f"{ERROR_SYMBOL} Invalid input. Please choose either 'x' or 'o':\t").strip().lower()
+	while userPieceSelect not in ['x', 'o']:
+		userPieceSelect = input(f"{ERROR_SYMBOL} Invalid input. Please choose either 'x' or 'o':\t").strip().lower()
 		erasePreviousLines(1)
-	if playerPieceSelect == 'x':
-		playerPiece = X_PIECE
+	if userPieceSelect == 'x':
+		userPiece = X_PIECE
 		aiPiece = O_PIECE
 	else:
-		playerPiece = O_PIECE
+		userPiece = O_PIECE
 		aiPiece = X_PIECE
-	print(f"Human: {GREEN_COLOR}{playerPiece}{NO_COLOR}")
-	print(f"AI: {RED_COLOR}{aiPiece}{NO_COLOR}")
+	print(f"{'Your AI' if AI_DUEL_MODE else 'Human'}: {GREEN_COLOR}{userPiece}{NO_COLOR}")
+	print(f"{'My AI' if AI_DUEL_MODE else 'AI'}: {RED_COLOR}{aiPiece}{NO_COLOR}")
 
-	greenColorPiece = playerPiece
+	players[aiPiece] = Strategy(aiPiece)
+	if AI_DUEL_MODE:
+		players[userPiece] = duelingAiModule.Strategy(userPiece)
+	else:
+		players[userPiece] = HumanPlayer(userPiece)
+
+	greenColorPiece = userPiece
 	printGameBoard(greenColorPiece)
 
-	ai = strategy.Strategy(X_PIECE if playerPiece == O_PIECE else O_PIECE)
 	turn = X_PIECE
-
-	humanPlayer = HumanPlayer(playerPiece)
-	players = {playerPiece: humanPlayer, aiPiece: ai}
 
 	first_turn = True
 	gameOver, winner = False, None
 	while not gameOver:
+		if AI_DUEL_MODE:
+			nameOfPlayer = "My AI" if turn == aiPiece else "Your AI"
+		else:
+			nameOfPlayer = "AI" if turn == aiPiece else "You"
 		currentPlayer = players[turn]
 		if currentPlayer.isAI:
-			userInput = input("It's the AI's turn, press enter for it to play.\t").strip().lower()
+			userInput = input(f"{nameOfPlayer}'s turn, press enter for it to play.\t").strip().lower()
 			if userInput == 'q':
 				print("\nThanks for playing!\n")
 				exit(0)
@@ -165,8 +206,8 @@ def main():
 		first_turn = False
 		printGameBoard(greenColorPiece)
 		move_formatted = ROW_LABELS[recentMove[0]] + str(recentMove[1] + 1)
-		print("%s played in spot %s" % ("You" if turn == playerPiece else "AI", move_formatted))
-		turn = ai.opponentOf(turn)
+		print(f"{nameOfPlayer} played in spot {move_formatted}")
+		turn = opponentOf(turn)
 		gameOver, winner = findWinner(gameBoard)
 
 	boardCompletelyFilled = True
@@ -179,7 +220,7 @@ def main():
 	if boardCompletelyFilled:
 		print("Nobody wins, it's a tie!\n")
 	else:
-		highlightColor = GREEN_COLOR if winner == playerPiece else RED_COLOR
+		highlightColor = GREEN_COLOR if winner == greenColorPiece else RED_COLOR
 		print(f"{highlightColor}{winner}{NO_COLOR} player wins!\n")
 
 
