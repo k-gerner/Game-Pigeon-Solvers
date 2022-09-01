@@ -74,10 +74,10 @@ def performMove(move, color):
 	gameBoard[rowIndex][colIndex] = color
 
 def findWinner(board):
-	'''
+	"""
     Checks if there is a winner
     returns the color of the winner if there is one, otherwise None
-    '''
+    """
 	# Check horizontal
 	for row in board:
 		if row[0] == row[1] == row[2] != EMPTY:

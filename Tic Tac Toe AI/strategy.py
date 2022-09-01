@@ -13,21 +13,21 @@ WIN_SCORE = 1000000000 # large enough to always be the preferred outcome
 class Strategy(Player):
 
 	def __init__(self, aiColor):
-		'''Initializes the board attributes'''
+		"""Initializes the board attributes"""
 		super().__init__(aiColor)
 		self.AI_COLOR = aiColor
 		self.HUMAN_COLOR = self.opponentOf(aiColor)
 
 	def opponentOf(self, piece):
-		'''Get the opposing piece'''
+		"""Get the opposing piece"""
 		return X_PIECE if piece == O_PIECE else O_PIECE
 
 	def isTerminal(self, board):
-		'''
+		"""
 		Checks if the current board state is Game Over
 		Returns a tuple, with [0] being the True or False value
 		[1] being the winning color (None if neither color wins)
-		'''
+		"""
 		winner = self.findWinner(board)
 		if winner != None:
 			return True, winner
@@ -40,10 +40,10 @@ class Strategy(Player):
 		return True, None
 
 	def findWinner(self, board):
-		'''
+		"""
 		Checks if there is a winner
 		returns the color of the winner if there is one, otherwise None
-		'''
+		"""
 		# Check horizontal
 		for row in board:
 			if row[0] == row[1] == row[2] != EMPTY:
@@ -65,11 +65,11 @@ class Strategy(Player):
 		return None
 
 	def performMove(self, board, row, col, piece):
-		'''Performs a given move on the board'''
+		"""Performs a given move on the board"""
 		board[row][col] = piece
 
 	def getMove(self, board):
-		'''Calculates the best move for the AI for the given board'''
+		"""Calculates the best move for the AI for the given board"""
 		moveRow, moveCol = -1, -1
 		for depth_to_search in range(1, 10): # iterative deepening
 			# this will prioritize game winning movesets that occur with less total moves
@@ -79,7 +79,7 @@ class Strategy(Player):
 		return [moveRow, moveCol]
 
 	def getValidMoves(self, board):
-		'''Returns a list of valid moves (moves in the center area or near other pieces)'''
+		"""Returns a list of valid moves (moves in the center area or near other pieces)"""
 		validLocations = []
 		for rowNum in range(3):
 			for colNum in range(3):
@@ -88,10 +88,10 @@ class Strategy(Player):
 		return validLocations
 
 	def minimax(self, board, depth, maxOrMin, alpha, beta, localMaxDepth):
-		'''
+		"""
 		Recursively finds the best move for a given board
 		Returns the row in [0], column in [1], and score of the board in [2]
-		'''
+		"""
 		gameOver, winner = self.isTerminal(board)
 		if gameOver or depth == localMaxDepth:
 			if winner == self.AI_COLOR:
