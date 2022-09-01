@@ -1,6 +1,7 @@
 # Contains AI strategy and board manipulation methods
 # Kyle G 6.6.2021
 
+from Player import Player
 import math # for infinities
 import random # for randomizing valid moves list in minimax
 
@@ -9,10 +10,11 @@ MAX, MIN = True, False # to be used in minimax
 WIN_SCORE = 1000000000 # large enough to always be the preferred outcome
 
 # class for the A.I.
-class Strategy(object):
+class Strategy(Player):
 
 	def __init__(self, aiColor):
 		'''Initializes the board attributes'''
+		super().__init__(aiColor)
 		self.AI_COLOR = aiColor
 		self.HUMAN_COLOR = self.opponentOf(aiColor)
 
@@ -66,8 +68,9 @@ class Strategy(object):
 		'''Performs a given move on the board'''
 		board[row][col] = piece
 
-	def findBestMove(self, board):
-		'''Calculates and performs the best move for the AI for the given board'''
+	def getMove(self, board):
+		'''Calculates the best move for the AI for the given board'''
+		moveRow, moveCol = -1, -1
 		for depth_to_search in range(1, 10): # iterative deepening
 			# this will prioritize game winning movesets that occur with less total moves
 			moveRow, moveCol, score = self.minimax(board, 0, MAX, -math.inf, math.inf, depth_to_search)

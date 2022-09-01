@@ -147,22 +147,20 @@ def main():
 	turn = X_PIECE
 
 	humanPlayer = HumanPlayer(playerPiece)
+	players = {playerPiece: humanPlayer, aiPiece: ai}
 
 	first_turn = True
 	gameOver, winner = False, None
 	while not gameOver:
-		if turn == playerPiece:
-			recentMove = humanPlayer.getMove(gameBoard)
-			performMove(recentMove, playerPiece)
-		else:
-			# AI's turn
+		currentPlayer = players[turn]
+		if currentPlayer.isAI:
 			userInput = input("It's the AI's turn, press enter for it to play.\t").strip().lower()
-			erasePreviousLines(2)
 			if userInput == 'q':
 				print("\nThanks for playing!\n")
 				exit(0)
-			recentMove = ai.findBestMove(gameBoard)
-			performMove(recentMove, aiPiece)
+			erasePreviousLines(2)
+		recentMove = currentPlayer.getMove(gameBoard)
+		performMove(recentMove, turn)
 		erasePreviousLines(BOARD_OUTPUT_HEIGHT + (0 if first_turn else 1))
 		first_turn = False
 		printGameBoard(greenColorPiece)
