@@ -147,7 +147,7 @@ def main():
 		ERASE_MODE_ON = False
 	if "-d" in sys.argv or "-aiDuel" in sys.argv:
 		duelingAiModule = getDuelingAiModule()
-		print(f"{INFO_SYMBOL} You are in AI Duel Mode!")
+		print(f"\n{INFO_SYMBOL} You are in AI Duel Mode!")
 		AI_DUEL_MODE = True
 	os.system("") # allows colored terminal to work on Windows OS
 	print("""
@@ -164,6 +164,9 @@ def main():
 	userPieceSelect = input("\nDo you want to be X or O? (X goes first)\t").strip().lower()
 	erasePreviousLines(1)
 	while userPieceSelect not in ['x', 'o']:
+		if userPieceSelect == 'q':
+			print("Thanks for playing!\n")
+			exit(0)
 		userPieceSelect = input(f"{ERROR_SYMBOL} Invalid input. Please choose either 'x' or 'o':\t").strip().lower()
 		erasePreviousLines(1)
 	if userPieceSelect == 'x':
