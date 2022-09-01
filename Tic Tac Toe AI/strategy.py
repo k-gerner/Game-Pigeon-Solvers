@@ -15,16 +15,10 @@ class Strategy(object):
 		'''Initializes the board attributes'''
 		self.AI_COLOR = aiColor
 		self.HUMAN_COLOR = self.opponentOf(aiColor)
-		self.GAME_OVER = False
 
 	def opponentOf(self, piece):
 		'''Get the opposing piece'''
 		return X_PIECE if piece == O_PIECE else O_PIECE
-
-	def checkGameState(self, board):
-		'''Sets the GAME_OVER var to True if there is a winner'''
-		if self.isTerminal(board)[0]: 
-			self.GAME_OVER = True
 
 	def isTerminal(self, board):
 		'''
@@ -79,8 +73,6 @@ class Strategy(object):
 			moveRow, moveCol, score = self.minimax(board, 0, MAX, -math.inf, math.inf, depth_to_search)
 			if score == WIN_SCORE:
 				break
-		self.performMove(board, moveRow, moveCol, self.AI_COLOR)
-		self.checkGameState(board)
 		return [moveRow, moveCol]
 
 	def getValidMoves(self, board):

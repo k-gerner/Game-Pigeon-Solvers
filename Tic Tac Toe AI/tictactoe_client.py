@@ -27,7 +27,7 @@ ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
 class HumanPlayer(Player):
 
 	def __init__(self, color):
-		super().__init__(color)
+		super().__init__(color, isAI=False)
 
 	def getMove(self, board):
 		"""Takes in the user's input and performs that move on the board, returns the move"""
@@ -67,6 +67,41 @@ def printGameBoard(pieceToHighlightGreen):
 			print("\t   ---+---+---")
 	print("\t    1   2   3\n")
 
+def performMove(move, color):
+	"""Performs the move for the given color on the game board"""
+	global gameBoard
+	rowIndex, colIndex = move
+	gameBoard[rowIndex][colIndex] = color
+
+def findWinner(board):
+	'''
+    Checks if there is a winner
+    returns the color of the winner if there is one, otherwise None
+    '''
+	# Check horizontal
+	for row in board:
+		if row[0] == row[1] == row[2] != EMPTY:
+			return True, row[0]
+
+	# Check vertical
+	for col in range(3):
+		if board[0][col] == board[1][col] == board[2][col] != EMPTY:
+			return True, board[0][col]
+
+	# Check diagonal from top left to bottom right
+	if board[0][0] == board[1][1] == board[2][2] != EMPTY:
+		return True, board[0][0]
+
+	# Check diagonal from top right to bottom left
+	if board[0][2] == board[1][1] == board[2][0] != EMPTY:
+		return True, board[0][2]
+
+	for row in board:
+		for spot in row:
+			if spot == EMPTY:
+				return False, None
+	return True, None
+
 def erasePreviousLines(numLines, overrideEraseMode=False):
 	"""Erases the specified previous number of lines from the terminal"""
 	eraseMode = ERASE_MODE_ON if not overrideEraseMode else (not ERASE_MODE_ON)
@@ -76,7 +111,6 @@ def erasePreviousLines(numLines, overrideEraseMode=False):
 def main():
 	"""main method that prompts the user for input"""
 	global gameBoard
-	global playerPiece
 	if len(sys.argv) == 2 and sys.argv[1] in ["-e", "-eraseModeOff"]:
 		global ERASE_MODE_ON
 		ERASE_MODE_ON = False
@@ -115,11 +149,11 @@ def main():
 	humanPlayer = HumanPlayer(playerPiece)
 
 	first_turn = True
-	while not ai.GAME_OVER:
+	gameOver, winner = False, None
+	while not gameOver:
 		if turn == playerPiece:
 			recentMove = humanPlayer.getMove(gameBoard)
-			gameBoard[recentMove[0]][recentMove[1]] = playerPiece
-			ai.checkGameState(gameBoard)
+			performMove(recentMove, playerPiece)
 		else:
 			# AI's turn
 			userInput = input("It's the AI's turn, press enter for it to play.\t").strip().lower()
@@ -128,12 +162,14 @@ def main():
 				print("\nThanks for playing!\n")
 				exit(0)
 			recentMove = ai.findBestMove(gameBoard)
+			performMove(recentMove, aiPiece)
 		erasePreviousLines(BOARD_OUTPUT_HEIGHT + (0 if first_turn else 1))
 		first_turn = False
 		printGameBoard(greenColorPiece)
 		move_formatted = ROW_LABELS[recentMove[0]] + str(recentMove[1] + 1)
 		print("%s played in spot %s" % ("You" if turn == playerPiece else "AI", move_formatted))
 		turn = ai.opponentOf(turn)
+		gameOver, winner = findWinner(gameBoard)
 
 	boardCompletelyFilled = True
 	for row in gameBoard:
@@ -145,7 +181,6 @@ def main():
 	if boardCompletelyFilled:
 		print("Nobody wins, it's a tie!\n")
 	else:
-		winner = "X" if ai.opponentOf(turn) == X_PIECE else "O"
 		highlightColor = GREEN_COLOR if winner == playerPiece else RED_COLOR
 		print(f"{highlightColor}{winner}{NO_COLOR} player wins!\n")
 
