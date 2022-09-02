@@ -33,7 +33,7 @@ class HumanPlayer(Player):
 		super().__init__(color, isAI=False)
 
 	def getMove(self, board):
-		"""Takes in the user's input and performs that move on the board, returns the move"""
+		"""Takes in the user's input and returns the move"""
 		spot = input("It's your turn, which spot would you like to play? (A1 - %s%d):\t" % (ROW_LABELS[-1], len(board))).strip().upper()
 		while True:
 			erasePreviousLines(1)
