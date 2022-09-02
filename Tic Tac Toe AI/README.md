@@ -38,8 +38,11 @@ be found [here](https://www.youtube.com/watch?v=xBXHtz4Gbdo&ab_channel=CS188Spri
 Do you have your own Tic-Tac-Toe AI? Challenge mine! This program 
 includes the ability for your challenge it with a rival AI. To 
 use this functionality, Include a command line argument `-d` or 
-`-aiDuel` followed by the name of your Python file (without the 
-`.py` file extension) that contains your AI.  
+`-aiDuel` followed by the name of your Python file. For example, if 
+your AI was located in `myAiFile.py`, you would run:
+```
+> python3 tictactoe_client.py -d myAiFile
+```
 
 In order for your AI to be eligible, it must meet a few requirements:
 * AI logic must be contained in a class named `Strategy`
