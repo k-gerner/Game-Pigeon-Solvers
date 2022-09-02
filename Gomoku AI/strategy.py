@@ -20,7 +20,7 @@ MAX_DEPTH = 6 # max number of moves ahead to calculate
 class Strategy(object):
 
 	def __init__(self, boardDimension, humanColor):
-		'''Initializes the board attributes'''
+		"""Initializes the board attributes"""
 		self.GAME_OVER = False
 		self.HUMAN_COLOR = humanColor
 		self.AI_COLOR = self.opponentOf(humanColor)
@@ -42,7 +42,7 @@ class Strategy(object):
 		self.createBoardPositionWeights(boardDimension)
 
 	def createThreatSequencesDictionary(self):
-		'''Creates the dictionaries that will help score board sections'''
+		"""Creates the dictionaries that will help score board sections"""
 		self.blackThreatsScores = {
 			'.XXXX.' : 10000,	# 4 double open, next move guaranteed win
 			'.XXXX'  : 100,		# 4 single open
@@ -71,10 +71,10 @@ class Strategy(object):
 		}
 
 	def createBoardPositionWeights(self, dim):
-		'''
+		"""
 		Create the position weights matrix for a board of dimension `dim`
 		Center weighted heavier
-		'''
+		"""
 		self.positionWeightsMatrix = []
 		for i in range(dim):
 			self.positionWeightsMatrix.append([0]*dim) # create dim x dim matrix of 0s
@@ -85,7 +85,7 @@ class Strategy(object):
 					self.positionWeightsMatrix[row][col] += 3
 
 	def createHashTable(self, dimension):
-		'''Fills a 2 by dimension board with random 64 bit integers'''
+		"""Fills a 2 by dimension board with random 64 bit integers"""
 		table = [] # 2D
 		for color in range(2):
 			colorLocationList = []
@@ -95,27 +95,27 @@ class Strategy(object):
 		return table
 
 	def createZobristValueForNewMove(self, move, color, prevZobristValue):
-		'''Gives an updated Zobrist value for a board after a new move is played'''
+		"""Gives an updated Zobrist value for a board after a new move is played"""
 		row, col = move
 		hash_row = BLACK_HASH_ROW_NUM if color == BLACK else WHITE_HASH_ROW_NUM
 		hash_val = self.RANDOM_HASH_TABLE[hash_row][row*self.BOARD_WIDTH + col]
 		return prevZobristValue ^ hash_val # ^ = XOR operator
 
 	def opponentOf(self, color):
-		'''Get the opposing color'''
+		"""Get the opposing color"""
 		return WHITE if color == BLACK else BLACK
 
 	def checkGameState(self, board):
-		'''Sets the GAME_OVER var to True if there is a winner'''
+		"""Sets the GAME_OVER var to True if there is a winner"""
 		if self.isTerminal(board)[0]: 
 		 	self.GAME_OVER = True
 
 	def isTerminal(self, board):
-		'''
+		"""
 		Checks if the current board state is Game Over
 		Returns a tuple, with [0] being the True or False value
 		[1] being the winning color (None if neither color wins)
-		'''
+		"""
 		winner = self.findWinner(board)
 		if winner != None:
 			return True, winner
@@ -128,10 +128,10 @@ class Strategy(object):
 		return True, None
 
 	def findWinner(self, board):
-		'''
+		"""
 		Checks if there is a winner
 		returns the color of the winner if there is one, otherwise None
-		'''
+		"""
 		# Check horizontal
 		for row in board:
 			for col in range(self.BOARD_WIDTH - 4):
@@ -159,11 +159,11 @@ class Strategy(object):
 		return None
 
 	def performMove(self, board, row, col, color):
-		'''Performs a given move on the board'''
+		"""Performs a given move on the board"""
 		board[row][col] = color
 
 	def isCoordinateInBoardRange(self, coord):
-		'''Checks if the coordinate is valid on the board'''
+		"""Checks if the coordinate is valid on the board"""
 		rowNum = coord[0]
 		colNum = coord[1]
 		if rowNum % self.BOARD_HEIGHT == rowNum and colNum % self.BOARD_WIDTH == colNum:
@@ -172,11 +172,11 @@ class Strategy(object):
 			return False
 
 	def checkIfMoveCausedGameOver(self, board, move):
-		'''
+		"""
 		Checks the spaces in outward directions to see if the move given caused a win
 		returns the winner in [0] (BLACK, WHITE, or None if no winner)
 		returns True or False in [1] whether or not the game is over
-		'''
+		"""
 		emptySpotSeen = False
 		color = board[move[0]][move[1]]
 		directionVectorsList = [[1, -1], [1, 0], [1, 1], [0, 1]]
@@ -228,7 +228,7 @@ class Strategy(object):
 		return None, True
 
 	def getValidMoves(self, board):
-		'''Returns a list of valid moves (moves in the center area or near other pieces)'''
+		"""Returns a list of valid moves (moves in the center area or near other pieces)"""
 
 		# Will allow me to slightly prioritize checking the spots that are closer to 
 		# other pieces by placing them in separate lists
@@ -247,7 +247,7 @@ class Strategy(object):
 
 
 		def locateEmptyNearSpots(filledCoord, distFromPiece):
-			'''Finds all the empty spots near this coordinate and adds them to the list of valid spots'''
+			"""Finds all the empty spots near this coordinate and adds them to the list of valid spots"""
 			row, col = filledCoord
 			for i in range(-distFromPiece, distFromPiece + 1): # e.g. -1, 0, 1
 				for j in range(-distFromPiece, distFromPiece + 1): # e.g. -1, 0, 1
@@ -256,7 +256,7 @@ class Strategy(object):
 						continue
 					curr_row, curr_col = row + i, col + j
 					if not self.isCoordinateInBoardRange((curr_row, curr_col)):
-						# if outside of the board range
+						# if outside the board range
 						continue
 					neighborSpot = board[curr_row][curr_col]
 					neighborCoordAsTuple = (curr_row, curr_col)
@@ -287,16 +287,16 @@ class Strategy(object):
 		return self.findBestValidMoves(validLocations, board)
 
 	def findBestValidMoves(self, validMoves, board):
-		'''Takes in all the spaces that were deemed valid and selects the ones that have the most potential'''
+		"""Takes in all the spaces that were deemed valid and selects the ones that have the most potential"""
 		if len(validMoves) <= MAX_NUM_MOVES_TO_EVALUATE:
 			# no need to decrease quantity
 			return validMoves
 
 		def sectionContainsThreats(pieceColor, sectionString):
-			'''
+			"""
 			Evaluates each length 5 and length 6 section of spots in the board for threats
 			Returns True or False depending on whether or not a threat was found
-			'''
+			"""
 			threatDictionary = self.blackThreatsScores if pieceColor == BLACK else self.whiteThreatsScores
 			if len(sectionString) == 5:
 				# if the section is only 5 spaces
@@ -505,7 +505,7 @@ class Strategy(object):
 		return highestEvaluatedMoves
 
 	def playBestMove(self, board):
-		'''Calculates and performs the best move for the AI for the given board'''
+		"""Calculates and performs the best move for the AI for the given board"""
 		moveRow, moveCol, score = -123, -123, -123 # placeholders
 		for i in range(1, MAX_DEPTH + 1): # iterative deepening
 			# this will prioritize game winning movesets that occur with less total moves
@@ -524,10 +524,10 @@ class Strategy(object):
 		return moveRow, moveCol
 
 	def minimax(self, board, depth, maxOrMin, alpha, beta, localMaxDepth, zobristValueForBoard):
-		'''
+		"""
 		Recursively finds the best move for a given board
 		Returns the row in [0], column in [1], and score of the board in [2]
-		'''
+		"""
 		if depth == localMaxDepth:
 			playerWithTurnAfterMaxDepth = self.AI_COLOR if localMaxDepth % 2 == 0 else self.HUMAN_COLOR
 			boardScores = self.scoreBoard(board, self.HUMAN_COLOR, self.AI_COLOR, playerWithTurnAfterMaxDepth)
@@ -624,7 +624,7 @@ class Strategy(object):
 			return bestMoveForHuman[0], bestMoveForHuman[1], score
 
 	def scoreSections(self, board, colorOfEvaluator, colorOfEnemy, playerWithTurnAfterMaxDepth):
-		'''Scores all the different horizontal/vertical/diagonal sections on the board'''
+		"""Scores all the different horizontal/vertical/diagonal sections on the board"""
 		evaluatorScore = 0
 		enemyScore = 0
 		evaluatorTrapIndicators = [0, 0, 0, 0]
@@ -805,7 +805,7 @@ class Strategy(object):
 		return evaluatorScore, enemyScore
 
 	def scorePositionWeights(self, board, colorOfEvaluator, colorOfEnemy):
-		'''Scores the board based on the weights of the individual locations (center preferred)'''
+		"""Scores the board based on the weights of the individual locations (center preferred)"""
 		evaluatorScore = 0
 		enemyScore = 0
 		for row in range(self.BOARD_HEIGHT):
@@ -818,10 +818,10 @@ class Strategy(object):
 		return evaluatorScore, enemyScore
 
 	def scoreBoard(self, board, colorOfEvaluator, colorOfEnemy, playerWithTurnAfterMaxDepth):
-		'''
-		Scores the entire board by looking at each section of spots, 
+		"""
+		Scores the entire board by looking at each section of spots,
 		as well as the individual peice positions
-		'''
+		"""
 		sectionsScores = self.scoreSections(board, colorOfEvaluator, colorOfEnemy, playerWithTurnAfterMaxDepth)
 		positionWeightScores = self.scorePositionWeights(board, colorOfEvaluator, colorOfEnemy)
 		evaluatorScore = sectionsScores[0] + positionWeightScores[0]

@@ -22,7 +22,7 @@ ERASE_LINE = '\033[2K'
 ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
 
 def createGameBoard(dimension):
-	'''Creates the gameBoard with the specified number of rows and columns'''
+	"""Creates the gameBoard with the specified number of rows and columns"""
 	for i in range(dimension):
 		row = []
 		for j in range(dimension):
@@ -31,7 +31,7 @@ def createGameBoard(dimension):
 	# paste board save state here if applicable
 
 def printGameBoard(mostRecentMove=None):
-	'''Prints the gameBoard in a human readable format'''
+	"""Prints the gameBoard in a human readable format"""
 	columnLabels = list(map(chr, range(65, 65 + len(gameBoard))))
 	print("\n\t    %s" % " ".join(columnLabels))
 	for rowNum in range(len(gameBoard)):
@@ -49,10 +49,10 @@ def printGameBoard(mostRecentMove=None):
 	print()
 
 def givePythonCodeForBoardInput():
-	'''
+	"""
 	Prints out the Python code needed to recreate the game board at this state
 	For debugging purposes
-	'''
+	"""
 	print("\n# Copy and paste this code into createGameBoard():\n")
 	print("gameBoard = []")
 	for i in range(len(gameBoard)):
@@ -63,7 +63,7 @@ def givePythonCodeForBoardInput():
 	print()
 
 def printAsciiTitleArt():
-	'''Prints the fancy text when you start the program'''
+	"""Prints the fancy text when you start the program"""
 	print('\n\t    _  __     _      _')
 	print('\t   | |/ /   _| | ___( )___')
 	print('\t   | \' / | | | |/ _ \\// __|')
@@ -84,7 +84,7 @@ def erasePreviousLines(numLines, overrideEraseMode=False):
                                                        
 
 def getPlayerMove(linesToEraseOnSave=0):
-	'''Takes in the user's input and performs that move on the board, returns the move'''
+	"""Takes in the user's input and performs that move on the board, returns the move"""
 	columnLabels = list(map(chr, range(65, 65 + len(gameBoard))))
 	spot = input("It's your turn, which spot would you like to play? (A1 - %s%d):\t" % (columnLabels[-1], len(gameBoard))).strip().upper()
 	erasePreviousLines(1)
@@ -130,7 +130,7 @@ def getPlayerMove(linesToEraseOnSave=0):
 	return [row, col]
 
 def main():
-	'''main method that prompts the user for input'''
+	"""main method that prompts the user for input"""
 	global ai, gameBoard, playerColor, BOARD_OUTPUT_HEIGHT, SAVE_STATE_OUTPUT_HEIGHT
 	os.system("") # allows colored terminal to work on Windows OS
 	if len(sys.argv) == 2 and sys.argv[1] in ["-e", "-eraseModeOff"]:
