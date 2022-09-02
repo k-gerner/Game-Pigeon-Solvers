@@ -3,6 +3,8 @@
 
 from Player import Player
 from strategy import Strategy
+from inspect import getmembers
+from importlib import import_module
 import os
 import sys
 
@@ -120,22 +122,25 @@ def getOpposingAiModuleName():
 	for arg in remainingCommandLineArgs:
 		if "-" not in arg:
 			return arg
-	raise NameError("You need to provide the name of your AI strategy module.")
+	print(f"{ERROR_SYMBOL} You need to provide the name of your AI strategy module.")
+	exit(0)
 
-def getDuelingAiModule():
-	"""Returns the imported module if it is valid"""
+def getDuelingAi():
+	"""Returns the imported AI Strategy class if it the import valid"""
 	duelAiModuleName = getOpposingAiModuleName()
 	try:
-		duelingAiModule = __import__(duelAiModuleName)
-		_ = duelingAiModule.Strategy(EMPTY) # temporarily set color to check if class named Strategy
-		if not issubclass(duelingAiModule.Strategy, Player):
-			print("Please make sure your AI is a subclass of 'Player'")
+		DuelingAi  = getattr(import_module(duelAiModuleName), 'Strategy')
+		if not issubclass(DuelingAi, Player):
+			print(f"{ERROR_SYMBOL} Please make sure your AI is a subclass of 'Player'")
 			exit(0)
-		return duelingAiModule
+		return DuelingAi
 	except ImportError:
-		raise ImportError("Please provide a valid module to import.\n" +
-						  "Pass the name of your Python file as a command line argument, WITHOUT the .py extension.\n" +
-						  "Make sure the name of the class that contains the AI is 'Strategy'")
+		print(f"{ERROR_SYMBOL} Please provide a valid module to import.\n" +
+			  f"{INFO_SYMBOL} Pass the name of your Python file as a command line argument, WITHOUT the .py extension.")
+		exit(0)
+	except AttributeError:
+		print(f"{ERROR_SYMBOL} Please make sure your AI's class name is 'Strategy'")
+		exit(0)
 
 def main():
 	"""main method that prompts the user for input"""
@@ -146,7 +151,7 @@ def main():
 		global ERASE_MODE_ON
 		ERASE_MODE_ON = False
 	if "-d" in sys.argv or "-aiDuel" in sys.argv:
-		duelingAiModule = getDuelingAiModule()
+		DuelingAi = getDuelingAi()
 		print(f"\n{INFO_SYMBOL} You are in AI Duel Mode!")
 		AI_DUEL_MODE = True
 	os.system("") # allows colored terminal to work on Windows OS
@@ -180,7 +185,7 @@ def main():
 
 	players[aiPiece] = Strategy(aiPiece)
 	if AI_DUEL_MODE:
-		players[userPiece] = duelingAiModule.Strategy(userPiece)
+		players[userPiece] = DuelingAi(userPiece)
 	else:
 		players[userPiece] = HumanPlayer(userPiece)
 

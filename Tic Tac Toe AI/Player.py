@@ -11,4 +11,7 @@ class Player:
 
     def getMove(self, board:List[List[str]]) -> List[int]:
         """Returns the chosen move for a given board, in [rowIndex, columnIndex] format"""
-        raise NotImplementedError("<!> Function 'getMove' has not been implemented.")
+        print("\n<!> Function 'getMove' has not been implemented.\n"+
+              "The program has been terminated.\n" +
+              "Please make sure that you have implemented 'getMove' from the Player super class.\n")
+        exit(0)
