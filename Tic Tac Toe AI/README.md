@@ -34,10 +34,10 @@ explored option along the path to the root for the maximizer
 the root for the minimizer (beta). A good explanatory video can 
 be found [here](https://www.youtube.com/watch?v=xBXHtz4Gbdo&ab_channel=CS188Spring2013).
 
-### Dueling AIs Mode!
+### Dueling AIs Mode
 Do you have your own Tic-Tac-Toe AI? Challenge mine! This program 
-includes the ability for your challenge it with a rival AI. To 
-use this functionality, Include a command line argument `-d` or 
+includes the ability for you to challenge it with a rival AI. To 
+use this functionality, include a command line argument `-d` or 
 `-aiDuel` followed by the name of your Python file. For example, if 
 your AI was located in `myAiFile.py`, you would run:
 ```
