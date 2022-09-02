@@ -34,7 +34,7 @@ explored option along the path to the root for the maximizer
 the root for the minimizer (beta). A good explanatory video can 
 be found [here](https://www.youtube.com/watch?v=xBXHtz4Gbdo&ab_channel=CS188Spring2013).
 
-### Duelling AIs Mode!
+### Dueling AIs Mode!
 Do you have your own Tic-Tac-Toe AI? Challenge mine! This program 
 includes the ability for your challenge it with a rival AI. To 
 use this functionality, Include a command line argument `-d` or 
@@ -54,7 +54,7 @@ a tuple in the format `(rowNumber, columnNumber)`
 
 ### ✨ New in Version 2.0
 * Do you have a Tic Tac Toe AI of your own? Now you can challenge my 
-AI with yours! See the "Duelling AIs Mode" section for more information!
+AI with yours! See the "Dueling AIs Mode" section for more information!
 #### Older Changelog
 * v1.1
   * The game will now be played on a single game board instead of 
