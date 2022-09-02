@@ -106,15 +106,17 @@ def getDuelingAi():
 def main():
 	"""main method that prompts the user for input"""
 	global gameBoard
-	AI_DUEL_MODE = False
 	players = {}
 	if "-e" in sys.argv or "-eraseModeOff" in sys.argv:
 		global ERASE_MODE_ON
 		ERASE_MODE_ON = False
 	if "-d" in sys.argv or "-aiDuel" in sys.argv:
-		DuelingAi = getDuelingAi()
+		UserPlayerClass = getDuelingAi()
 		print(f"\n{INFO_SYMBOL} You are in AI Duel Mode!")
 		AI_DUEL_MODE = True
+	else:
+		UserPlayerClass = HumanPlayer
+		AI_DUEL_MODE = False
 	os.system("") # allows colored terminal to work on Windows OS
 	print("""
   _______ _        _______           _______                    _____ 
@@ -145,16 +147,12 @@ def main():
 	print(f"{'My AI' if AI_DUEL_MODE else 'AI'}: {RED_COLOR}{aiPiece}{NO_COLOR}")
 
 	players[aiPiece] = Strategy(aiPiece)
-	if AI_DUEL_MODE:
-		players[userPiece] = DuelingAi(userPiece)
-	else:
-		players[userPiece] = HumanPlayer(userPiece)
+	players[userPiece] = UserPlayerClass(userPiece)
 
 	greenColorPiece = userPiece
 	printGameBoard(greenColorPiece)
 
 	turn = X_PIECE
-
 	first_turn = True
 	gameOver, winner = False, None
 	while not gameOver:
@@ -179,14 +177,7 @@ def main():
 		turn = opponentOf(turn)
 		gameOver, winner = isTerminal(gameBoard)
 
-	boardCompletelyFilled = True
-	for row in gameBoard:
-		for spot in row:
-			if spot == EMPTY:
-				boardCompletelyFilled = False
-				break
-
-	if boardCompletelyFilled:
+	if winner is None:
 		print("Nobody wins, it's a tie!\n")
 	else:
 		highlightColor = GREEN_COLOR if winner == greenColorPiece else RED_COLOR
