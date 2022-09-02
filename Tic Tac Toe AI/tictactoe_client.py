@@ -2,7 +2,7 @@
 # Kyle G 6.6.2021
 
 from Player import Player
-from strategy import Strategy
+from strategy import Strategy, opponentOf, isTerminal, performMove
 from inspect import getmembers
 from importlib import import_module
 import os
@@ -50,7 +50,7 @@ class HumanPlayer(Player):
 		erasePreviousLines(1)
 		row = ROW_LABELS.index(spot[0])
 		col = int(spot[1:]) - 1
-		return [row, col]
+		return row, col
 
 def printGameBoard(pieceToHighlightGreen):
 	"""Prints the gameBoard in a human-readable format"""
@@ -70,45 +70,6 @@ def printGameBoard(pieceToHighlightGreen):
 		if rowNum < 2:
 			print("\t   ---+---+---")
 	print("\t    1   2   3\n")
-
-def performMove(move, color):
-	"""Performs the move for the given color on the game board"""
-	global gameBoard
-	rowIndex, colIndex = move
-	gameBoard[rowIndex][colIndex] = color
-
-def findWinner(board):
-	"""
-    Checks if there is a winner
-    returns the color of the winner if there is one, otherwise None
-    """
-	# Check horizontal
-	for row in board:
-		if row[0] == row[1] == row[2] != EMPTY:
-			return True, row[0]
-
-	# Check vertical
-	for col in range(3):
-		if board[0][col] == board[1][col] == board[2][col] != EMPTY:
-			return True, board[0][col]
-
-	# Check diagonal from top left to bottom right
-	if board[0][0] == board[1][1] == board[2][2] != EMPTY:
-		return True, board[0][0]
-
-	# Check diagonal from top right to bottom left
-	if board[0][2] == board[1][1] == board[2][0] != EMPTY:
-		return True, board[0][2]
-
-	for row in board:
-		for spot in row:
-			if spot == EMPTY:
-				return False, None
-	return True, None
-
-def opponentOf(piece):
-	"""Get the opposing piece"""
-	return X_PIECE if piece == O_PIECE else O_PIECE
 
 def erasePreviousLines(numLines, overrideEraseMode=False):
 	"""Erases the specified previous number of lines from the terminal"""
@@ -208,15 +169,15 @@ def main():
 				print("\nThanks for playing!\n")
 				exit(0)
 			erasePreviousLines(2)
-		recentMove = currentPlayer.getMove(gameBoard)
-		performMove(recentMove, turn)
+		rowPlayed, colPlayed = currentPlayer.getMove(gameBoard)
+		performMove(gameBoard, rowPlayed, colPlayed, turn)
 		erasePreviousLines(BOARD_OUTPUT_HEIGHT + (0 if first_turn else 1))
 		first_turn = False
 		printGameBoard(greenColorPiece)
-		move_formatted = ROW_LABELS[recentMove[0]] + str(recentMove[1] + 1)
+		move_formatted = ROW_LABELS[rowPlayed] + str(colPlayed + 1)
 		print(f"{nameOfPlayer} played in spot {move_formatted}")
 		turn = opponentOf(turn)
-		gameOver, winner = findWinner(gameBoard)
+		gameOver, winner = isTerminal(gameBoard)
 
 	boardCompletelyFilled = True
 	for row in gameBoard:

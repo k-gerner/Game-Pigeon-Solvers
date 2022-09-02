@@ -16,57 +16,7 @@ class Strategy(Player):
 		"""Initializes the board attributes"""
 		super().__init__(aiColor)
 		self.AI_COLOR = aiColor
-		self.HUMAN_COLOR = self.opponentOf(aiColor)
-
-	def opponentOf(self, piece):
-		"""Get the opposing piece"""
-		return X_PIECE if piece == O_PIECE else O_PIECE
-
-	def isTerminal(self, board):
-		"""
-		Checks if the current board state is Game Over
-		Returns a tuple, with [0] being the True or False value
-		[1] being the winning color (None if neither color wins)
-		"""
-		winner = self.findWinner(board)
-		if winner != None:
-			return True, winner
-		
-		for row in board:
-			for spot in row:
-				if spot == EMPTY:
-					return False, None
-
-		return True, None
-
-	def findWinner(self, board):
-		"""
-		Checks if there is a winner
-		returns the color of the winner if there is one, otherwise None
-		"""
-		# Check horizontal
-		for row in board:
-			if row[0] == row[1] == row[2] != EMPTY:
-				return row[0]
-
-		# Check vertical
-		for col in range(3):
-			if board[0][col] == board[1][col] == board[2][col] != EMPTY:
-				return board[0][col]
-
-		# Check diagonal from top left to bottom right
-		if board[0][0] == board[1][1] == board[2][2] != EMPTY:
-			return board[0][0]
-
-		# Check diagonal from top right to bottom left
-		if board[0][2] == board[1][1] == board[2][0] != EMPTY:
-			return board[0][2]
-
-		return None
-
-	def performMove(self, board, row, col, piece):
-		"""Performs a given move on the board"""
-		board[row][col] = piece
+		self.HUMAN_COLOR = opponentOf(aiColor)
 
 	def getMove(self, board):
 		"""Calculates the best move for the AI for the given board"""
@@ -76,23 +26,14 @@ class Strategy(Player):
 			moveRow, moveCol, score = self.minimax(board, 0, MAX, -math.inf, math.inf, depth_to_search)
 			if score == WIN_SCORE:
 				break
-		return [moveRow, moveCol]
-
-	def getValidMoves(self, board):
-		"""Returns a list of valid moves (moves in the center area or near other pieces)"""
-		validLocations = []
-		for rowNum in range(3):
-			for colNum in range(3):
-				if board[rowNum][colNum] == EMPTY:
-					validLocations.append([rowNum, colNum])
-		return validLocations
+		return moveRow, moveCol
 
 	def minimax(self, board, depth, maxOrMin, alpha, beta, localMaxDepth):
 		"""
 		Recursively finds the best move for a given board
 		Returns the row in [0], column in [1], and score of the board in [2]
 		"""
-		gameOver, winner = self.isTerminal(board)
+		gameOver, winner = isTerminal(board)
 		if gameOver or depth == localMaxDepth:
 			if winner == self.AI_COLOR:
 				return None, None, WIN_SCORE
@@ -101,7 +42,7 @@ class Strategy(Player):
 			else:
 				return None, None, 0
 
-		validMoves = self.getValidMoves(board)
+		validMoves = getValidMoves(board)
 		if len(validMoves) == 0:
 			return -1, -1, 0
 		elif len(validMoves) == 9:
@@ -114,8 +55,8 @@ class Strategy(Player):
 			bestMove = validMoves[0] # default best move
 			for move in validMoves:
 				boardCopy = list(map(list, board)) # copies board
-				self.performMove(boardCopy, move[0], move[1], self.AI_COLOR)
-				gameOver, winner = self.isTerminal(boardCopy)
+				performMove(boardCopy, move[0], move[1], self.AI_COLOR)
+				gameOver, winner = isTerminal(boardCopy)
 				if winner == self.AI_COLOR:
 					updatedScore = WIN_SCORE
 				elif winner == self.HUMAN_COLOR:
@@ -142,8 +83,8 @@ class Strategy(Player):
 			bestMoveForHuman = validMoves[0]
 			for move in validMoves:
 				boardCopy = list(map(list, board)) # copies board
-				self.performMove(boardCopy, move[0], move[1], self.HUMAN_COLOR)
-				gameOver, winner = self.isTerminal(boardCopy)
+				performMove(boardCopy, move[0], move[1], self.HUMAN_COLOR)
+				gameOver, winner = isTerminal(boardCopy)
 				if winner == self.AI_COLOR:
 					updatedScore = WIN_SCORE
 				elif winner == self.HUMAN_COLOR:
@@ -166,3 +107,61 @@ class Strategy(Player):
 
 
 
+def opponentOf(piece):
+	"""Get the opposing piece"""
+	return X_PIECE if piece == O_PIECE else O_PIECE
+
+def performMove(board, row, col, piece):
+	"""Performs a given move on the board"""
+	board[row][col] = piece
+
+def findWinner(board):
+	"""
+    Checks if there is a winner
+    returns the color of the winner if there is one, otherwise None
+    """
+	# Check horizontal
+	for row in board:
+		if row[0] == row[1] == row[2] != EMPTY:
+			return row[0]
+
+	# Check vertical
+	for col in range(3):
+		if board[0][col] == board[1][col] == board[2][col] != EMPTY:
+			return board[0][col]
+
+	# Check diagonal from top left to bottom right
+	if board[0][0] == board[1][1] == board[2][2] != EMPTY:
+		return board[0][0]
+
+	# Check diagonal from top right to bottom left
+	if board[0][2] == board[1][1] == board[2][0] != EMPTY:
+		return board[0][2]
+
+	return None
+
+def isTerminal(board):
+	"""
+    Checks if the current board state is Game Over
+    Returns a tuple, with [0] being the True or False value
+    [1] being the winning color (None if neither color wins)
+    """
+	winner = findWinner(board)
+	if winner != None:
+		return True, winner
+
+	for row in board:
+		for spot in row:
+			if spot == EMPTY:
+				return False, None
+
+	return True, None
+
+def getValidMoves(board):
+	"""Returns a list of valid moves (moves in the center area or near other pieces)"""
+	validLocations = []
+	for rowNum in range(3):
+		for colNum in range(3):
+			if board[rowNum][colNum] == EMPTY:
+				validLocations.append([rowNum, colNum])
+	return validLocations
