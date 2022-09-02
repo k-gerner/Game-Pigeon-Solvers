@@ -3,7 +3,6 @@
 
 from Player import Player
 from strategy import Strategy, opponentOf, isTerminal, performMove
-from inspect import getmembers
 from importlib import import_module
 import os
 import sys
