@@ -6,6 +6,7 @@ import strategy
 import time
 import os
 import sys
+from Player import Player
 
 EMPTY, BLACK, WHITE = '.', 'X', 'O'
 gameBoard = [] # created later
@@ -16,10 +17,63 @@ MOST_RECENT_HIGHLIGHT_COLOR = '\u001b[48;5;238m' # dark grey; to make lighter, i
 ERASE_MODE_ON = True
 BOARD_OUTPUT_HEIGHT = -1
 SAVE_STATE_OUTPUT_HEIGHT = -1
+COLUMN_LABELS = "<Will be filled later>"
 
 CURSOR_UP_ONE = '\033[1A'
 ERASE_LINE = '\033[2K'
 ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
+# class for the Human player
+class HumanPlayer(Player):
+
+	def __init__(self, color):
+		super().__init__(color, isAI=False)
+
+	def getMove(self, board):
+		"""Takes in the user's input and returns the move"""
+		spot = input("It's your turn, which spot would you like to play? (A1 - %s%d):\t" % (COLUMN_LABELS[-1], len(board))).strip().upper()
+		erasePreviousLines(1)
+		displayingSave = False
+		linesToEraseOnSave = BOARD_OUTPUT_HEIGHT + 1
+		while True:
+			if spot.lower() == 'q':
+				if displayingSave:
+					printGameBoard()
+				print("\nThanks for playing!\n")
+				exit(0)
+			elif spot.lower() == 's':
+				displayingSave = True
+				erasePreviousLines(linesToEraseOnSave)
+				linesToEraseOnSave = 0
+				givePythonCodeForBoardInput()
+				spot = input("Enter a coordinates for a move, or press 'q' to quit:\t").strip().upper()
+				erasePreviousLines(SAVE_STATE_OUTPUT_HEIGHT + 1)
+			elif len(spot) >= 4 or len(spot) == 0 or spot[0] not in COLUMN_LABELS or not spot[1:].isdigit() or int(spot[1:]) > len(board) or int(spot[1:]) < 1:
+				if displayingSave:
+					printGameBoard()
+					print("\n")
+				spot = input(f"{ERROR_SYMBOL} Invalid input. Please try again.\t").strip().upper()
+				erasePreviousLines(1)
+				displayingSave = False
+				linesToEraseOnSave = BOARD_OUTPUT_HEIGHT + 1
+			elif board[int(spot[1:]) - 1][COLUMN_LABELS.index(spot[0])] != EMPTY:
+				if displayingSave:
+					printGameBoard()
+					print("\n")
+				spot = input(f"{ERROR_SYMBOL} That spot is already taken, please choose another:\t").strip().upper()
+				erasePreviousLines(1)
+				displayingSave = False
+				linesToEraseOnSave = BOARD_OUTPUT_HEIGHT + 1
+			else:
+				break
+		if displayingSave:
+			printGameBoard()
+			print("\n")
+		row = int(spot[1:]) - 1
+		col = COLUMN_LABELS.index(spot[0])
+		ai.performMove(board, row, col, playerColor)
+		ai.checkGameState(board)
+		return [row, col]
+
 
 def createGameBoard(dimension):
 	"""Creates the gameBoard with the specified number of rows and columns"""
@@ -81,57 +135,11 @@ def erasePreviousLines(numLines, overrideEraseMode=False):
 	eraseMode = ERASE_MODE_ON if not overrideEraseMode else (not ERASE_MODE_ON)
 	if eraseMode:
 		print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(numLines, 0), end='')
-                                                       
 
-def getPlayerMove(linesToEraseOnSave=0):
-	"""Takes in the user's input and performs that move on the board, returns the move"""
-	columnLabels = list(map(chr, range(65, 65 + len(gameBoard))))
-	spot = input("It's your turn, which spot would you like to play? (A1 - %s%d):\t" % (columnLabels[-1], len(gameBoard))).strip().upper()
-	erasePreviousLines(1)
-	displayingSave = False
-	while True:
-		if spot.lower() == 'q':
-			if displayingSave:
-				printGameBoard()
-			print("\nThanks for playing!\n")
-			exit(0)
-		elif spot.lower() == 's':
-			displayingSave = True
-			erasePreviousLines(linesToEraseOnSave)
-			linesToEraseOnSave = 0
-			givePythonCodeForBoardInput()
-			spot = input("Enter a coordinates for a move, or press 'q' to quit:\t").strip().upper()
-			erasePreviousLines(SAVE_STATE_OUTPUT_HEIGHT + 1)
-		elif len(spot) >= 4 or len(spot) == 0 or spot[0] not in columnLabels or not spot[1:].isdigit() or int(spot[1:]) > len(gameBoard) or int(spot[1:]) < 1:
-			if displayingSave:
-				printGameBoard()
-				print("\n")
-			spot = input(f"{ERROR_SYMBOL} Invalid input. Please try again.\t").strip().upper()
-			erasePreviousLines(1)
-			displayingSave = False
-			linesToEraseOnSave = BOARD_OUTPUT_HEIGHT + 1
-		elif gameBoard[int(spot[1:]) - 1][columnLabels.index(spot[0])] != EMPTY:
-			if displayingSave:
-				printGameBoard()
-				print("\n")
-			spot = input(f"{ERROR_SYMBOL} That spot is already taken, please choose another:\t").strip().upper()
-			erasePreviousLines(1)
-			displayingSave = False
-			linesToEraseOnSave = BOARD_OUTPUT_HEIGHT + 1
-		else:
-			break
-	if displayingSave:
-		printGameBoard()
-		print("\n")
-	row = int(spot[1:]) - 1
-	col = columnLabels.index(spot[0])
-	ai.performMove(gameBoard, row, col, playerColor)
-	ai.checkGameState(gameBoard)
-	return [row, col]
 
 def main():
 	"""main method that prompts the user for input"""
-	global ai, gameBoard, playerColor, BOARD_OUTPUT_HEIGHT, SAVE_STATE_OUTPUT_HEIGHT
+	global ai, gameBoard, playerColor, BOARD_OUTPUT_HEIGHT, SAVE_STATE_OUTPUT_HEIGHT, COLUMN_LABELS
 	os.system("") # allows colored terminal to work on Windows OS
 	if len(sys.argv) == 2 and sys.argv[1] in ["-e", "-eraseModeOff"]:
 		global ERASE_MODE_ON
@@ -145,6 +153,7 @@ def main():
 	else:
 		boardDimension = 13
 		print("Invalid input. The board will be 13x13!")
+	COLUMN_LABELS = list(map(chr, range(65, 65 + boardDimension)))
 	BOARD_OUTPUT_HEIGHT = boardDimension + 4
 	SAVE_STATE_OUTPUT_HEIGHT = boardDimension + 5
 	playerColorInput = input("Would you like to be BLACK ('b') or WHITE ('w')? (black goes first!):\t").strip().lower()
@@ -159,7 +168,7 @@ def main():
 		else:
 			print(f"Invalid input. You'll be {GREEN_COLOR}WHITE{NO_COLOR}!")
 
-	ai = strategy.Strategy(int(boardDimension), playerColor)
+	ai = strategy.Strategy(boardDimension, playerColor)
 	print(f"\nYou: {GREEN_COLOR}%s{NO_COLOR}\tAI: {RED_COLOR}%s{NO_COLOR}" % (playerColor, ai.opponentOf(playerColor)))
 	print("Press 'q' at any prompt to quit.\nType 's' to print out the board's save state.")
 	turn = BLACK
@@ -168,11 +177,12 @@ def main():
 	printGameBoard()
 	print("\n")
 
+	human = HumanPlayer(playerColor)
+
 	while not ai.GAME_OVER:
 		if turn == playerColor:
 			additionalOutput = ""
-			linesToEraseOnSave = BOARD_OUTPUT_HEIGHT + 2 + (-1 if turn == playerColor else -0)
-			rowPlayed, colPlayed = getPlayerMove(linesToEraseOnSave)
+			rowPlayed, colPlayed = human.getMove(gameBoard)
 		else:
 			userInput = input("It's the AI's turn, press enter for it to play.\t").strip().lower()
 			displayingSave = False
@@ -184,7 +194,7 @@ def main():
 					exit(0)
 				else:
 					if not displayingSave:
-						erasePreviousLines(BOARD_OUTPUT_HEIGHT + 1 + (-1 if turn == playerColor else 0))
+						erasePreviousLines(BOARD_OUTPUT_HEIGHT + 1)
 					displayingSave = True
 					givePythonCodeForBoardInput()
 					userInput = input("Press enter for the AI to play, or press 'q' to quit:\t").strip().lower()
