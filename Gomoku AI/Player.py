@@ -4,9 +4,10 @@ from typing import List, Tuple
 
 class Player:
 
-    def __init__(self, color:str, isAI:bool=True):
+    def __init__(self, color:str, boardDimension:int=13, isAI:bool=True):
         """Sets the color for this player, and indicates whether it is an AI"""
         self.color = color
+        self.BOARD_DIMENSION = boardDimension
         self.isAI = isAI
 
     def getMove(self, board:List[List[str]]) -> Tuple[int, int]:
