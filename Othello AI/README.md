@@ -51,6 +51,30 @@ Inputting `s` will print out the python code for the current board's save state.
 When it is your turn, inputting `h` will allow you to see previous moves that have been played. You will be prompted for how many turns ago you want to view. Press `enter` to repeatedly step one move ahead, or `e` to exit back to play mode.
 #### Quit: `q`
 Inputting `q` will quit the game.  
+
+### Dueling AIs Mode
+Do you have your own Othello AI? Challenge mine! This program
+includes the ability for you to challenge it with a rival AI. To
+use this functionality, include a command line argument `-d` or
+`-aiDuel` followed by the name of your Python file. For example, if
+your AI was located in `myAiFile.py`, you would run:
+```
+> python3 OthelloClient.py -d myAiFile
+```
+
+In order for your AI to be eligible, it must meet a few requirements:
+* AI logic must be contained in a class named `OthelloStrategy`
+* AI must be a subclass of `Player`, found in `Player.py`
+* AI must have a function named `getMove` that accepts a game board
+  as a parameter, and returns the chosen move coordinates in the form of
+  a tuple in the format `(rowNumber, columnNumber)`
+
+### ✨ New in Version 2.0
+* Do you have an Othello 4 AI of your own? Now you can challenge my
+  AI with yours! See the [Dueling AIs Mode](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Othello%20AI#dueling-ais-mode)
+  section for more information!
+\
+\
 \
 \
 \
