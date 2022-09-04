@@ -40,6 +40,7 @@ class HumanPlayer(Player):
 
     def getMove(self, board):
         """Takes in the user's input and returns the move"""
+        # TODO: refactor logic so that user input is in this class instead of GameRunner
         pass
 
 class GameRunner:
@@ -48,9 +49,9 @@ class GameRunner:
     def __init__(self, UserPlayerClass, OpponentPlayerClass):
         self.userPiece = getPieceColorInput()
         self.opponentPiece = opponentOf(self.userPiece)
-        self.userPlayerName = "Your AI" if AI_DUEL_MODE else "You"
-        self.aiPlayerName = "My AI" if AI_DUEL_MODE else "AI"
-        self.playerNames = {self.userPiece: self.userPlayerName, self.opponentPiece: self.userPlayerName}
+        userPlayerName = "Your AI" if AI_DUEL_MODE else "You"
+        aiPlayerName = "My AI" if AI_DUEL_MODE else "AI"
+        self.playerNames = {self.userPiece: userPlayerName, self.opponentPiece: aiPlayerName}
         self.players = {
             self.opponentPiece: OpponentPlayerClass(self.opponentPiece),
             self.userPiece: UserPlayerClass(self.userPiece)
@@ -60,7 +61,6 @@ class GameRunner:
         self.board[BOARD_DIMENSION // 2 - 1][BOARD_DIMENSION // 2] = WHITE
         self.board[BOARD_DIMENSION // 2][BOARD_DIMENSION // 2] = BLACK
         self.board[BOARD_DIMENSION // 2 - 1][BOARD_DIMENSION // 2 - 1] = BLACK
-        self.ai = OthelloStrategy(self.opponentPiece)
         self.overrideTurn = BLACK
         self.boardHistory = [[[], copyOfBoard(self.board)]] # [0]: highlighted coordinates  [1]: game board
         self.linesWrittenToConsole = 0
@@ -77,8 +77,11 @@ class GameRunner:
         print("\nThanks for playing!")
         exit(0)
 
-    def getMove(self):
+
+    def getNextMove(self, player):
         """Gets a move input from the user"""
+        if player.isAI:
+            return player.getMove(self.board)
         coord = input("It's your turn, which spot would you like to play? (A1 - %s%d):\t" % (
             COLUMN_LABELS[-1], BOARD_DIMENSION)).strip().upper()
         self.linesWrittenToConsole = BOARD_DIMENSION + 6
@@ -135,6 +138,7 @@ class GameRunner:
                 coord = input(f"{ERROR_SYMBOL} Please enter a valid move (A1 - %s%d):   " % (
                     COLUMN_LABELS[-1], BOARD_DIMENSION)).strip().upper()
 
+
     def textColorOf(self, piece):
         """Gets the text color of the given piece, or an empty string if no piece given"""
         if piece == self.userPiece:
@@ -144,6 +148,7 @@ class GameRunner:
         else:
             return ""
 
+
     def start(self):
         """Starts the game and handles all basic gameplay functionality"""
         turn = self.overrideTurn
@@ -152,51 +157,55 @@ class GameRunner:
         else:
             self.printBoard()
         print()
-        noValidMovesInARow = 0
-        while True:
+        numValidMovesInARow = 0
+        gameOver, winner = False, None
+        while not gameOver:
             self.linesWrittenToConsole = BOARD_DIMENSION + 5
             if hasValidMoves(turn, self.board):
-                noValidMovesInARow = 0
-                if turn == self.userPiece:
-                    row, col = self.getMove()
-                    playMove(turn, row, col, self.board)
-                    self.boardHistory.append([[row, col], copyOfBoard(self.board)])
-                    erasePreviousLines(self.linesWrittenToConsole)
-                    self.printBoard([[row, col]])
-                    print("You played in spot %s%d." % (COLUMN_LABELS[col], row + 1))
+                numValidMovesInARow = 0
+                nameOfCurrentPlayer = self.playerNames[turn]
+                currentPlayer = self.players[turn]
+                if currentPlayer.isAI:
+                    userInput = input(f"{nameOfCurrentPlayer}'s turn, press enter for it to play.\t").strip().lower()
                     self.linesWrittenToConsole += 1
+                    while userInput in ['q', 's', 'qs', 'p']:
+                        if userInput == 'q':
+                            self.endGame()
+                        elif userInput == 's':
+                            self.printOutSaveState(turn)
+                            userInput = input(
+                                "\nSave state for the current game has been printed. Copy it, then press enter to continue. ").strip().lower()
+                            self.linesWrittenToConsole += SAVE_STATE_OUTPUT_HEIGHT + 2
+                        elif userInput == 'qs':
+                            self.printOutSaveState(turn)
+                            self.endGame()
+                        elif userInput == 'p':
+                            erasePreviousLines(self.linesWrittenToConsole)
+                            self.printBoard(getValidMoves(turn, self.board))
+                            userInput = input("AI's available moves have been highlighted. Press enter to continue.").strip().lower()
+                            self.linesWrittenToConsole = BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 1
+                startTime = time.time()
+                row, col = self.getNextMove(currentPlayer)
+                endTime = time.time()
+                timeToPlayMove = round(endTime - startTime, 2)
+                playMove(turn, row, col, self.board)
+                self.boardHistory.append([[row, col], copyOfBoard(self.board)])
+                erasePreviousLines(self.linesWrittenToConsole)
+                self.printBoard([[row, col]] + getValidMoves(self.userPiece, self.board))
+                if currentPlayer.isAI:
+                    additionalOutput = "  (%0.2f sec" % timeToPlayMove
+                    if hasattr(currentPlayer, 'numBoardsEvaluated'):
+                        additionalOutput += ", %d possible futures)" % currentPlayer.numBoardsEvaluated
+                    else:
+                        additionalOutput += ")"
                 else:
-                    userInput = input("Press enter for the AI to play.   ").strip().lower()
-                    self.linesWrittenToConsole += 1
-                    if userInput == 'q':
-                        self.endGame()
-                    elif userInput == 's':
-                        self.printOutSaveState(turn)
-                        input(
-                            "\nSave state for the current game has been printed. Copy it, then press enter to continue. ")
-                        self.linesWrittenToConsole += SAVE_STATE_OUTPUT_HEIGHT + 2
-                    elif userInput == 'qs':
-                        self.printOutSaveState(turn)
-                        self.endGame()
-                    elif userInput == 'p':
-                        erasePreviousLines(self.linesWrittenToConsole)
-                        self.printBoard(getValidMoves(turn, self.board))
-                        input("AI's available moves have been highlighted. Press enter to continue.")
-                        self.linesWrittenToConsole = BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 1
-                    startTime = time.time()
-                    row, col = self.ai.getMove(self.board)
-                    numBoardsEvaluated = self.ai.numBoardsEvaluated
-                    endTime = time.time()
-                    timeToPlayMove = round(endTime - startTime, 2)
-                    playMove(turn, row, col, self.board)
-                    self.boardHistory.append([[row, col], copyOfBoard(self.board)])
-                    erasePreviousLines(self.linesWrittenToConsole)
-                    self.printBoard([[row, col]] + getValidMoves(self.userPiece, self.board))
-                    print("The AI played in spot %s%d  (%0.2f sec, %d possible futures)" % (
-                        COLUMN_LABELS[col], row + 1, timeToPlayMove, numBoardsEvaluated))
+                    additionalOutput = ""
+                moveOutputFormatted = COLUMN_LABELS[col] + str(row + 1)
+                print(f"{nameOfCurrentPlayer} played in spot {moveOutputFormatted}{additionalOutput}")
+
             else:
-                noValidMovesInARow += 1
-                if noValidMovesInARow == 2:
+                numValidMovesInARow += 1
+                if numValidMovesInARow == 2:
                     print("Neither player has any valid moves left!")
                     userScore, aiScore = currentScore(self.userPiece, self.board)
                     if userScore > aiScore:
@@ -211,10 +220,11 @@ class GameRunner:
                     f"{noValidMovesColor}%s{NO_COLOR} has no valid moves this turn! {playAgainColor}%s{NO_COLOR} will play again." % (
                         nameOfPieceColor(turn), nameOfPieceColor(opponentOf(turn))))
                 self.linesWrittenToConsole += 3 + BOARD_DIMENSION
-            isOver, winner = checkGameOver(self.board)
-            if isOver:
-                self.endGame(winner)
+            gameOver, winner = checkGameOver(self.board)
             turn = opponentOf(turn)
+        if gameOver:
+            self.endGame(winner)
+
 
     def printBoard(self, highlightedCoordinates=None, board=None):
         """Prints the gameBoard in a human-readable format"""
@@ -237,6 +247,7 @@ class GameRunner:
         additionalIndent = " " * ((2 + (2 * (BOARD_DIMENSION // 2 - 1))) - (1 if userScore >= 10 else 0))
         print(f"\t{additionalIndent}{GREEN_COLOR}{userScore}{NO_COLOR} to {RED_COLOR}{aiScore}{NO_COLOR}\n")
 
+
     def printMoveHistory(self, numMovesPrevious):
         """Prints the move history of the current game"""
         while True:
@@ -253,6 +264,7 @@ class GameRunner:
                 return
             else:
                 erasePreviousLines(BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 2)
+
 
     def printOutSaveState(self, turn):
         """Prints out the current state of the board as Python code"""
@@ -294,6 +306,7 @@ def getPieceColorInput():
     print(f"Enemy pieces are shown in {RED_COLOR}%s{NO_COLOR}!" % (
         "orange" if RED_COLOR == ORANGE_COLOR else "red"))
     return color
+
 
 def loadConfiguration():
     """Loads in the saved configuration from config.json"""
@@ -372,7 +385,7 @@ def getDuelingAi():
     """Returns the imported AI Strategy class if the import is valid"""
     duelAiModuleName = getOpposingAiModuleName()
     try:
-        DuelingAi  = getattr(import_module(duelAiModuleName), 'Strategy')
+        DuelingAi  = getattr(import_module(duelAiModuleName), 'OthelloStrategy')
         if not issubclass(DuelingAi, Player):
             print(f"{ERROR_SYMBOL} Please make sure your AI is a subclass of 'Player'")
             exit(0)
@@ -382,7 +395,7 @@ def getDuelingAi():
               f"{INFO_SYMBOL} Pass the name of your Python file as a command line argument, WITHOUT the .py extension.")
         exit(0)
     except AttributeError:
-        print(f"{ERROR_SYMBOL} Please make sure your AI's class name is 'Strategy'")
+        print(f"{ERROR_SYMBOL} Please make sure your AI's class name is 'OthelloStrategy'")
         exit(0)
 
 
