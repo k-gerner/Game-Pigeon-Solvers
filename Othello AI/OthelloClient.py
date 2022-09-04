@@ -2,7 +2,10 @@
 # Started 7.15.22
 # Othello AI, client facing
 import os
+import sys
 import time
+from importlib import import_module
+
 from strategy import OthelloStrategy, setAiMaxSearchDepth, setAiMaxValidMovesToEvaluate, copyOfBoard, BLACK, \
     WHITE, EMPTY, BOARD_DIMENSION, setBoardDimension, getValidMoves, opponentOf, playMove, currentScore, \
     checkGameOver, numberOfPieceOnBoard, pieceAt, hasValidMoves, isMoveValid, isMoveInRange
@@ -21,6 +24,7 @@ ERASE_LINE = '\033[2K'
 
 # Miscellaneous
 COLUMN_LABELS = list(map(chr, range(65, 65 + BOARD_DIMENSION)))
+AI_DUEL_MODE = False
 BOARD_OUTLINE_HEIGHT = 4
 SAVE_STATE_OUTPUT_HEIGHT = BOARD_DIMENSION + 6
 ERASE_MODE_ON = True
@@ -41,15 +45,22 @@ class HumanPlayer(Player):
 class GameRunner:
     """Handles overall gameplay"""
 
-    def __init__(self):
-        self.playerPiece = getPieceColorInput()
-        self.enemyPiece = opponentOf(self.playerPiece)
+    def __init__(self, UserPlayerClass, OpponentPlayerClass):
+        self.userPiece = getPieceColorInput()
+        self.opponentPiece = opponentOf(self.userPiece)
+        self.userPlayerName = "Your AI" if AI_DUEL_MODE else "You"
+        self.aiPlayerName = "My AI" if AI_DUEL_MODE else "AI"
+        self.playerNames = {self.userPiece: self.userPlayerName, self.opponentPiece: self.userPlayerName}
+        self.players = {
+            self.opponentPiece: OpponentPlayerClass(self.opponentPiece),
+            self.userPiece: UserPlayerClass(self.userPiece)
+        }
         self.board = [[EMPTY for _ in range(BOARD_DIMENSION)] for __ in range(BOARD_DIMENSION)]
         self.board[BOARD_DIMENSION // 2][BOARD_DIMENSION // 2 - 1] = WHITE
         self.board[BOARD_DIMENSION // 2 - 1][BOARD_DIMENSION // 2] = WHITE
         self.board[BOARD_DIMENSION // 2][BOARD_DIMENSION // 2] = BLACK
         self.board[BOARD_DIMENSION // 2 - 1][BOARD_DIMENSION // 2 - 1] = BLACK
-        self.ai = OthelloStrategy(self.enemyPiece)
+        self.ai = OthelloStrategy(self.opponentPiece)
         self.overrideTurn = BLACK
         self.boardHistory = [[[], copyOfBoard(self.board)]] # [0]: highlighted coordinates  [1]: game board
         self.linesWrittenToConsole = 0
@@ -76,17 +87,17 @@ class GameRunner:
                 self.endGame()
             elif coord == 'S':
                 erasePreviousLines(self.linesWrittenToConsole)
-                self.printOutSaveState(self.playerPiece)
+                self.printOutSaveState(self.userPiece)
                 print("\nSave state for the current game has been printed.")
                 coord = input("It's your turn, which spot would you like to play? (A1 - %s%d):\t" % (
                     COLUMN_LABELS[-1], BOARD_DIMENSION)).strip().upper()
                 self.linesWrittenToConsole = SAVE_STATE_OUTPUT_HEIGHT + 3
             elif coord == 'QS' or coord == 'SQ':
-                self.printOutSaveState(self.playerPiece)
+                self.printOutSaveState(self.userPiece)
                 self.endGame()
             elif coord == 'P':
                 erasePreviousLines(self.linesWrittenToConsole)
-                self.printBoard(getValidMoves(self.playerPiece, self.board))
+                self.printBoard(getValidMoves(self.userPiece, self.board))
                 print("Your available moves have been highlighted.")
                 coord = input("It's your turn, which spot would you like to play? (A1 - %s%d):\t" % (
                     COLUMN_LABELS[-1], BOARD_DIMENSION)).strip().upper()
@@ -108,7 +119,7 @@ class GameRunner:
             elif len(coord) in ([2] if BOARD_DIMENSION < 10 else [2, 3]) and coord[0] in COLUMN_LABELS and \
                     coord[1:].isdigit() and int(coord[1:]) in range(1, BOARD_DIMENSION + 1):
                 row, col = int(coord[1]) - 1, COLUMN_LABELS.index(coord[0])
-                if isMoveValid(self.playerPiece, row, col, self.board):
+                if isMoveValid(self.userPiece, row, col, self.board):
                     return row, col
                 elif isMoveInRange(row, col) and pieceAt(row, col, self.board) != EMPTY:
                     erasePreviousLines(1)
@@ -116,7 +127,7 @@ class GameRunner:
                         f"{ERROR_SYMBOL} That spot is already taken! Please choose a different spot:   ").strip().upper()
                 else:
                     erasePreviousLines(self.linesWrittenToConsole)
-                    self.printBoard(getValidMoves(self.playerPiece, self.board))
+                    self.printBoard(getValidMoves(self.userPiece, self.board))
                     coord = input(f"{ERROR_SYMBOL} Please choose one of the highlighted spaces:   ").strip().upper()
                     self.linesWrittenToConsole = BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 1
             else:
@@ -126,9 +137,9 @@ class GameRunner:
 
     def textColorOf(self, piece):
         """Gets the text color of the given piece, or an empty string if no piece given"""
-        if piece == self.playerPiece:
+        if piece == self.userPiece:
             return GREEN_COLOR
-        elif piece == self.enemyPiece:
+        elif piece == self.opponentPiece:
             return RED_COLOR
         else:
             return ""
@@ -136,8 +147,8 @@ class GameRunner:
     def start(self):
         """Starts the game and handles all basic gameplay functionality"""
         turn = self.overrideTurn
-        if turn == self.playerPiece:
-            self.printBoard(getValidMoves(self.playerPiece, self.board))
+        if turn == self.userPiece:
+            self.printBoard(getValidMoves(self.userPiece, self.board))
         else:
             self.printBoard()
         print()
@@ -146,7 +157,7 @@ class GameRunner:
             self.linesWrittenToConsole = BOARD_DIMENSION + 5
             if hasValidMoves(turn, self.board):
                 noValidMovesInARow = 0
-                if turn == self.playerPiece:
+                if turn == self.userPiece:
                     row, col = self.getMove()
                     playMove(turn, row, col, self.board)
                     self.boardHistory.append([[row, col], copyOfBoard(self.board)])
@@ -180,18 +191,18 @@ class GameRunner:
                     playMove(turn, row, col, self.board)
                     self.boardHistory.append([[row, col], copyOfBoard(self.board)])
                     erasePreviousLines(self.linesWrittenToConsole)
-                    self.printBoard([[row, col]] + getValidMoves(self.playerPiece, self.board))
+                    self.printBoard([[row, col]] + getValidMoves(self.userPiece, self.board))
                     print("The AI played in spot %s%d  (%0.2f sec, %d possible futures)" % (
                         COLUMN_LABELS[col], row + 1, timeToPlayMove, numBoardsEvaluated))
             else:
                 noValidMovesInARow += 1
                 if noValidMovesInARow == 2:
                     print("Neither player has any valid moves left!")
-                    userScore, aiScore = currentScore(self.playerPiece, self.board)
+                    userScore, aiScore = currentScore(self.userPiece, self.board)
                     if userScore > aiScore:
-                        self.endGame(self.playerPiece)
+                        self.endGame(self.userPiece)
                     elif aiScore > userScore:
-                        self.endGame(self.enemyPiece)
+                        self.endGame(self.opponentPiece)
                     else:
                         self.endGame()
                 noValidMovesColor = self.textColorOf(turn)
@@ -222,7 +233,7 @@ class GameRunner:
             if rowNum == BOARD_DIMENSION // 2:
                 print("   %d turns remain." % (numberOfPieceOnBoard(EMPTY, board)), end='')
             print()
-        userScore, aiScore = currentScore(self.playerPiece, board)
+        userScore, aiScore = currentScore(self.userPiece, board)
         additionalIndent = " " * ((2 + (2 * (BOARD_DIMENSION // 2 - 1))) - (1 if userScore >= 10 else 0))
         print(f"\t{additionalIndent}{GREEN_COLOR}{userScore}{NO_COLOR} to {RED_COLOR}{aiScore}{NO_COLOR}\n")
 
@@ -347,13 +358,49 @@ def printGameRules():
         """)
 
 
+def getOpposingAiModuleName():
+    """Reads the command line arguments to determine the name of module for the opposing AI"""
+    remainingCommandLineArgs = sys.argv[2:]
+    for arg in remainingCommandLineArgs:
+        if "-" not in arg:
+            return arg
+    print(f"{ERROR_SYMBOL} You need to provide the name of your AI strategy module.")
+    exit(0)
+
+
+def getDuelingAi():
+    """Returns the imported AI Strategy class if the import is valid"""
+    duelAiModuleName = getOpposingAiModuleName()
+    try:
+        DuelingAi  = getattr(import_module(duelAiModuleName), 'Strategy')
+        if not issubclass(DuelingAi, Player):
+            print(f"{ERROR_SYMBOL} Please make sure your AI is a subclass of 'Player'")
+            exit(0)
+        return DuelingAi
+    except ImportError:
+        print(f"{ERROR_SYMBOL} Please provide a valid module to import.\n" +
+              f"{INFO_SYMBOL} Pass the name of your Python file as a command line argument, WITHOUT the .py extension.")
+        exit(0)
+    except AttributeError:
+        print(f"{ERROR_SYMBOL} Please make sure your AI's class name is 'Strategy'")
+        exit(0)
+
+
 def main():
     """Prompts user for input and creates a new GameRunner"""
+    global AI_DUEL_MODE
     os.system("")  # allows output text coloring for Windows OS
+    if "-d" in sys.argv or "-aiDuel" in sys.argv:
+        UserPlayerClass = getDuelingAi()
+        print(f"\n{INFO_SYMBOL} You are in AI Duel Mode!")
+        AI_DUEL_MODE = True
+    else:
+        UserPlayerClass = HumanPlayer
+        AI_DUEL_MODE = False
     print("Welcome to Kyle's Othello AI!")
     loadConfiguration()
     printGameRules()
-    game = GameRunner()
+    game = GameRunner(UserPlayerClass, OthelloStrategy)
     game.start()
 
 
