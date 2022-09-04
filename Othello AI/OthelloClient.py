@@ -3,7 +3,9 @@
 # Othello AI, client facing
 import os
 import time
-from strategy import OthelloStrategy, setAiMaxSearchDepth, setAiMaxValidMovesToEvaluate, copyOfBoard, BLACK, WHITE, EMPTY, BOARD_DIMENSION, setBoardDimension, getValidMoves, opponentOf, playMove, currentScore, checkGameOver, numberOfPieceOnBoard, pieceAt, hasValidMoves, isMoveValid, isMoveInRange
+from strategy import OthelloStrategy, setAiMaxSearchDepth, setAiMaxValidMovesToEvaluate, copyOfBoard, BLACK, \
+    WHITE, EMPTY, BOARD_DIMENSION, setBoardDimension, getValidMoves, opponentOf, playMove, currentScore, \
+    checkGameOver, numberOfPieceOnBoard, pieceAt, hasValidMoves, isMoveValid, isMoveInRange
 from Player import Player
 
 # Escape sequences for terminal color output
@@ -40,7 +42,7 @@ class GameRunner:
     """Handles overall gameplay"""
 
     def __init__(self):
-        self.playerPiece = self.getPieceColorInput()
+        self.playerPiece = getPieceColorInput()
         self.enemyPiece = opponentOf(self.playerPiece)
         self.board = [[EMPTY for _ in range(BOARD_DIMENSION)] for __ in range(BOARD_DIMENSION)]
         self.board[BOARD_DIMENSION // 2][BOARD_DIMENSION // 2 - 1] = WHITE
@@ -50,12 +52,13 @@ class GameRunner:
         self.ai = OthelloStrategy(self.enemyPiece)
         self.overrideTurn = BLACK
         self.boardHistory = [[[], copyOfBoard(self.board)]] # [0]: highlighted coordinates  [1]: game board
+        self.linesWrittenToConsole = 0
         # paste board save state here
 
     def endGame(self, winner=None):
         """Ends the game"""
         textColor = self.textColorOf(winner)
-        colorName = self.nameOfPieceColor(winner)
+        colorName = nameOfPieceColor(winner)
         if winner:
             print(f"\n{textColor}{colorName}{NO_COLOR} wins!")
         else:
@@ -63,72 +66,63 @@ class GameRunner:
         print("\nThanks for playing!")
         exit(0)
 
-    def getUserCoordinateInput(self):
+    def getMove(self):
         """Gets a move input from the user"""
         coord = input("It's your turn, which spot would you like to play? (A1 - %s%d):\t" % (
             COLUMN_LABELS[-1], BOARD_DIMENSION)).strip().upper()
-        linesWrittenToConsole = BOARD_DIMENSION + 6
+        self.linesWrittenToConsole = BOARD_DIMENSION + 6
         while True:
             if coord == 'Q':
                 self.endGame()
             elif coord == 'S':
-                erasePreviousLines(linesWrittenToConsole)
+                erasePreviousLines(self.linesWrittenToConsole)
                 self.printOutSaveState(self.playerPiece)
                 print("\nSave state for the current game has been printed.")
                 coord = input("It's your turn, which spot would you like to play? (A1 - %s%d):\t" % (
                     COLUMN_LABELS[-1], BOARD_DIMENSION)).strip().upper()
-                linesWrittenToConsole = SAVE_STATE_OUTPUT_HEIGHT + 3
+                self.linesWrittenToConsole = SAVE_STATE_OUTPUT_HEIGHT + 3
             elif coord == 'QS' or coord == 'SQ':
                 self.printOutSaveState(self.playerPiece)
                 self.endGame()
             elif coord == 'P':
-                erasePreviousLines(linesWrittenToConsole)
+                erasePreviousLines(self.linesWrittenToConsole)
                 self.printBoard(getValidMoves(self.playerPiece, self.board))
                 print("Your available moves have been highlighted.")
                 coord = input("It's your turn, which spot would you like to play? (A1 - %s%d):\t" % (
                     COLUMN_LABELS[-1], BOARD_DIMENSION)).strip().upper()
-                linesWrittenToConsole = BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 2
+                self.linesWrittenToConsole = BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 2
             elif coord == 'H':
                 if len(self.boardHistory) < 2:
                     coord = input("No previous moves to see. Enter a valid move to play:   ").strip().upper()
-                    linesWrittenToConsole += 1
+                    self.linesWrittenToConsole += 1
                 else:
                     numMovesPrevious = input(f"How many moves ago do you want to see? (1 to {len(self.boardHistory) - 1})  ").strip()
-                    linesWrittenToConsole += 1
+                    self.linesWrittenToConsole += 1
                     if numMovesPrevious.isdigit() and 1 <= int(numMovesPrevious) <= len(self.boardHistory):
-                        erasePreviousLines(linesWrittenToConsole)
+                        erasePreviousLines(self.linesWrittenToConsole)
                         self.printMoveHistory(int(numMovesPrevious))
                         coord = input(f"{INFO_SYMBOL} You're back in play mode. Which spot would you like to play?   ").strip().upper()
-                        linesWrittenToConsole = BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 1
+                        self.linesWrittenToConsole = BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 1
                     else:
                         coord = input(f"{ERROR_SYMBOL} Invalid input. Enter a valid move to play:   ").strip().upper()
             elif len(coord) in ([2] if BOARD_DIMENSION < 10 else [2, 3]) and coord[0] in COLUMN_LABELS and \
                     coord[1:].isdigit() and int(coord[1:]) in range(1, BOARD_DIMENSION + 1):
                 row, col = int(coord[1]) - 1, COLUMN_LABELS.index(coord[0])
                 if isMoveValid(self.playerPiece, row, col, self.board):
-                    return row, col, linesWrittenToConsole
+                    return row, col
                 elif isMoveInRange(row, col) and pieceAt(row, col, self.board) != EMPTY:
                     erasePreviousLines(1)
                     coord = input(
                         f"{ERROR_SYMBOL} That spot is already taken! Please choose a different spot:   ").strip().upper()
                 else:
-                    erasePreviousLines(linesWrittenToConsole)
+                    erasePreviousLines(self.linesWrittenToConsole)
                     self.printBoard(getValidMoves(self.playerPiece, self.board))
                     coord = input(f"{ERROR_SYMBOL} Please choose one of the highlighted spaces:   ").strip().upper()
-                    linesWrittenToConsole = BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 1
+                    self.linesWrittenToConsole = BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 1
             else:
                 erasePreviousLines(1)
                 coord = input(f"{ERROR_SYMBOL} Please enter a valid move (A1 - %s%d):   " % (
                     COLUMN_LABELS[-1], BOARD_DIMENSION)).strip().upper()
-
-    def nameOfPieceColor(self, piece):
-        """Gets the name of the color of the given piece"""
-        if piece == BLACK:
-            return "BLACK"
-        elif piece == WHITE:
-            return "WHITE"
-        else:
-            return "EMPTY"
 
     def textColorOf(self, piece):
         """Gets the text color of the given piece, or an empty string if no piece given"""
@@ -149,35 +143,35 @@ class GameRunner:
         print()
         noValidMovesInARow = 0
         while True:
-            linesWrittenToConsole = BOARD_DIMENSION + 5
+            self.linesWrittenToConsole = BOARD_DIMENSION + 5
             if hasValidMoves(turn, self.board):
                 noValidMovesInARow = 0
                 if turn == self.playerPiece:
-                    row, col, linesWrittenToConsole = self.getUserCoordinateInput()
+                    row, col = self.getMove()
                     playMove(turn, row, col, self.board)
                     self.boardHistory.append([[row, col], copyOfBoard(self.board)])
-                    erasePreviousLines(linesWrittenToConsole)
+                    erasePreviousLines(self.linesWrittenToConsole)
                     self.printBoard([[row, col]])
                     print("You played in spot %s%d." % (COLUMN_LABELS[col], row + 1))
-                    linesWrittenToConsole += 1
+                    self.linesWrittenToConsole += 1
                 else:
                     userInput = input("Press enter for the AI to play.   ").strip().lower()
-                    linesWrittenToConsole += 1
+                    self.linesWrittenToConsole += 1
                     if userInput == 'q':
                         self.endGame()
                     elif userInput == 's':
                         self.printOutSaveState(turn)
                         input(
                             "\nSave state for the current game has been printed. Copy it, then press enter to continue. ")
-                        linesWrittenToConsole += SAVE_STATE_OUTPUT_HEIGHT + 2
+                        self.linesWrittenToConsole += SAVE_STATE_OUTPUT_HEIGHT + 2
                     elif userInput == 'qs':
                         self.printOutSaveState(turn)
                         self.endGame()
                     elif userInput == 'p':
-                        erasePreviousLines(linesWrittenToConsole)
+                        erasePreviousLines(self.linesWrittenToConsole)
                         self.printBoard(getValidMoves(turn, self.board))
                         input("AI's available moves have been highlighted. Press enter to continue.")
-                        linesWrittenToConsole = BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 1
+                        self.linesWrittenToConsole = BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 1
                     startTime = time.time()
                     row, col = self.ai.getMove(self.board)
                     numBoardsEvaluated = self.ai.numBoardsEvaluated
@@ -185,7 +179,7 @@ class GameRunner:
                     timeToPlayMove = round(endTime - startTime, 2)
                     playMove(turn, row, col, self.board)
                     self.boardHistory.append([[row, col], copyOfBoard(self.board)])
-                    erasePreviousLines(linesWrittenToConsole)
+                    erasePreviousLines(self.linesWrittenToConsole)
                     self.printBoard([[row, col]] + getValidMoves(self.playerPiece, self.board))
                     print("The AI played in spot %s%d  (%0.2f sec, %d possible futures)" % (
                         COLUMN_LABELS[col], row + 1, timeToPlayMove, numBoardsEvaluated))
@@ -204,8 +198,8 @@ class GameRunner:
                 playAgainColor = self.textColorOf(opponentOf(turn))
                 print(
                     f"{noValidMovesColor}%s{NO_COLOR} has no valid moves this turn! {playAgainColor}%s{NO_COLOR} will play again." % (
-                        self.nameOfPieceColor(turn), self.nameOfPieceColor(opponentOf(turn))))
-                linesWrittenToConsole += 3 + BOARD_DIMENSION
+                        nameOfPieceColor(turn), nameOfPieceColor(opponentOf(turn))))
+                self.linesWrittenToConsole += 3 + BOARD_DIMENSION
             isOver, winner = checkGameOver(self.board)
             if isOver:
                 self.endGame(winner)
@@ -264,21 +258,31 @@ class GameRunner:
         outputStr += "# copy and paste everything above this line\n"
         print(outputStr)
 
-    def getPieceColorInput(self):
-        """Gets input from the user to determine which color they will be"""
-        color_input = input("Would you like to be BLACK ('b') or WHITE ('w')?   ").strip().lower()
-        erasePreviousLines(1)
-        color = BLACK if color_input == 'b' else WHITE
-        if color == BLACK:
-            print(f"You will be BLACK {GREEN_COLOR}{BLACK}{NO_COLOR}!")
-        else:
-            print(f"You will be WHITE {GREEN_COLOR}{WHITE}{NO_COLOR}!")
-        print(f"Your pieces are shown in {GREEN_COLOR}%s{NO_COLOR}!" % (
-            "blue" if GREEN_COLOR == BLUE_COLOR else "green"))
-        print(f"Enemy pieces are shown in {RED_COLOR}%s{NO_COLOR}!" % (
-            "orange" if RED_COLOR == ORANGE_COLOR else "red"))
-        return color
 
+def nameOfPieceColor(piece):
+    """Gets the name of the color of the given piece"""
+    if piece == BLACK:
+        return "BLACK"
+    elif piece == WHITE:
+        return "WHITE"
+    else:
+        return "EMPTY"
+
+
+def getPieceColorInput():
+    """Gets input from the user to determine which color they will be"""
+    color_input = input("Would you like to be BLACK ('b') or WHITE ('w')?   ").strip().lower()
+    erasePreviousLines(1)
+    color = BLACK if color_input == 'b' else WHITE
+    if color == BLACK:
+        print(f"You will be BLACK {GREEN_COLOR}{BLACK}{NO_COLOR}!")
+    else:
+        print(f"You will be WHITE {GREEN_COLOR}{WHITE}{NO_COLOR}!")
+    print(f"Your pieces are shown in {GREEN_COLOR}%s{NO_COLOR}!" % (
+        "blue" if GREEN_COLOR == BLUE_COLOR else "green"))
+    print(f"Enemy pieces are shown in {RED_COLOR}%s{NO_COLOR}!" % (
+        "orange" if RED_COLOR == ORANGE_COLOR else "red"))
+    return color
 
 def loadConfiguration():
     """Loads in the saved configuration from config.json"""
