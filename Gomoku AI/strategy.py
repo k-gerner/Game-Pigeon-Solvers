@@ -3,6 +3,7 @@
 import math # for infinities
 import random # for randomizing valid moves list in minimax
 import sys # for better progress bar formatting
+from Player import Player # super class
 
 #### DO NOT MODIFY ####
 EMPTY, BLACK, WHITE = '.', 'X', 'O'
@@ -17,15 +18,14 @@ MAX_DEPTH = 6 # max number of moves ahead to calculate
 #######################
 
 # class for the A.I.
-class Strategy(object):
+class Strategy(Player):
 
-	def __init__(self, boardDimension, humanColor):
-		'''Initializes the board attributes'''
+	def __init__(self, color, boardDimension=13):
+		"""Initializes the board attributes"""
+		super().__init__(color, boardDimension)
 		self.GAME_OVER = False
-		self.HUMAN_COLOR = humanColor
-		self.AI_COLOR = self.opponentOf(humanColor)
-		self.BOARD_WIDTH = boardDimension 
-		self.BOARD_HEIGHT = boardDimension 
+		self.AI_COLOR = color
+		self.HUMAN_COLOR = opponentOf(color)
 		# RANDOM_HASH_TABLE will be used for Zobrist Hashing.
 		# Table has DIM * DIM * 2 entries, with each being a random number that will 
 		# represent a number for if a certain piece is played in a certain position 
@@ -42,7 +42,7 @@ class Strategy(object):
 		self.createBoardPositionWeights(boardDimension)
 
 	def createThreatSequencesDictionary(self):
-		'''Creates the dictionaries that will help score board sections'''
+		"""Creates the dictionaries that will help score board sections"""
 		self.blackThreatsScores = {
 			'.XXXX.' : 10000,	# 4 double open, next move guaranteed win
 			'.XXXX'  : 100,		# 4 single open
@@ -71,10 +71,10 @@ class Strategy(object):
 		}
 
 	def createBoardPositionWeights(self, dim):
-		'''
+		"""
 		Create the position weights matrix for a board of dimension `dim`
 		Center weighted heavier
-		'''
+		"""
 		self.positionWeightsMatrix = []
 		for i in range(dim):
 			self.positionWeightsMatrix.append([0]*dim) # create dim x dim matrix of 0s
@@ -85,7 +85,7 @@ class Strategy(object):
 					self.positionWeightsMatrix[row][col] += 3
 
 	def createHashTable(self, dimension):
-		'''Fills a 2 by dimension board with random 64 bit integers'''
+		"""Fills a 2 by dimension board with random 64 bit integers"""
 		table = [] # 2D
 		for color in range(2):
 			colorLocationList = []
@@ -95,29 +95,25 @@ class Strategy(object):
 		return table
 
 	def createZobristValueForNewMove(self, move, color, prevZobristValue):
-		'''Gives an updated Zobrist value for a board after a new move is played'''
+		"""Gives an updated Zobrist value for a board after a new move is played"""
 		row, col = move
 		hash_row = BLACK_HASH_ROW_NUM if color == BLACK else WHITE_HASH_ROW_NUM
-		hash_val = self.RANDOM_HASH_TABLE[hash_row][row*self.BOARD_WIDTH + col]
+		hash_val = self.RANDOM_HASH_TABLE[hash_row][row*self.BOARD_DIMENSION + col]
 		return prevZobristValue ^ hash_val # ^ = XOR operator
 
-	def opponentOf(self, color):
-		'''Get the opposing color'''
-		return WHITE if color == BLACK else BLACK
-
 	def checkGameState(self, board):
-		'''Sets the GAME_OVER var to True if there is a winner'''
-		if self.isTerminal(board)[0]: 
-		 	self.GAME_OVER = True
+		"""Sets the GAME_OVER var to True if there is a winner"""
+		if self.isTerminal(board)[0]:
+			self.GAME_OVER = True
 
 	def isTerminal(self, board):
-		'''
+		"""
 		Checks if the current board state is Game Over
 		Returns a tuple, with [0] being the True or False value
 		[1] being the winning color (None if neither color wins)
-		'''
+		"""
 		winner = self.findWinner(board)
-		if winner != None:
+		if winner is not None:
 			return True, winner
 		
 		for row in board:
@@ -128,55 +124,51 @@ class Strategy(object):
 		return True, None
 
 	def findWinner(self, board):
-		'''
+		"""
 		Checks if there is a winner
 		returns the color of the winner if there is one, otherwise None
-		'''
+		"""
 		# Check horizontal
 		for row in board:
-			for col in range(self.BOARD_WIDTH - 4):
+			for col in range(self.BOARD_DIMENSION - 4):
 				if row[col] == row[col+1] == row[col+2] == row[col+3] == row[col+4] != EMPTY:
 					return row[col]
 
 		# Check vertical
-		for c in range(self.BOARD_WIDTH):
-			for r in range(self.BOARD_HEIGHT - 4):
+		for c in range(self.BOARD_DIMENSION):
+			for r in range(self.BOARD_DIMENSION - 4):
 				if board[r][c] == board[r+1][c] == board[r+2][c] == board[r+3][c] == board[r+4][c] != EMPTY:
 					return board[r][c]
 
 		# Check diagonal from top left to bottom right
-		for c in range(self.BOARD_WIDTH - 4):
-			for r in range(self.BOARD_HEIGHT - 4):
+		for c in range(self.BOARD_DIMENSION - 4):
+			for r in range(self.BOARD_DIMENSION - 4):
 				if board[r][c] == board[r+1][c+1] == board[r+2][c+2] == board[r+3][c+3] == board[r+4][c+4]!= EMPTY:
 					return board[r][c]
 
 		# Check diagonal from top right to bottom left
-		for c in range(self.BOARD_WIDTH - 4):
-			for r in range(4, self.BOARD_HEIGHT):
+		for c in range(self.BOARD_DIMENSION - 4):
+			for r in range(4, self.BOARD_DIMENSION):
 				if board[r][c] == board[r-1][c+1] == board[r-2][c+2] == board[r-3][c+3] == board[r-4][c+4] != EMPTY:
 					return board[r][c]
 
 		return None
 
-	def performMove(self, board, row, col, color):
-		'''Performs a given move on the board'''
-		board[row][col] = color
-
 	def isCoordinateInBoardRange(self, coord):
-		'''Checks if the coordinate is valid on the board'''
+		"""Checks if the coordinate is valid on the board"""
 		rowNum = coord[0]
 		colNum = coord[1]
-		if rowNum % self.BOARD_HEIGHT == rowNum and colNum % self.BOARD_WIDTH == colNum:
+		if rowNum % self.BOARD_DIMENSION == rowNum and colNum % self.BOARD_DIMENSION == colNum:
 			return True
 		else:
 			return False
 
 	def checkIfMoveCausedGameOver(self, board, move):
-		'''
+		"""
 		Checks the spaces in outward directions to see if the move given caused a win
 		returns the winner in [0] (BLACK, WHITE, or None if no winner)
 		returns True or False in [1] whether or not the game is over
-		'''
+		"""
 		emptySpotSeen = False
 		color = board[move[0]][move[1]]
 		directionVectorsList = [[1, -1], [1, 0], [1, 1], [0, 1]]
@@ -228,7 +220,7 @@ class Strategy(object):
 		return None, True
 
 	def getValidMoves(self, board):
-		'''Returns a list of valid moves (moves in the center area or near other pieces)'''
+		"""Returns a list of valid moves (moves in the center area or near other pieces)"""
 
 		# Will allow me to slightly prioritize checking the spots that are closer to 
 		# other pieces by placing them in separate lists
@@ -240,14 +232,14 @@ class Strategy(object):
 
 		# locate all the spots with pieces
 		filledLocations = []
-		for r in range(self.BOARD_HEIGHT):
-			for c in range(self.BOARD_WIDTH):
+		for r in range(self.BOARD_DIMENSION):
+			for c in range(self.BOARD_DIMENSION):
 				if board[r][c] != EMPTY:
 					filledLocations.append([r,c])
 
 
 		def locateEmptyNearSpots(filledCoord, distFromPiece):
-			'''Finds all the empty spots near this coordinate and adds them to the list of valid spots'''
+			"""Finds all the empty spots near this coordinate and adds them to the list of valid spots"""
 			row, col = filledCoord
 			for i in range(-distFromPiece, distFromPiece + 1): # e.g. -1, 0, 1
 				for j in range(-distFromPiece, distFromPiece + 1): # e.g. -1, 0, 1
@@ -256,7 +248,7 @@ class Strategy(object):
 						continue
 					curr_row, curr_col = row + i, col + j
 					if not self.isCoordinateInBoardRange((curr_row, curr_col)):
-						# if outside of the board range
+						# if outside the board range
 						continue
 					neighborSpot = board[curr_row][curr_col]
 					neighborCoordAsTuple = (curr_row, curr_col)
@@ -278,25 +270,25 @@ class Strategy(object):
 		# combine the lists into one big list
 		validLocations = [item for innerlist in lists_of_valids for item in innerlist]
 
-		if len(validLocations) == 0 and board[self.BOARD_HEIGHT//2][self.BOARD_WIDTH//2] == EMPTY:
+		if len(validLocations) == 0 and board[self.BOARD_DIMENSION//2][self.BOARD_DIMENSION//2] == EMPTY:
 			# If there are no valid moves evaluated (due to no pieces played yet), but the center is open
 			# This will occur when the AI is black and has the first move
-			return [[self.BOARD_HEIGHT//2, self.BOARD_WIDTH//2]]
+			return [[self.BOARD_DIMENSION//2, self.BOARD_DIMENSION//2]]
 
 		# return the best locations from all the valid locations
 		return self.findBestValidMoves(validLocations, board)
 
 	def findBestValidMoves(self, validMoves, board):
-		'''Takes in all the spaces that were deemed valid and selects the ones that have the most potential'''
+		"""Takes in all the spaces that were deemed valid and selects the ones that have the most potential"""
 		if len(validMoves) <= MAX_NUM_MOVES_TO_EVALUATE:
 			# no need to decrease quantity
 			return validMoves
 
 		def sectionContainsThreats(pieceColor, sectionString):
-			'''
+			"""
 			Evaluates each length 5 and length 6 section of spots in the board for threats
 			Returns True or False depending on whether or not a threat was found
-			'''
+			"""
 			threatDictionary = self.blackThreatsScores if pieceColor == BLACK else self.whiteThreatsScores
 			if len(sectionString) == 5:
 				# if the section is only 5 spaces
@@ -447,7 +439,7 @@ class Strategy(object):
 					else:
 						threatMultiplier = 1
 
-						if self.opponentOf(forwardPieceColor) == backwardPieceColor and forwardPieceColor != None and backwardPieceColor != None:
+						if opponentOf(forwardPieceColor) == backwardPieceColor and forwardPieceColor != None and backwardPieceColor != None:
 							# if the pieces in each direction are opposing colors (i.e. neither are empty or out of bounds)
 							if numBackwardEmptiesBeforePiece == 0:
 								# if the first spot in the backward direction is a player piece
@@ -504,30 +496,22 @@ class Strategy(object):
 
 		return highestEvaluatedMoves
 
-	def playBestMove(self, board):
-		'''Calculates and performs the best move for the AI for the given board'''
+	def getMove(self, board):
+		"""Calculates the best move for the AI for the given board"""
 		moveRow, moveCol, score = -123, -123, -123 # placeholders
 		for i in range(1, MAX_DEPTH + 1): # iterative deepening
-			# this will prioritize game winning movesets that occur with less total moves
+			# this will prioritize game winning move sets that occur with less total moves
 			moveRow, moveCol, score = self.minimax(board, 0, MAX, -math.inf, math.inf, i, 0)
 			self.BOARD_STATE_DICT.clear() # clear the dict after every depth increase
 			if score >= WIN_SCORE:
 				break
-		if moveRow != -1 and moveCol != -1:
-			# board not filled
-			self.performMove(board, moveRow, moveCol, self.AI_COLOR)
-			self.checkGameState(board)
-		else:
-			# board filled
-			self.GAME_OVER = True
-		self.BOARD_STATE_DICT = {} 
 		return moveRow, moveCol
 
 	def minimax(self, board, depth, maxOrMin, alpha, beta, localMaxDepth, zobristValueForBoard):
-		'''
+		"""
 		Recursively finds the best move for a given board
 		Returns the row in [0], column in [1], and score of the board in [2]
-		'''
+		"""
 		if depth == localMaxDepth:
 			playerWithTurnAfterMaxDepth = self.AI_COLOR if localMaxDepth % 2 == 0 else self.HUMAN_COLOR
 			boardScores = self.scoreBoard(board, self.HUMAN_COLOR, self.AI_COLOR, playerWithTurnAfterMaxDepth)
@@ -558,7 +542,7 @@ class Strategy(object):
 					movesChecked += 1
 
 				boardCopy = list(map(list, board)) # copies board
-				self.performMove(boardCopy, move[0], move[1], self.AI_COLOR)
+				performMove(boardCopy, move[0], move[1], self.AI_COLOR)
 				newZobristValue = self.createZobristValueForNewMove(move, self.AI_COLOR, zobristValueForBoard)
 				if depth >= 2 and newZobristValue in self.BOARD_STATE_DICT:
 					# if we've already evaluated the score of this board state
@@ -596,7 +580,7 @@ class Strategy(object):
 			bestMoveForHuman = validMoves[0]
 			for move in validMoves:
 				boardCopy = list(map(list, board)) # copies board
-				self.performMove(boardCopy, move[0], move[1], self.HUMAN_COLOR)
+				performMove(boardCopy, move[0], move[1], self.HUMAN_COLOR)
 				newZobristValue = self.createZobristValueForNewMove(move, self.HUMAN_COLOR, zobristValueForBoard)
 				if depth >= 2 and newZobristValue in self.BOARD_STATE_DICT:
 					updatedScore = self.BOARD_STATE_DICT[newZobristValue]
@@ -624,7 +608,7 @@ class Strategy(object):
 			return bestMoveForHuman[0], bestMoveForHuman[1], score
 
 	def scoreSections(self, board, colorOfEvaluator, colorOfEnemy, playerWithTurnAfterMaxDepth):
-		'''Scores all the different horizontal/vertical/diagonal sections on the board'''
+		"""Scores all the different horizontal/vertical/diagonal sections on the board"""
 		evaluatorScore = 0
 		enemyScore = 0
 		evaluatorTrapIndicators = [0, 0, 0, 0]
@@ -637,8 +621,8 @@ class Strategy(object):
 			enemyScoresDict = self.blackThreatsScores
 
 		# Check horizontal
-		for c in range(self.BOARD_WIDTH - 5):
-			for r in range(self.BOARD_HEIGHT):
+		for c in range(self.BOARD_DIMENSION - 5):
+			for r in range(self.BOARD_DIMENSION):
 				section6 = "".join(board[r][c:c + 6])
 				section5 = section6[:-1] # first 5 spaces of section 6
 				if section6 in evaluatorScoresDict:
@@ -653,7 +637,7 @@ class Strategy(object):
 				elif section5 in enemyScoresDict:
 					enemyScore += enemyScoresDict[section5]
 					enemyTrapIndicators[0] = 1
-				if c == self.BOARD_WIDTH - 6:
+				if c == self.BOARD_DIMENSION - 6:
 					# if in last section of row
 					section5 = section6[1:] # check the rightmost 5 section of the row
 					if section5 in evaluatorScoresDict:
@@ -664,8 +648,8 @@ class Strategy(object):
 						enemyTrapIndicators[0] = 1
 
 		# Check vertical
-		for c in range(self.BOARD_WIDTH):
-			for r in range(self.BOARD_HEIGHT - 5):
+		for c in range(self.BOARD_DIMENSION):
+			for r in range(self.BOARD_DIMENSION - 5):
 				section6 = ''
 				for i in range(6):
 					section6 += board[r + i][c]
@@ -682,7 +666,7 @@ class Strategy(object):
 				elif section5 in enemyScoresDict:
 					enemyScore += enemyScoresDict[section5]
 					enemyTrapIndicators[1] = 1
-				if r == self.BOARD_HEIGHT - 6:
+				if r == self.BOARD_DIMENSION - 6:
 					# if in last section of col
 					section5 = section6[1:] # check the bottom 5 section of the col
 					if section5 in evaluatorScoresDict:
@@ -693,8 +677,8 @@ class Strategy(object):
 						enemyTrapIndicators[1] = 1
 
 		# Check diagonal from top left to bottom right
-		for c in range(self.BOARD_WIDTH - 5):
-			for r in range(self.BOARD_HEIGHT - 5):
+		for c in range(self.BOARD_DIMENSION - 5):
+			for r in range(self.BOARD_DIMENSION - 5):
 				section6 = ''
 				for i in range(6):
 					section6 += board[r + i][c + i]
@@ -711,7 +695,7 @@ class Strategy(object):
 				elif section5 in enemyScoresDict:
 					enemyScore += enemyScoresDict[section5]
 					enemyTrapIndicators[2] = 1
-				if c == self.BOARD_WIDTH - 6 or r == self.BOARD_HEIGHT - 6:
+				if c == self.BOARD_DIMENSION - 6 or r == self.BOARD_DIMENSION - 6:
 					# if in last section of this diagonal path
 					section5 = section6[1:] # check the border section
 					if section5 in evaluatorScoresDict:
@@ -722,8 +706,8 @@ class Strategy(object):
 						enemyTrapIndicators[2] = 1
 		
 		# Check diagonal from top right to bottom left
-		for c in range(self.BOARD_WIDTH - 5):
-			for r in range(5, self.BOARD_HEIGHT):
+		for c in range(self.BOARD_DIMENSION - 5):
+			for r in range(5, self.BOARD_DIMENSION):
 				section6 = ''
 				for i in range(6):
 					section6 += board[r - i][c + i]
@@ -740,7 +724,7 @@ class Strategy(object):
 				elif section5 in enemyScoresDict:
 					enemyScore += enemyScoresDict[section5]
 					enemyTrapIndicators[3] = 1
-				if c == self.BOARD_WIDTH - 6 or r == 0:
+				if c == self.BOARD_DIMENSION - 6 or r == 0:
 					# if in last section of this diagonal path
 					section5 = section6[1:] # check the border section
 					if section5 in evaluatorScoresDict:
@@ -754,9 +738,9 @@ class Strategy(object):
 		topLeft, topRight, bottomRight, bottomLeft = '', '', '', ''
 		for i in range(5):
 			topLeft += board[4-i][i]
-			topRight += board[i][self.BOARD_WIDTH - (5-i)]
-			bottomRight += board[self.BOARD_HEIGHT - i - 1][self.BOARD_WIDTH - (5-i)]
-			bottomLeft += board[self.BOARD_HEIGHT - (5-i)][i]
+			topRight += board[i][self.BOARD_DIMENSION - (5-i)]
+			bottomRight += board[self.BOARD_DIMENSION - i - 1][self.BOARD_DIMENSION - (5-i)]
+			bottomLeft += board[self.BOARD_DIMENSION - (5-i)][i]
 		cornerCounter = 1
 		for section in [topLeft, topRight, bottomRight, bottomLeft]:
 			if section in evaluatorScoresDict:
@@ -805,11 +789,11 @@ class Strategy(object):
 		return evaluatorScore, enemyScore
 
 	def scorePositionWeights(self, board, colorOfEvaluator, colorOfEnemy):
-		'''Scores the board based on the weights of the individual locations (center preferred)'''
+		"""Scores the board based on the weights of the individual locations (center preferred)"""
 		evaluatorScore = 0
 		enemyScore = 0
-		for row in range(self.BOARD_HEIGHT):
-			for col in range(self.BOARD_WIDTH):
+		for row in range(self.BOARD_DIMENSION):
+			for col in range(self.BOARD_DIMENSION):
 				currSpot = board[row][col]
 				if currSpot == colorOfEvaluator:
 					evaluatorScore += self.positionWeightsMatrix[row][col]
@@ -818,10 +802,10 @@ class Strategy(object):
 		return evaluatorScore, enemyScore
 
 	def scoreBoard(self, board, colorOfEvaluator, colorOfEnemy, playerWithTurnAfterMaxDepth):
-		'''
-		Scores the entire board by looking at each section of spots, 
+		"""
+		Scores the entire board by looking at each section of spots,
 		as well as the individual peice positions
-		'''
+		"""
 		sectionsScores = self.scoreSections(board, colorOfEvaluator, colorOfEnemy, playerWithTurnAfterMaxDepth)
 		positionWeightScores = self.scorePositionWeights(board, colorOfEvaluator, colorOfEnemy)
 		evaluatorScore = sectionsScores[0] + positionWeightScores[0]
@@ -831,4 +815,10 @@ class Strategy(object):
 
 
 
+def opponentOf(color):
+	"""Get the opposing color"""
+	return WHITE if color == BLACK else BLACK
 
+def performMove(board, row, col, color):
+	"""Performs a given move on the board"""
+	board[row][col] = color
