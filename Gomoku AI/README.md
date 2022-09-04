@@ -240,7 +240,7 @@ One helpful tool I used to determine which sections of my code needed to be impr
 
 ### Dueling AIs Mode
 Do you have your own Gomoku AI? Challenge mine! This program
-includes the ability for your challenge it with a rival AI. To
+includes the ability for you to challenge it with a rival AI. To
 use this functionality, Include a command line argument `-d` or
 `-aiDuel` followed by the name of your Python file. For example, if
 your AI was located in `myAiFile.py`, you would run:
