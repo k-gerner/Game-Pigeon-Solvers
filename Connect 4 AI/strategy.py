@@ -17,13 +17,13 @@ class Strategy(object):
 	HUMAN_COLOR, AI_COLOR = YELLOW, RED # defaults
 
 	def checkIfGameOver(self, board):
-		'''
+		"""
 		Checks if the current board state is Game Over
 		Returns a tuple, with [0] being the True or False value
 		[1] being the winning color (None if neither color wins)
-		'''
+		"""
 		winner = self.findWinner(board)
-		if winner != None:
+		if winner is not None:
 			return True, winner
 		elif len(self.getValidMoves(board)) == 0:
 			return True, None
@@ -31,10 +31,10 @@ class Strategy(object):
 			return False, None
 
 	def findWinner(self, board):
-		'''
+		"""
 		Checks if there is a winner
 		returns the color of the winner if there is one, otherwise None
-		'''
+		"""
 		# Check horizontal
 		for c in range(NUM_COLS-3):
 			for r in range(NUM_ROWS):
@@ -63,7 +63,7 @@ class Strategy(object):
 
 
 	def rowOfPlacement(self, board, col):
-		'''Returns which row the piece will be placed in if placed in column `col`'''
+		"""Returns which row the piece will be placed in if placed in column `col`"""
 		rowsFromBottom = 0
 		for row in board:
 			if row[col] == EMPTY:
@@ -73,11 +73,11 @@ class Strategy(object):
 
 
 	def isValidMove(self, board, col):
-		'''Checks if the column is full'''
+		"""Checks if the column is full"""
 		return board[NUM_ROWS - 1][col] == EMPTY
 
 	def getValidMoves(self, board):
-		'''Returns a list of valid moves'''
+		"""Returns a list of valid moves"""
 		validCols = []
 		for c in range(NUM_COLS):
 			if self.isValidMove(board, c):
@@ -86,11 +86,11 @@ class Strategy(object):
 
 
 	def performMove(self, board, col, color):
-		'''Performs a given move on the board'''
+		"""Performs a given move on the board"""
 		board[self.rowOfPlacement(board, col)][col] = color
 
 	def playBestMove(self, board):
-		'''Calculates and performs the best move for the AI for the given board'''
+		"""Calculates and performs the best move for the AI for the given board"""
 		move, score = -123, -123 # placeholders
 		for i in range(1, MAX_DEPTH + 1): # iterative deepening
 			# this will prioritize game winning move sequences that finish in less moves
@@ -100,19 +100,19 @@ class Strategy(object):
 		return move
 
 	def opponentOf(self, color):
-		'''Get the opposing color'''
+		"""Get the opposing color"""
 		return RED if color == YELLOW else YELLOW
 
 	def setPlayerColor(self, color):
-		'''Set the colors for the human and AI'''
+		"""Set the colors for the human and AI"""
 		self.HUMAN_COLOR, self.AI_COLOR = color, self.opponentOf(color)
 
 
 	def minimax(self, board, depth, maxOrMin, alpha, beta, localMaxDepth):
-		'''
+		"""
 		Recursively finds the best move for a given board
 		Returns the column in [0] and score of the board in [1]
-		'''
+		"""
 		validMoves = self.getValidMoves(board)
 		random.shuffle(validMoves)
 		gameOver, winner = self.checkIfGameOver(board)
@@ -161,7 +161,7 @@ class Strategy(object):
 			
 
 	def scoreSection(self, section, color):
-		'''Looks at the given length 4 section and scores it'''
+		"""Looks at the given length 4 section and scores it"""
 		opponentColor = self.opponentOf(color)
 		numMyColor = section.count(color)
 		numOppColor = section.count(opponentColor)
@@ -182,7 +182,7 @@ class Strategy(object):
 
 
 	def scoreBoard(self, board, color):
-		'''Scores the entire board'''
+		"""Scores the entire board"""
 		score = 0
 
 		# Give a slight bonus to pieces in the center column
@@ -221,7 +221,3 @@ class Strategy(object):
 				score += self.scoreSection(section, color)
 
 		return score
-		
-
-
-

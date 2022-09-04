@@ -31,7 +31,7 @@ ai = strategy.Strategy()
 
 
 def printBoard(board, recentMove=None):
-    '''Prints the given game board'''
+    """Prints the given game board"""
     columnColor = NO_COLOR
     print("\n   ", end='')
     for i in range(7):
@@ -57,7 +57,7 @@ def printBoard(board, recentMove=None):
 
 
 def getPlayerMove():
-    '''Takes in the user's input and performs that move on the board'''
+    """Takes in the user's input and performs that move on the board"""
     col = input("It's your turn, which column would you like to play? (1-7):\t").strip().lower()
     while True:
         if col == 'q':
@@ -84,7 +84,7 @@ def erasePreviousLines(numLines, overrideEraseMode=False):
 
 
 def main():
-    '''main method that prompts the user for input'''
+    """main method that prompts the user for input"""
     global playerPiece
     os.system("")  # allows colored terminal to work on Windows OS
     if len(sys.argv) == 2 and sys.argv[1] in ["-e", "-eraseModeOff"]:
