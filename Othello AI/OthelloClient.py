@@ -5,11 +5,16 @@ import os
 import sys
 import time
 from importlib import import_module
+from datetime import datetime
 
-from strategy import OthelloStrategy, setAiMaxSearchDepth, setAiMaxValidMovesToEvaluate, copyOfBoard, BLACK, \
-    WHITE, EMPTY, BOARD_DIMENSION, setBoardDimension, getValidMoves, opponentOf, playMove, currentScore, \
-    checkGameOver, numberOfPieceOnBoard, pieceAt, hasValidMoves, isMoveValid, isMoveInRange
+from strategy import OthelloStrategy, setAiMaxSearchDepth, setAiMaxValidMovesToEvaluate, copyOfBoard, \
+    BOARD_DIMENSION, setBoardDimension, getValidMoves, opponentOf, playMove, currentScore, checkGameOver, \
+    numberOfPieceOnBoard, pieceAt, hasValidMoves, isMoveValid, isMoveInRange
 from Player import Player
+
+BLACK = "0"
+WHITE = "O"
+EMPTY = "."
 
 # Escape sequences for terminal color output
 GREEN_COLOR = '\033[92m'
@@ -31,6 +36,7 @@ ERASE_MODE_ON = True
 CONFIG_FILENAME = "config.json"
 ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
 INFO_SYMBOL = f"{BLUE_COLOR}<!>{NO_COLOR}"
+SAVE_FILENAME = "saved_game.txt"
 
 # class for the Human player
 class HumanPlayer(Player):
@@ -47,7 +53,19 @@ class GameRunner:
     """Handles overall gameplay"""
 
     def __init__(self, UserPlayerClass, OpponentPlayerClass):
-        self.userPiece = getPieceColorInput()
+        useSavedGame = False
+        if os.path.exists(SAVE_FILENAME):
+            self.board, self.userPiece, self.turn = loadSavedGame()
+            if self.turn is not None:
+                useSavedGame = True
+        if not useSavedGame:
+            self.userPiece = getPieceColorInput()
+            self.board = [[EMPTY for _ in range(BOARD_DIMENSION)] for __ in range(BOARD_DIMENSION)]
+            self.board[BOARD_DIMENSION // 2][BOARD_DIMENSION // 2 - 1] = WHITE
+            self.board[BOARD_DIMENSION // 2 - 1][BOARD_DIMENSION // 2] = WHITE
+            self.board[BOARD_DIMENSION // 2][BOARD_DIMENSION // 2] = BLACK
+            self.board[BOARD_DIMENSION // 2 - 1][BOARD_DIMENSION // 2 - 1] = BLACK
+            self.turn = BLACK
         self.opponentPiece = opponentOf(self.userPiece)
         userPlayerName = "Your AI" if AI_DUEL_MODE else "You"
         aiPlayerName = "My AI" if AI_DUEL_MODE else "AI"
@@ -56,15 +74,8 @@ class GameRunner:
             self.opponentPiece: OpponentPlayerClass(self.opponentPiece),
             self.userPiece: UserPlayerClass(self.userPiece)
         }
-        self.board = [[EMPTY for _ in range(BOARD_DIMENSION)] for __ in range(BOARD_DIMENSION)]
-        self.board[BOARD_DIMENSION // 2][BOARD_DIMENSION // 2 - 1] = WHITE
-        self.board[BOARD_DIMENSION // 2 - 1][BOARD_DIMENSION // 2] = WHITE
-        self.board[BOARD_DIMENSION // 2][BOARD_DIMENSION // 2] = BLACK
-        self.board[BOARD_DIMENSION // 2 - 1][BOARD_DIMENSION // 2 - 1] = BLACK
-        self.overrideTurn = BLACK
         self.boardHistory = [[[], copyOfBoard(self.board)]] # [0]: highlighted coordinates  [1]: game board
         self.linesWrittenToConsole = 0
-        # paste board save state here
 
     def endGame(self, winner=None):
         """Ends the game"""
@@ -90,13 +101,13 @@ class GameRunner:
                 self.endGame()
             elif coord == 'S':
                 erasePreviousLines(self.linesWrittenToConsole)
-                self.printOutSaveState(self.userPiece)
-                print("\nSave state for the current game has been printed.")
+                self.saveGame(self.board, self.userPiece)
                 coord = input("It's your turn, which spot would you like to play? (A1 - %s%d):\t" % (
                     COLUMN_LABELS[-1], BOARD_DIMENSION)).strip().upper()
+                erasePreviousLines(2)
                 self.linesWrittenToConsole = SAVE_STATE_OUTPUT_HEIGHT + 3
             elif coord == 'QS' or coord == 'SQ':
-                self.printOutSaveState(self.userPiece)
+                self.saveGame(self.board, self.userPiece)
                 self.endGame()
             elif coord == 'P':
                 erasePreviousLines(self.linesWrittenToConsole)
@@ -151,44 +162,42 @@ class GameRunner:
 
     def start(self):
         """Starts the game and handles all basic gameplay functionality"""
-        turn = self.overrideTurn
-        if turn == self.userPiece:
+        if self.turn == self.userPiece:
             self.printBoard(getValidMoves(self.userPiece, self.board))
         else:
             self.printBoard()
-        print()
+        print("\n")
         numValidMovesInARow = 0
         gameOver, winner = False, None
         while not gameOver:
-            self.linesWrittenToConsole = BOARD_DIMENSION + 5
-            if hasValidMoves(turn, self.board):
+            self.linesWrittenToConsole = BOARD_DIMENSION + 6
+            if hasValidMoves(self.turn, self.board):
                 numValidMovesInARow = 0
-                nameOfCurrentPlayer = self.playerNames[turn]
-                currentPlayer = self.players[turn]
+                nameOfCurrentPlayer = self.playerNames[self.turn]
+                currentPlayer = self.players[self.turn]
                 if currentPlayer.isAI:
                     userInput = input(f"{nameOfCurrentPlayer}'s turn, press enter for it to play.\t").strip().lower()
-                    self.linesWrittenToConsole += 1
+                    erasePreviousLines(1)
                     while userInput in ['q', 's', 'qs', 'p']:
                         if userInput == 'q':
                             self.endGame()
                         elif userInput == 's':
-                            self.printOutSaveState(turn)
-                            userInput = input(
-                                "\nSave state for the current game has been printed. Copy it, then press enter to continue. ").strip().lower()
-                            self.linesWrittenToConsole += SAVE_STATE_OUTPUT_HEIGHT + 2
+                            self.saveGame(self.board, self.turn)
+                            userInput = input("Press enter to continue. ").strip().lower()
+                            erasePreviousLines(2)
                         elif userInput == 'qs':
-                            self.printOutSaveState(turn)
+                            self.saveGame(self.board, self.turn)
                             self.endGame()
                         elif userInput == 'p':
                             erasePreviousLines(self.linesWrittenToConsole)
-                            self.printBoard(getValidMoves(turn, self.board))
+                            self.printBoard(getValidMoves(self.turn, self.board))
                             userInput = input("AI's available moves have been highlighted. Press enter to continue.").strip().lower()
                             self.linesWrittenToConsole = BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 1
                 startTime = time.time()
                 row, col = self.getNextMove(currentPlayer)
                 endTime = time.time()
                 timeToPlayMove = round(endTime - startTime, 2)
-                playMove(turn, row, col, self.board)
+                playMove(self.turn, row, col, self.board)
                 self.boardHistory.append([[row, col], copyOfBoard(self.board)])
                 erasePreviousLines(self.linesWrittenToConsole)
                 self.printBoard([[row, col]] + getValidMoves(self.userPiece, self.board))
@@ -201,7 +210,7 @@ class GameRunner:
                 else:
                     additionalOutput = ""
                 moveOutputFormatted = COLUMN_LABELS[col] + str(row + 1)
-                print(f"{nameOfCurrentPlayer} played in spot {moveOutputFormatted}{additionalOutput}")
+                print(f"{nameOfCurrentPlayer} played in spot {moveOutputFormatted}{additionalOutput}\n")
 
             else:
                 numValidMovesInARow += 1
@@ -214,14 +223,14 @@ class GameRunner:
                         self.endGame(self.opponentPiece)
                     else:
                         self.endGame()
-                noValidMovesColor = self.textColorOf(turn)
-                playAgainColor = self.textColorOf(opponentOf(turn))
+                noValidMovesColor = self.textColorOf(self.turn)
+                playAgainColor = self.textColorOf(opponentOf(self.turn))
                 print(
                     f"{noValidMovesColor}%s{NO_COLOR} has no valid moves this turn! {playAgainColor}%s{NO_COLOR} will play again." % (
-                        nameOfPieceColor(turn), nameOfPieceColor(opponentOf(turn))))
+                        nameOfPieceColor(self.turn), nameOfPieceColor(opponentOf(self.turn))))
                 self.linesWrittenToConsole += 3 + BOARD_DIMENSION
             gameOver, winner = checkGameOver(self.board)
-            turn = opponentOf(turn)
+            self.turn = opponentOf(self.turn)
         if gameOver:
             self.endGame(winner)
 
@@ -266,20 +275,35 @@ class GameRunner:
                 erasePreviousLines(BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 2)
 
 
-    def printOutSaveState(self, turn):
-        """Prints out the current state of the board as Python code"""
-        print("\n# copy and paste this at the end of the __init__ function in the client")
-        outputStr = "self.board = [\n"
-        for row in self.board:
-            rowStr = "["
-            for spot in row:
-                rowStr += f"\"{spot}\", "
-            rowStr = rowStr[:-2] + "],\n"
-            outputStr += rowStr
-        outputStr = outputStr[:-2] + "]\n"
-        outputStr += f"self.overrideTurn ='{turn}'\n"
-        outputStr += "# copy and paste everything above this line\n"
-        print(outputStr)
+    def saveGame(self, board, turn):
+        """Saves the given board state to a save file"""
+        if os.path.exists(SAVE_FILENAME):
+            with open(SAVE_FILENAME, 'r') as saveFile:
+                try:
+                    timeOfPreviousSave = saveFile.readlines()[3].strip()
+                    overwrite = input(f"{INFO_SYMBOL} A save state already exists from {timeOfPreviousSave}.\nIs it okay to overwrite it? (y/n)\t").strip().lower()
+                    erasePreviousLines(1)
+                    while overwrite not in ['y', 'n']:
+                        erasePreviousLines(1)
+                        overwrite = input(f"{ERROR_SYMBOL} Invalid input. Is it okay to overwrite the existing save state? (y/n)\t").strip().lower()
+                    erasePreviousLines(1)
+                    if overwrite == 'n':
+                        print(f"{INFO_SYMBOL} The current game state will not be saved.")
+                        return
+                except IndexError:
+                    pass
+        with open(SAVE_FILENAME, 'w') as saveFile:
+            saveFile.write("This file contains the save state of a previously played game.\n")
+            saveFile.write("Modifying this file may cause issues with loading the save state.\n\n")
+            timeOfSave = datetime.now().strftime("%m/%d/%Y at %I:%M:%S %p")
+            saveFile.write(timeOfSave + "\n\n")
+            saveFile.write("SAVE STATE:\n")
+            for row in board:
+                saveFile.write(" ".join(row) + "\n")
+            saveFile.write(f"User piece: " + self.userPiece  +"\n")
+            saveFile.write("Opponent piece: " + self.opponentPiece  +"\n")
+            saveFile.write("Turn: " + turn)
+        print(f"{INFO_SYMBOL} The game has been saved!")
 
 
 def nameOfPieceColor(piece):
@@ -344,6 +368,63 @@ def loadConfiguration():
         setAiMaxValidMovesToEvaluate(int(configuration["aiMaxValidMovesToEvaluateEachTurn"]))
 
 
+def validateLoadedSaveState(board, piece, turn):
+    """Make sure the state loaded from the save file is valid. Returns a boolean"""
+    if piece not in [BLACK, WHITE]:
+        return False
+    if turn not in [BLACK, WHITE]:
+        return False
+    boardDimension = len(board)
+    for row in board:
+        if len(row) != boardDimension:
+            return False
+        if row.count(EMPTY) + row.count(BLACK) + row.count(WHITE) != boardDimension:
+            return False
+    return True
+
+
+def loadSavedGame():
+    """Try to load the saved game data"""
+    with open(SAVE_FILENAME, 'r') as saveFile:
+        try:
+            linesFromSaveFile = saveFile.readlines()
+            timeOfPreviousSave = linesFromSaveFile[3].strip()
+            useExistingSave = input(f"{INFO_SYMBOL} Would you like to load the saved game from {timeOfPreviousSave}? (y/n)\t").strip().lower()
+            erasePreviousLines(1)
+            if useExistingSave != 'y':
+                print(f"{INFO_SYMBOL} Starting a new game...")
+                return
+            lineNum = 0
+            currentLine = linesFromSaveFile[lineNum].strip()
+            while currentLine != "SAVE STATE:":
+                lineNum += 1
+                currentLine = linesFromSaveFile[lineNum].strip()
+            lineNum += 1
+            currentLine = linesFromSaveFile[lineNum].strip()
+            board = []
+            while not currentLine.startswith("User piece"):
+                board.append(currentLine.split())
+                lineNum += 1
+                currentLine = linesFromSaveFile[lineNum].strip()
+            userPiece = currentLine.split(": ")[1].strip()
+            lineNum += 2
+            currentLine = linesFromSaveFile[lineNum].strip()
+            turn = currentLine.split(": ")[1].strip()
+            if not validateLoadedSaveState(board, userPiece, turn):
+                raise ValueError
+            deleteSaveFile = input(f"{INFO_SYMBOL} Saved game was successfully loaded! Delete the save file? (y/n)\t").strip().lower()
+            erasePreviousLines(1)
+            fileDeletedText = ""
+            if deleteSaveFile == 'y':
+                os.remove(SAVE_FILENAME)
+                fileDeletedText = "Save file deleted. "
+            print(f"{INFO_SYMBOL} %sResuming saved game..." % fileDeletedText )
+            return board, userPiece, turn
+        except:
+            print(f"{ERROR_SYMBOL} There was an issue reading from the save file. Starting a new game...")
+            return None, None, None
+
+
 def erasePreviousLines(numLines, overrideEraseMode=False):
     """Erases the specified previous number of lines from the terminal"""
     eraseMode = ERASE_MODE_ON if not overrideEraseMode else (not ERASE_MODE_ON)
@@ -355,7 +436,7 @@ def printGameRules():
     """Gives the user the option to view the rules of the game"""
     print("\nType 'q' at any move prompt to quit the game.")
     print("Type 'p' to show the available moves.")
-    print("Type 's' to print out the board's save state.")
+    print("Type 's' save the game.")
     print("Type 'h' at your turn to see previous moves.")
     print("Game constants are modifiable in the config.json file.")
     showRules = input("Would you like to see the rules? (y/n)   ").strip().lower()
@@ -399,6 +480,24 @@ def getDuelingAi():
         exit(0)
 
 
+def printAsciiTitleArt():
+    """Prints the fancy text when you start the program"""
+    print("""
+             _  __     _      _
+            | |/ /    | |    ( )
+            | ' /_   _| | ___|/ ___
+            |  <| | | | |/ _ \ / __|
+            | . \ |_| | |  __/ \__ \\
+            |_|\_\__, |_|\___| |___/
+ _____  _   _     __/ |_ _                  _____
+/  __ \\| | | |   |___/| | |           /\\   |_   _|
+| |  | | |_| |__   ___| | | ___      /  \\    | |
+| |  | | __| '_ \\ / _ \\ | |/ _ \\    / /\\ \\   | |
+| |__| | |_| | | |  __/ | | (_) |  / ____ \\ _| |_
+\\_____/ \\__|_| |_|\\___|_|_|\\___/  /_/    \\_\\_____|
+    """)
+
+
 def main():
     """Prompts user for input and creates a new GameRunner"""
     global AI_DUEL_MODE
@@ -410,7 +509,7 @@ def main():
     else:
         UserPlayerClass = HumanPlayer
         AI_DUEL_MODE = False
-    print("Welcome to Kyle's Othello AI!")
+    printAsciiTitleArt()
     loadConfiguration()
     printGameRules()
     game = GameRunner(UserPlayerClass, OthelloStrategy)
