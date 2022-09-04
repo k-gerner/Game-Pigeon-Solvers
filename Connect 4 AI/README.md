@@ -19,7 +19,28 @@ The A.I. works by using a move selection algorithm known as [Minimax](https://en
 
 Alpha-Beta pruning works by keeping track of the best already explored option along the path to the root for the maximizer (alpha), and the best already explored option along the path to the root for the minimizer (beta). A good explanatory video can be found [here](https://www.youtube.com/watch?v=xBXHtz4Gbdo&ab_channel=CS188Spring2013).
 
-### ✨ New in Version 1.1
-* The game will now be played on a single game board instead of printing a new board after each turn. This can be turned off with the command line argument `-e` or `-eraseModeOff`.
-* The column number of the most recently played move will be colored green.
-* The column numbers of columns that are full will be colored grey.
+### Dueling AIs Mode
+Do you have your own Connect 4 AI? Challenge mine! This program
+includes the ability for you to challenge it with a rival AI. To
+use this functionality, include a command line argument `-d` or
+`-aiDuel` followed by the name of your Python file. For example, if
+your AI was located in `myAiFile.py`, you would run:
+```
+> python3 connect4_client.py -d myAiFile
+```
+
+In order for your AI to be eligible, it must meet a few requirements:
+* AI logic must be contained in a class named `Strategy`
+* AI must be a subclass of `Player`, found in `Player.py`
+* AI must have a function named `getMove` that accepts a game board
+as a parameter, and returns the chosen move as an `int` representing 
+the index of the column (0-6)
+
+### ✨ New in Version 2.0
+* Do you have a Connect 4 AI of your own? Now you can challenge my
+  AI with yours! See the "Dueling AIs Mode" section for more information!
+#### Older Changelog
+* v1.1
+  * The game will now be played on a single game board instead of printing a new board after each turn. This can be turned off with the command line argument `-e` or `-eraseModeOff`.
+  * The column number of the most recently played move will be colored green.
+  * The column numbers of columns that are full will be colored grey.
