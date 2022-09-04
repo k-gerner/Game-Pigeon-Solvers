@@ -10,7 +10,6 @@ Note: In Game Pigeon, this game is labeled as "Reversi." However, the rules used
 First, download the files in this folder. The contents of each file are as follows:  
 * `OthelloClient.py`: Contains the logic for the UI and user input, as well as the game runner
 * `strategy.py`: Contains the A.I. strategy logic, as well as some functions for manipulating a game board
-* `RulesEvaluator.py`: Contains functions that return information about the state of a board, as well as applying the Othello rules to determining the validity of moves, checking game state, etc.
 * `config.json`: Contains constants that affect the A.I. logic, accessibility settings, and more. More information in the [Configuration](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Othello#configuration) section.
 * `README.md`: You're reading it right now!  
 
@@ -18,7 +17,7 @@ You can invoke the tool by running
 ```
 > python3 OthelloClient.py
 ```
-Once you do this, you will be see some info about how to interact with the tool, further explained in the [Additional Features](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Othello#additional-features) section. You will be asked if you would like to see the rules, and then you will be prompted to choose which color you want to be, BLACK (`0`) or WHITE (`O`). Whoever is BLACK will go first. You will then be prompted to either enter your move, or press `enter` for the A.I. to play.  
+Once you do this, you will see some info about how to interact with the tool, further explained in the [Additional Features](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Othello#additional-features) section. You will be asked if you would like to see the rules, and then you will be prompted to choose which color you want to be, BLACK (`0`) or WHITE (`O`). Whoever is BLACK will go first. You will then be prompted to either enter your move, or press `enter` for the A.I. to play.  
 
 <img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Othello/othelloGameBoard.png" alt = "sample board output" width="40%">  
 
