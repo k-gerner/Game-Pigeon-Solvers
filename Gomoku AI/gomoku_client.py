@@ -117,7 +117,7 @@ def givePythonCodeForBoardInput():
 		strRepOfRow = ""
 		for spot in gameBoard[i]:
 			strRepOfRow += spot + " "
-		print("gameBoard.append(\"%s\".split())" % (strRepOfRow))
+		print("gameBoard.append(\"%s\".split())" % strRepOfRow)
 	print()
 
 def printAsciiTitleArt():
@@ -149,7 +149,7 @@ def getOpposingAiModuleName():
 	exit(0)
 
 def getDuelingAi():
-	"""Returns the imported AI Strategy class if it the import valid"""
+	"""Returns the imported AI Strategy class if the import is valid"""
 	duelAiModuleName = getOpposingAiModuleName()
 	try:
 		DuelingAi  = getattr(import_module(duelAiModuleName), 'Strategy')

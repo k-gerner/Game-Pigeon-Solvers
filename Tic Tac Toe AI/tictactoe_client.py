@@ -86,7 +86,7 @@ def getOpposingAiModuleName():
 	exit(0)
 
 def getDuelingAi():
-	"""Returns the imported AI Strategy class if it the import valid"""
+	"""Returns the imported AI Strategy class if the import is valid"""
 	duelAiModuleName = getOpposingAiModuleName()
 	try:
 		DuelingAi  = getattr(import_module(duelAiModuleName), 'Strategy')
