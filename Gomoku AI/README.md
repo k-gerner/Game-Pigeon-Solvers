@@ -23,8 +23,10 @@ win instead of 3.
 
 ### How to use 
 First, download the `gomoku_client.py` and `strategy.py` files and 
-place them both in the same directory. You can invoke the tool by 
-running  
+place them both in the same directory. If you would like to challenge
+my AI with your own, see the [Dueling AIs Mode](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#dueling-ais-mode)
+section. If you would like to challenge the AI yourself, you can 
+invoke the tool by running  
 ```
 > python3 gomoku_client.py
 ```

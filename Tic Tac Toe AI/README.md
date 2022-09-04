@@ -10,12 +10,16 @@ in terms of implementation, so I decided to knock out an AI for it)
 In Tic-Tac-Toe, the objective is to get 3 of your pieces in a 
 row on the board, in any direction.  
 ### How to use  
-First, download `tictactoe_client.py` and `strategy.py` files and place them both in the same directory. You can invoke the tool by running  
+First, download `tictactoe_client.py` and `strategy.py` files and 
+place them both in the same directory. If you would like to challenge 
+my AI with your own, see the [Dueling AIs Mode](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Tic%20Tac%20Toe%20AI#dueling-ais-mode) 
+section. If you would like to challenge the AI yourself, you can 
+invoke the tool by running  
 ```
 > python3 tictactoe_client.py
 ```
 Once you do this, you will be asked whether you want to play as `X` 
-or `O`.  
+or `O`. 
 
 Whoever is `X` will go first. Your pieces will be colored 
 <span style="color:lightgreen">green</span>, and the AI's pieces 
@@ -54,7 +58,8 @@ a tuple in the format `(rowNumber, columnNumber)`
 
 ### ✨ New in Version 2.0
 * Do you have a Tic Tac Toe AI of your own? Now you can challenge my 
-AI with yours! See the "Dueling AIs Mode" section for more information!
+AI with yours! See the [Dueling AIs Mode](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Tic%20Tac%20Toe%20AI#dueling-ais-mode)
+section for more information!
 #### Older Changelog
 * v1.1
   * The game will now be played on a single game board instead of 
