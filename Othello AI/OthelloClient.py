@@ -3,10 +3,7 @@
 # Othello AI, client facing
 import os
 import time
-from strategy import OthelloStrategy, setAiMaxSearchDepth, setAiMaxValidMovesToEvaluate, copyOfBoard
-from RulesEvaluator import BLACK, WHITE, EMPTY, BOARD_DIMENSION, setBoardDimension, getValidMoves, opponentOf, \
-    playMove, currentScore, checkGameOver, numberOfPieceOnBoard, pieceAt, hasValidMoves, isMoveValid, \
-    isMoveInRange
+from strategy import OthelloStrategy, setAiMaxSearchDepth, setAiMaxValidMovesToEvaluate, copyOfBoard, BLACK, WHITE, EMPTY, BOARD_DIMENSION, setBoardDimension, getValidMoves, opponentOf, playMove, currentScore, checkGameOver, numberOfPieceOnBoard, pieceAt, hasValidMoves, isMoveValid, isMoveInRange
 from Player import Player
 
 # Escape sequences for terminal color output
