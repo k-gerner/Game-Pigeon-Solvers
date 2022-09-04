@@ -2,8 +2,7 @@
 # Started 7.15.22
 # Contains AI strategy and board manipulation methods
 import math
-import RulesEvaluator as eval
-from RulesEvaluator import EMPTY, BOARD_DIMENSION
+from RulesEvaluator import EMPTY, BOARD_DIMENSION, numberOfPieceOnBoard, getValidMoves, opponentOf, playMove, currentScore
 from Player import Player
 from functools import cmp_to_key
 from collections import defaultdict
@@ -28,7 +27,7 @@ class OthelloStrategy(Player):
     def __init__(self, color):
         super().__init__(color)
         self.aiColor = color
-        self.enemyColor = eval.opponentOf(color)
+        self.enemyColor = opponentOf(color)
         self.movesPlayed = 0
         self.numBoardsEvaluated = 0
         self.positionsScores = {}
@@ -41,10 +40,9 @@ class OthelloStrategy(Player):
                 positionScore = evaluatePosition(row, col)
                 self.positionsScores[(row, col)] = positionScore
 
-
     def getMove(self, board):
         """Gets the best move for the AI on the given board"""
-        self.movesPlayed = BOARD_DIMENSION**2 - eval.numberOfPieceOnBoard(EMPTY, board)
+        self.movesPlayed = BOARD_DIMENSION**2 - numberOfPieceOnBoard(EMPTY, board)
         self.numBoardsEvaluated = 0
         row, col = self.minimax(self.aiColor, -math.inf, math.inf, 0, board)[:2]
         return  row, col
@@ -54,7 +52,7 @@ class OthelloStrategy(Player):
         if depth == MAX_DEPTH or depth + self.movesPlayed == BOARD_DIMENSION ** 2:
             self.numBoardsEvaluated += 1
             return -1, -1, self.evaluateBoard(board, depth)
-        validMoves = eval.getValidMoves(turn, board)
+        validMoves = getValidMoves(turn, board)
         validMoves.sort(key=validMoveSortKey)
         if len(validMoves) > MAX_VALID_MOVES_TO_EVALUATE:
             # check a maximum of MAX_VALID_MOVES_TO_EVALUATE moves per board state
@@ -63,15 +61,15 @@ class OthelloStrategy(Player):
             if noMoveForOpponent:
                 self.numBoardsEvaluated += 1
                 return -1, -1, self.evaluateBoard(board, BOARD_DIMENSION**2 - self.movesPlayed)
-            return self.minimax(eval.opponentOf(turn), alpha, beta, depth, board, noMoveForOpponent=True)
+            return self.minimax(opponentOf(turn), alpha, beta, depth, board, noMoveForOpponent=True)
         if turn == self.aiColor:
             # maximize
             highScore = -math.inf
             bestRow, bestCol = validMoves[0]
             for row, col in validMoves:
                 boardCopy = copyOfBoard(board)  # possible bottleneck
-                eval.playMove(turn, row, col, boardCopy)
-                _, __, score = self.minimax(eval.opponentOf(turn), alpha, beta, depth + 1, boardCopy)
+                playMove(turn, row, col, boardCopy)
+                _, __, score = self.minimax(opponentOf(turn), alpha, beta, depth + 1, boardCopy)
                 if score > highScore:
                     highScore = score
                     bestRow = row
@@ -86,8 +84,8 @@ class OthelloStrategy(Player):
             bestRow, bestCol = validMoves[0]
             for row, col in validMoves:
                 boardCopy = copyOfBoard(board)  # possible bottleneck
-                eval.playMove(turn, row, col, boardCopy)
-                _, __, score = self.minimax(eval.opponentOf(turn), alpha, beta, depth + 1, boardCopy)
+                playMove(turn, row, col, boardCopy)
+                _, __, score = self.minimax(opponentOf(turn), alpha, beta, depth + 1, boardCopy)
                 if score < lowScore:
                     lowScore = score
                     bestRow = row
@@ -101,7 +99,7 @@ class OthelloStrategy(Player):
         """Assigns a value to the board state based on how good it is for the AI"""
         spotsRemaining = BOARD_DIMENSION**2 - (additionalPiecesPlayed + self.movesPlayed)
         if spotsRemaining == 0:
-            aiScore, humanScore = eval.currentScore(self.aiColor, board)
+            aiScore, humanScore = currentScore(self.aiColor, board)
             if aiScore > humanScore:
                 return WIN_SCORE
             elif aiScore < humanScore:
