@@ -287,7 +287,7 @@ class Strategy(Player):
 		def sectionContainsThreats(pieceColor, sectionString):
 			"""
 			Evaluates each length 5 and length 6 section of spots in the board for threats
-			Returns True or False depending on whether or not a threat was found
+			Returns True or False depending on whether a threat was found
 			"""
 			threatDictionary = self.blackThreatsScores if pieceColor == BLACK else self.whiteThreatsScores
 			if len(sectionString) == 5:
@@ -424,7 +424,7 @@ class Strategy(Player):
 						directionVectorScore = 0
 					else:
 						threatMultiplier = 1
-						if forwardPieceColor != EMPTY and forwardPieceColor != None:
+						if forwardPieceColor != EMPTY and forwardPieceColor is not None:
 							# if we actually found a piece 
 							fullSectionString = backwardDirectionStr + forwardPieceColor + forwardDirectionStr # add in the imaginary piece to see if a threat is produced
 							if sectionContainsThreats(forwardPieceColor, fullSectionString):
@@ -439,7 +439,7 @@ class Strategy(Player):
 					else:
 						threatMultiplier = 1
 
-						if opponentOf(forwardPieceColor) == backwardPieceColor and forwardPieceColor != None and backwardPieceColor != None:
+						if opponentOf(forwardPieceColor) == backwardPieceColor and forwardPieceColor is not None and backwardPieceColor is not None:
 							# if the pieces in each direction are opposing colors (i.e. neither are empty or out of bounds)
 							if numBackwardEmptiesBeforePiece == 0:
 								# if the first spot in the backward direction is a player piece
@@ -463,11 +463,11 @@ class Strategy(Player):
 						else:
 							# one of the directions is all empty spaces, and the other contains at least one player piece
 							# OR one of the directions is out of bounds
-							if forwardPieceColor == None:
+							if forwardPieceColor is None:
 								# if the forward direction is out of bounds
 								totalSectionStr = backwardPieceColor + backwardDirectionStr
 								evaluatingPieceColor = backwardPieceColor
-							elif backwardPieceColor == None:
+							elif backwardPieceColor is None:
 								# if the backward direction is out of bounds
 								totalSectionStr = forwardPieceColor + forwardDirectionStr
 								evaluatingPieceColor = forwardPieceColor
@@ -804,7 +804,7 @@ class Strategy(Player):
 	def scoreBoard(self, board, colorOfEvaluator, colorOfEnemy, playerWithTurnAfterMaxDepth):
 		"""
 		Scores the entire board by looking at each section of spots,
-		as well as the individual peice positions
+		as well as the individual piece positions
 		"""
 		sectionsScores = self.scoreSections(board, colorOfEvaluator, colorOfEnemy, playerWithTurnAfterMaxDepth)
 		positionWeightScores = self.scorePositionWeights(board, colorOfEvaluator, colorOfEnemy)
