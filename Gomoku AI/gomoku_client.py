@@ -1,8 +1,9 @@
 # Kyle Gerner
 # Started 3.22.2021
 # Gomoku solver, client facing
+from importlib import import_module
 
-import strategy
+from strategy import Strategy, opponentOf, performMove
 import time
 import os
 import sys
@@ -10,8 +11,11 @@ from Player import Player
 
 EMPTY, BLACK, WHITE = '.', 'X', 'O'
 gameBoard = [] # created later
-playerColor = None
-GREEN_COLOR, RED_COLOR, NO_COLOR = '\033[92m', '\033[91m', '\033[0m' 		# green, red, white
+userPiece = None
+GREEN_COLOR = '\033[92m'	 # green
+RED_COLOR = '\033[91m'		 # red
+NO_COLOR = '\033[0m' 		 # white
+BLUE_COLOR = '\033[38;5;39m' # blue
 MOST_RECENT_HIGHLIGHT_COLOR = '\u001b[48;5;238m' # dark grey; to make lighter, increase 238 to anything 255 or below
 
 ERASE_MODE_ON = True
@@ -22,6 +26,7 @@ COLUMN_LABELS = "<Will be filled later>"
 CURSOR_UP_ONE = '\033[1A'
 ERASE_LINE = '\033[2K'
 ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
+INFO_SYMBOL = f"{BLUE_COLOR}<!>{NO_COLOR}"
 # class for the Human player
 class HumanPlayer(Player):
 
@@ -70,9 +75,7 @@ class HumanPlayer(Player):
 			print("\n")
 		row = int(spot[1:]) - 1
 		col = COLUMN_LABELS.index(spot[0])
-		ai.performMove(board, row, col, playerColor)
-		ai.checkGameState(board)
-		return [row, col]
+		return row, col
 
 
 def createGameBoard(dimension):
@@ -84,16 +87,18 @@ def createGameBoard(dimension):
 		gameBoard.append(row)
 	# paste board save state here if applicable
 
-def printGameBoard(mostRecentMove=None):
-	"""Prints the gameBoard in a human readable format"""
+def printGameBoard(highlightCoordinates=None):
+	"""Prints the gameBoard in a human-readable format"""
+	if highlightCoordinates is None:
+		highlightCoordinates = []
 	columnLabels = list(map(chr, range(65, 65 + len(gameBoard))))
 	print("\n\t    %s" % " ".join(columnLabels))
 	for rowNum in range(len(gameBoard)):
 		print("\t%d%s| " % (rowNum+1, "" if rowNum > 8 else " "), end = '')
 		for colNum in range(len(gameBoard[rowNum])):
 			spot = gameBoard[rowNum][colNum]
-			pieceColor = MOST_RECENT_HIGHLIGHT_COLOR if [rowNum, colNum] == mostRecentMove else ''
-			pieceColor += GREEN_COLOR if spot == playerColor else RED_COLOR
+			pieceColor = MOST_RECENT_HIGHLIGHT_COLOR if [rowNum, colNum] in highlightCoordinates else ''
+			pieceColor += GREEN_COLOR if spot == userPiece else RED_COLOR
 			if spot == EMPTY:
 				print("%s " % spot, end='')
 			else:
@@ -129,22 +134,56 @@ def printAsciiTitleArt():
 	print('| |_| | (_) | | | | | | (_) |   <| |_| |  / ___ \\ | |')
 	print(' \\____|\\___/|_| |_| |_|\\___/|_|\\\\_\\__,_| /_/   \\_\\___|\n')
 
-
 def erasePreviousLines(numLines, overrideEraseMode=False):
 	"""Erases the specified previous number of lines from the terminal"""
 	eraseMode = ERASE_MODE_ON if not overrideEraseMode else (not ERASE_MODE_ON)
 	if eraseMode:
 		print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(numLines, 0), end='')
 
+def getOpposingAiModuleName():
+	"""Reads the command line arguments to determine the name of module for the opposing AI"""
+	remainingCommandLineArgs = sys.argv[2:]
+	for arg in remainingCommandLineArgs:
+		if "-" not in arg:
+			return arg
+	print(f"{ERROR_SYMBOL} You need to provide the name of your AI strategy module.")
+	exit(0)
+
+def getDuelingAi():
+	"""Returns the imported AI Strategy class if it the import valid"""
+	duelAiModuleName = getOpposingAiModuleName()
+	try:
+		DuelingAi  = getattr(import_module(duelAiModuleName), 'Strategy')
+		if not issubclass(DuelingAi, Player):
+			print(f"{ERROR_SYMBOL} Please make sure your AI is a subclass of 'Player'")
+			exit(0)
+		return DuelingAi
+	except ImportError:
+		print(f"{ERROR_SYMBOL} Please provide a valid module to import.\n" +
+			  f"{INFO_SYMBOL} Pass the name of your Python file as a command line argument, WITHOUT the .py extension.")
+		exit(0)
+	except AttributeError:
+		print(f"{ERROR_SYMBOL} Please make sure your AI's class name is 'Strategy'")
+		exit(0)
+
 
 def main():
 	"""main method that prompts the user for input"""
-	global ai, gameBoard, playerColor, BOARD_OUTPUT_HEIGHT, SAVE_STATE_OUTPUT_HEIGHT, COLUMN_LABELS
+	global ai, gameBoard, userPiece, BOARD_OUTPUT_HEIGHT, SAVE_STATE_OUTPUT_HEIGHT, COLUMN_LABELS
 	os.system("") # allows colored terminal to work on Windows OS
-	if len(sys.argv) == 2 and sys.argv[1] in ["-e", "-eraseModeOff"]:
+	if "-e" in sys.argv or "-eraseModeOff" in sys.argv:
 		global ERASE_MODE_ON
 		ERASE_MODE_ON = False
+	if "-d" in sys.argv or "-aiDuel" in sys.argv:
+		UserPlayerClass = getDuelingAi()
+		print(f"\n{INFO_SYMBOL} You are in AI Duel Mode!")
+		AI_DUEL_MODE = True
+	else:
+		UserPlayerClass = HumanPlayer
+		AI_DUEL_MODE = False
+
 	printAsciiTitleArt()
+
 	boardDimension = input("What is the dimension of the board? (Default is 13x13)\nEnter a single odd number:\t").strip()
 	erasePreviousLines(2)
 	if boardDimension.isdigit() and int(boardDimension) % 2 == 1 and 6 < int(boardDimension) < 100:
@@ -156,37 +195,42 @@ def main():
 	COLUMN_LABELS = list(map(chr, range(65, 65 + boardDimension)))
 	BOARD_OUTPUT_HEIGHT = boardDimension + 4
 	SAVE_STATE_OUTPUT_HEIGHT = boardDimension + 5
+
 	playerColorInput = input("Would you like to be BLACK ('b') or WHITE ('w')? (black goes first!):\t").strip().lower()
 	erasePreviousLines(2)
+	userPlayerName = "Your AI" if AI_DUEL_MODE else "You"
+	aiPlayerName = "My AI" if AI_DUEL_MODE else "AI"
 	if playerColorInput == 'b':
-		playerColor = BLACK
-		print(f"You will be {GREEN_COLOR}BLACK{NO_COLOR}!")
+		userPiece = BLACK
+		aiPiece = WHITE
+		print(f"{userPlayerName} will be {GREEN_COLOR}BLACK{NO_COLOR}!")
 	else:
-		playerColor = WHITE
+		userPiece = WHITE
+		aiPiece = BLACK
 		if playerColorInput == 'w':
-			print(f"You will be {GREEN_COLOR}WHITE{NO_COLOR}!")
+			print(f"{userPlayerName} will be {GREEN_COLOR}WHITE{NO_COLOR}!")
 		else:
-			print(f"Invalid input. You'll be {GREEN_COLOR}WHITE{NO_COLOR}!")
+			print(f"Invalid input. {userPlayerName} will be {GREEN_COLOR}WHITE{NO_COLOR}!")
+	playerNames = {userPiece: userPlayerName, aiPiece: aiPlayerName}
 
-	ai = strategy.Strategy(boardDimension, playerColor)
-	print(f"\nYou: {GREEN_COLOR}%s{NO_COLOR}\tAI: {RED_COLOR}%s{NO_COLOR}" % (playerColor, ai.opponentOf(playerColor)))
+	players = {aiPiece: Strategy(aiPiece, boardDimension), userPiece: UserPlayerClass(userPiece)}
+	# ai = Strategy(boardDimension, aiPiece)
+	print(f"\n{userPlayerName}: {GREEN_COLOR}{userPiece}{NO_COLOR}\t{aiPlayerName}: {RED_COLOR}{aiPiece}{NO_COLOR}")
 	print("Press 'q' at any prompt to quit.\nType 's' to print out the board's save state.")
 	turn = BLACK
 	createGameBoard(int(boardDimension))
-	columnLabels = list(map(chr, range(65, 65 + len(gameBoard))))
 	printGameBoard()
 	print("\n")
 
-	human = HumanPlayer(playerColor)
+	gameOver, winner = False, None
 
-	while not ai.GAME_OVER:
-		if turn == playerColor:
-			additionalOutput = ""
-			rowPlayed, colPlayed = human.getMove(gameBoard)
-		else:
-			userInput = input("It's the AI's turn, press enter for it to play.\t").strip().lower()
+	while not gameOver:
+		nameOfCurrentPlayer = playerNames[turn]
+		currentPlayer = players[turn]
+		if currentPlayer.isAI:
+			userInput = input(f"{nameOfCurrentPlayer}'s turn, press enter for it to play.\t").strip().lower()
 			displayingSave = False
-			while userInput == 'q' or userInput == 's':
+			while userInput in ['q', 's']:
 				if userInput == 'q':
 					if displayingSave:
 						printGameBoard()
@@ -197,37 +241,34 @@ def main():
 						erasePreviousLines(BOARD_OUTPUT_HEIGHT + 1)
 					displayingSave = True
 					givePythonCodeForBoardInput()
-					userInput = input("Press enter for the AI to play, or press 'q' to quit:\t").strip().lower()
+					userInput = input(f"Press enter for {nameOfCurrentPlayer} to play, or press 'q' to quit:\t").strip().lower()
 					erasePreviousLines(SAVE_STATE_OUTPUT_HEIGHT + 1)
 			if displayingSave and ERASE_MODE_ON:
 				erasePreviousLines(1)
 				printGameBoard()
 				print("\n\n")
-			startTime = time.time()
-			rowPlayed, colPlayed = ai.playBestMove(gameBoard)
-			endTime = time.time()
-			minutesTaken, secondsTaken = int(endTime - startTime) // 60, (endTime - startTime) % 60
-			additionalOutput = ("  (%dm " if minutesTaken > 0 else "  (") + ("%.2fs)" % secondsTaken)
+		startTime = time.time()
+		rowPlayed, colPlayed = currentPlayer.getMove(gameBoard)
+		endTime = time.time()
+		minutesTaken = int(endTime - startTime) // 60
+		secondsTaken = (endTime - startTime) % 60
+		timeTakenOutputStr = ("  (%dm " if minutesTaken > 0 else "  (") + ("%.2fs)" % secondsTaken)
+		performMove(gameBoard, rowPlayed, colPlayed, turn)
 
-		erasePreviousLines(BOARD_OUTPUT_HEIGHT + 2 + (-1 if turn == playerColor else 0))
-		printGameBoard([rowPlayed, colPlayed])
-		moveFormatted = columnLabels[colPlayed] + str(rowPlayed + 1)
-		print("%s played in spot %s%s\n" % ("You" if turn == playerColor else "AI", moveFormatted, additionalOutput))
-		turn = ai.opponentOf(turn) # switch the turn
+		erasePreviousLines(BOARD_OUTPUT_HEIGHT + 2 + (-1 if not currentPlayer.isAI else 0))
+		printGameBoard([[rowPlayed, colPlayed]])
+		moveFormatted = COLUMN_LABELS[colPlayed] + str(rowPlayed + 1)
+		print("%s played in spot %s%s\n" % (nameOfCurrentPlayer, moveFormatted, timeTakenOutputStr if currentPlayer.isAI else ""))
+		turn = opponentOf(turn) # switch the turn
+		gameOver, winner = players[aiPiece].isTerminal(gameBoard)
 
-	boardCompletelyFilled = True
-	for row in gameBoard:
-		for spot in row:
-			if spot == EMPTY:
-				boardCompletelyFilled = False
-				break
 
-	if boardCompletelyFilled:
+	if winner is None:
 		print("Nobody wins, it's a tie!")
 	else:
-		highlightColor = GREEN_COLOR if turn == ai.opponentOf(playerColor) else RED_COLOR
-		winner = "BLACK" if ai.opponentOf(turn) == BLACK else "WHITE"
-		print(f"{highlightColor}{winner}{NO_COLOR} wins!\n")
+		highlightColor = GREEN_COLOR if winner == userPiece else RED_COLOR
+		winnerColorName = "BLACK" if winner == BLACK else "WHITE"
+		print(f"{highlightColor}{winnerColorName}{NO_COLOR} wins!\n")
 
 
 
