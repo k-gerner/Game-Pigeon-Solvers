@@ -2,6 +2,7 @@
 # Started 3.22.2021
 # Gomoku solver, client facing
 from importlib import import_module
+from datetime import datetime
 
 from strategy import Strategy, opponentOf, performMove
 import time
@@ -22,6 +23,7 @@ ERASE_MODE_ON = True
 BOARD_OUTPUT_HEIGHT = -1
 SAVE_STATE_OUTPUT_HEIGHT = -1
 COLUMN_LABELS = "<Will be filled later>"
+SAVE_FILENAME = "saved_game.txt"
 
 CURSOR_UP_ONE = '\033[1A'
 ERASE_LINE = '\033[2K'
@@ -38,42 +40,23 @@ class HumanPlayer(Player):
 		"""Takes in the user's input and returns the move"""
 		spot = input("It's your turn, which spot would you like to play? (A1 - %s%d):\t" % (COLUMN_LABELS[-1], len(board))).strip().upper()
 		erasePreviousLines(1)
-		displayingSave = False
-		linesToEraseOnSave = BOARD_OUTPUT_HEIGHT + 1
 		while True:
 			if spot.lower() == 'q':
-				if displayingSave:
-					printGameBoard()
 				print("\nThanks for playing!\n")
 				exit(0)
 			elif spot.lower() == 's':
-				displayingSave = True
-				erasePreviousLines(linesToEraseOnSave)
-				linesToEraseOnSave = 0
-				givePythonCodeForBoardInput()
+				saveGame(board, self.color)
 				spot = input("Enter a coordinates for a move, or press 'q' to quit:\t").strip().upper()
-				erasePreviousLines(SAVE_STATE_OUTPUT_HEIGHT + 1)
+				erasePreviousLines(2)
 			elif len(spot) >= 4 or len(spot) == 0 or spot[0] not in COLUMN_LABELS or not spot[1:].isdigit() or int(spot[1:]) > len(board) or int(spot[1:]) < 1:
-				if displayingSave:
-					printGameBoard()
-					print("\n")
 				spot = input(f"{ERROR_SYMBOL} Invalid input. Please try again.\t").strip().upper()
 				erasePreviousLines(1)
-				displayingSave = False
 				linesToEraseOnSave = BOARD_OUTPUT_HEIGHT + 1
 			elif board[int(spot[1:]) - 1][COLUMN_LABELS.index(spot[0])] != EMPTY:
-				if displayingSave:
-					printGameBoard()
-					print("\n")
 				spot = input(f"{ERROR_SYMBOL} That spot is already taken, please choose another:\t").strip().upper()
 				erasePreviousLines(1)
-				displayingSave = False
-				linesToEraseOnSave = BOARD_OUTPUT_HEIGHT + 1
 			else:
 				break
-		if displayingSave:
-			printGameBoard()
-			print("\n")
 		row = int(spot[1:]) - 1
 		col = COLUMN_LABELS.index(spot[0])
 		return row, col
@@ -85,7 +68,6 @@ def createGameBoard(dimension):
 		for j in range(dimension):
 			row.append(EMPTY)
 		gameBoard.append(row)
-	# paste board save state here if applicable
 
 def printGameBoard(highlightCoordinates=None):
 	"""Prints the gameBoard in a human-readable format"""
@@ -138,6 +120,35 @@ def erasePreviousLines(numLines, overrideEraseMode=False):
 	eraseMode = ERASE_MODE_ON if not overrideEraseMode else (not ERASE_MODE_ON)
 	if eraseMode:
 		print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(numLines, 0), end='')
+
+def saveGame(board, turn):
+	"""Saves the given board state to a save file"""
+	if os.path.exists(SAVE_FILENAME):
+		with open(SAVE_FILENAME, 'r') as saveFile:
+			try:
+				timeOfPreviousSave = saveFile.readlines()[2].strip()
+				overwrite = input(f"{INFO_SYMBOL} A save state already exists from {timeOfPreviousSave}.\nIs it okay to overwrite it? (y/n)\t").strip().lower()
+				erasePreviousLines(1)
+				while overwrite not in ['y', 'n']:
+					erasePreviousLines(1)
+					overwrite = input(f"{ERROR_SYMBOL} Invalid input. Is it okay to overwrite the existing save state? (y/n)\t").strip().lower()
+				erasePreviousLines(1)
+				if overwrite == 'n':
+					print(f"{INFO_SYMBOL} The current game state will not be saved.")
+					return
+			except IndexError:
+				pass
+	with open(SAVE_FILENAME, 'w') as saveFile:
+		saveFile.write("This file contains the save state of a previously played game.\n\n")
+		timeOfSave = datetime.now().strftime("%m/%d/%Y at %I:%M:%S %p")
+		saveFile.write(timeOfSave + "\n\n")
+		saveFile.write("SAVE STATE:\n")
+		for row in board:
+			saveFile.write(" ".join(row) + "\n")
+		saveFile.write("User piece: " + str(userPiece)  +"\n")
+		saveFile.write("Opponent piece: " + opponentOf(userPiece)  +"\n")
+		saveFile.write("Turn: " + turn)
+	print(f"{INFO_SYMBOL} The game has been saved!")
 
 def getOpposingAiModuleName():
 	"""Reads the command line arguments to determine the name of module for the opposing AI"""
@@ -213,7 +224,7 @@ def main():
 	players = {aiPiece: Strategy(aiPiece, boardDimension), userPiece: UserPlayerClass(userPiece)}
 
 	print(f"\n{userPlayerName}: {GREEN_COLOR}{userPiece}{NO_COLOR}\t{aiPlayerName}: {RED_COLOR}{aiPiece}{NO_COLOR}")
-	print("Press 'q' at any prompt to quit.\nType 's' to print out the board's save state.")
+	print("Type 'q' at any prompt to quit.\nType 's' to save the game.")
 	createGameBoard(int(boardDimension))
 	printGameBoard()
 	print("\n")
@@ -225,24 +236,27 @@ def main():
 		currentPlayer = players[turn]
 		if currentPlayer.isAI:
 			userInput = input(f"{nameOfCurrentPlayer}'s turn, press enter for it to play.\t").strip().lower()
+			erasePreviousLines(1)
 			displayingSave = False
 			while userInput in ['q', 's']:
 				if userInput == 'q':
-					if displayingSave:
-						printGameBoard()
+					# if displayingSave:
+					# 	printGameBoard()
 					print("\nThanks for playing!\n")
 					exit(0)
 				else:
-					if not displayingSave:
-						erasePreviousLines(BOARD_OUTPUT_HEIGHT + 1)
-					displayingSave = True
-					givePythonCodeForBoardInput()
+					saveGame(gameBoard, turn)
+					# if not displayingSave:
+					# 	erasePreviousLines(BOARD_OUTPUT_HEIGHT + 1)
+					# displayingSave = True
+					# givePythonCodeForBoardInput()
 					userInput = input(f"Press enter for {nameOfCurrentPlayer} to play, or press 'q' to quit:\t").strip().lower()
-					erasePreviousLines(SAVE_STATE_OUTPUT_HEIGHT + 1)
-			if displayingSave and ERASE_MODE_ON:
-				erasePreviousLines(1)
-				printGameBoard()
-				print("\n\n")
+					erasePreviousLines(2)
+					# erasePreviousLines(SAVE_STATE_OUTPUT_HEIGHT + 1)
+			# if displayingSave and ERASE_MODE_ON:
+			# 	erasePreviousLines(1)
+			# 	printGameBoard()
+			# 	print("\n\n")
 
 		startTime = time.time()
 		rowPlayed, colPlayed = currentPlayer.getMove(gameBoard)
@@ -252,7 +266,7 @@ def main():
 		timeTakenOutputStr = ("  (%dm " if minutesTaken > 0 else "  (") + ("%.2fs)" % secondsTaken)
 		performMove(gameBoard, rowPlayed, colPlayed, turn)
 
-		erasePreviousLines(BOARD_OUTPUT_HEIGHT + 2 + (-1 if not currentPlayer.isAI else 0))
+		erasePreviousLines(BOARD_OUTPUT_HEIGHT + 1)
 		printGameBoard([[rowPlayed, colPlayed]])
 		moveFormatted = COLUMN_LABELS[colPlayed] + str(rowPlayed + 1)
 		print("%s played in spot %s%s\n" % (nameOfCurrentPlayer, moveFormatted, timeTakenOutputStr if currentPlayer.isAI else ""))
