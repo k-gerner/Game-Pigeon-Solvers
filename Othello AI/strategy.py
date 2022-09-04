@@ -4,6 +4,7 @@
 import math
 import RulesEvaluator as eval
 from RulesEvaluator import EMPTY, BOARD_DIMENSION
+from Player import Player
 from functools import cmp_to_key
 from collections import defaultdict
 
@@ -21,13 +22,14 @@ CORNER_ADJACENT_COORDINATES = {(0, 1), (1, 1), (1, 0),
                                (BOARD_DIMENSION - 2, BOARD_DIMENSION - 1)}
 
 
-class OthelloStrategy:
+class OthelloStrategy(Player):
     """Where all the calculations are performed to find the best move"""
 
-    def __init__(self, aiColor, aiGoesFirst):
-        self.aiColor = aiColor
-        self.humanColor = eval.opponentOf(aiColor)
-        self.movesPlayed = 0 if aiGoesFirst else 1
+    def __init__(self, color):
+        super().__init__(color)
+        self.aiColor = color
+        self.enemyColor = eval.opponentOf(color)
+        self.movesPlayed = 0
         self.numBoardsEvaluated = 0
         self.positionsScores = {}
         self.buildPositionScoresDictionary()
@@ -40,12 +42,12 @@ class OthelloStrategy:
                 self.positionsScores[(row, col)] = positionScore
 
 
-    def findBestMove(self, board):
+    def getMove(self, board):
         """Gets the best move for the AI on the given board"""
         self.movesPlayed = BOARD_DIMENSION**2 - eval.numberOfPieceOnBoard(EMPTY, board)
         self.numBoardsEvaluated = 0
         row, col = self.minimax(self.aiColor, -math.inf, math.inf, 0, board)[:2]
-        return  row, col, self.numBoardsEvaluated
+        return  row, col
 
     def minimax(self, turn, alpha, beta, depth, board, noMoveForOpponent=False):
         """Recursively searches the move tree to find the best move. Prunes when optimal."""
@@ -118,11 +120,11 @@ class OthelloStrategy:
                 numOccurrences[piece] += 1
 
         scores[self.aiColor] += evaluateBoardByFilledRows(board, self.aiColor)
-        scores[self.humanColor] += evaluateBoardByFilledRows(board, self.humanColor)
+        scores[self.enemyColor] += evaluateBoardByFilledRows(board, self.enemyColor)
         if spotsRemaining <= 15:
             scores[self.aiColor] *= (1 + (numOccurrences[self.aiColor]/(spotsRemaining*25)))
-            scores[self.humanColor] *= (1 + (numOccurrences[self.humanColor]/(spotsRemaining*25)))
-        return scores[self.aiColor] - scores[self.humanColor]
+            scores[self.enemyColor] *= (1 + (numOccurrences[self.enemyColor]/(spotsRemaining*25)))
+        return scores[self.aiColor] - scores[self.enemyColor]
 
 
 def copyOfBoard(board):
