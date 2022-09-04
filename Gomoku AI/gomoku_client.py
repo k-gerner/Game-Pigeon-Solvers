@@ -27,6 +27,7 @@ CURSOR_UP_ONE = '\033[1A'
 ERASE_LINE = '\033[2K'
 ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
 INFO_SYMBOL = f"{BLUE_COLOR}<!>{NO_COLOR}"
+
 # class for the Human player
 class HumanPlayer(Player):
 
@@ -77,7 +78,6 @@ class HumanPlayer(Player):
 		col = COLUMN_LABELS.index(spot[0])
 		return row, col
 
-
 def createGameBoard(dimension):
 	"""Creates the gameBoard with the specified number of rows and columns"""
 	for i in range(dimension):
@@ -103,7 +103,6 @@ def printGameBoard(highlightCoordinates=None):
 				print("%s " % spot, end='')
 			else:
 				print(f"{pieceColor}%s{NO_COLOR} " % spot, end = '')
-
 		print("")
 	print()
 
@@ -166,10 +165,9 @@ def getDuelingAi():
 		print(f"{ERROR_SYMBOL} Please make sure your AI's class name is 'Strategy'")
 		exit(0)
 
-
 def main():
 	"""main method that prompts the user for input"""
-	global ai, gameBoard, userPiece, BOARD_OUTPUT_HEIGHT, SAVE_STATE_OUTPUT_HEIGHT, COLUMN_LABELS
+	global gameBoard, userPiece, BOARD_OUTPUT_HEIGHT, SAVE_STATE_OUTPUT_HEIGHT, COLUMN_LABELS
 	os.system("") # allows colored terminal to work on Windows OS
 	if "-e" in sys.argv or "-eraseModeOff" in sys.argv:
 		global ERASE_MODE_ON
@@ -212,18 +210,16 @@ def main():
 		else:
 			print(f"Invalid input. {userPlayerName} will be {GREEN_COLOR}WHITE{NO_COLOR}!")
 	playerNames = {userPiece: userPlayerName, aiPiece: aiPlayerName}
-
 	players = {aiPiece: Strategy(aiPiece, boardDimension), userPiece: UserPlayerClass(userPiece)}
-	# ai = Strategy(boardDimension, aiPiece)
+
 	print(f"\n{userPlayerName}: {GREEN_COLOR}{userPiece}{NO_COLOR}\t{aiPlayerName}: {RED_COLOR}{aiPiece}{NO_COLOR}")
 	print("Press 'q' at any prompt to quit.\nType 's' to print out the board's save state.")
-	turn = BLACK
 	createGameBoard(int(boardDimension))
 	printGameBoard()
 	print("\n")
 
 	gameOver, winner = False, None
-
+	turn = BLACK
 	while not gameOver:
 		nameOfCurrentPlayer = playerNames[turn]
 		currentPlayer = players[turn]
@@ -247,6 +243,7 @@ def main():
 				erasePreviousLines(1)
 				printGameBoard()
 				print("\n\n")
+
 		startTime = time.time()
 		rowPlayed, colPlayed = currentPlayer.getMove(gameBoard)
 		endTime = time.time()
@@ -261,7 +258,6 @@ def main():
 		print("%s played in spot %s%s\n" % (nameOfCurrentPlayer, moveFormatted, timeTakenOutputStr if currentPlayer.isAI else ""))
 		turn = opponentOf(turn) # switch the turn
 		gameOver, winner = players[aiPiece].isTerminal(gameBoard)
-
 
 	if winner is None:
 		print("Nobody wins, it's a tie!")
