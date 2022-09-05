@@ -7,9 +7,8 @@ import time
 from importlib import import_module
 from datetime import datetime
 
-from strategy import OthelloStrategy, setAiMaxSearchDepth, setAiMaxValidMovesToEvaluate, copyOfBoard, \
-    BOARD_DIMENSION, setBoardDimension, getValidMoves, opponentOf, playMove, currentScore, checkGameOver, \
-    numberOfPieceOnBoard, pieceAt, hasValidMoves, isMoveValid, isMoveInRange
+from strategy import OthelloStrategy, copyOfBoard, BOARD_DIMENSION, getValidMoves, opponentOf, playMove, \
+    currentScore, checkGameOver, numberOfPieceOnBoard, pieceAt, hasValidMoves, isMoveValid, isMoveInRange
 from Player import Player
 
 BLACK = "0"
@@ -33,7 +32,6 @@ AI_DUEL_MODE = False
 BOARD_OUTLINE_HEIGHT = 4
 SAVE_STATE_OUTPUT_HEIGHT = BOARD_DIMENSION + 6
 ERASE_MODE_ON = True
-CONFIG_FILENAME = "config.json"
 ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
 INFO_SYMBOL = f"{BLUE_COLOR}<!>{NO_COLOR}"
 SAVE_FILENAME = "saved_game.txt"
@@ -319,42 +317,6 @@ def getPieceColorInput():
     return color
 
 
-def loadConfiguration():
-    """Loads in the saved configuration from config.json"""
-    try:
-        import json5 as json
-    except ImportError:
-        print(
-            f"{ERROR_SYMBOL} json5 package not found. Remove all comments from config.json to make it readable.")
-        import json
-    try:
-        with open(CONFIG_FILENAME, 'r') as configFile:
-            configuration = json.load(configFile)
-    except FileNotFoundError:
-        print(f"{ERROR_SYMBOL} No configuration file found in the current directory. Using default values.")
-        return
-    except:
-        print(
-            f"{ERROR_SYMBOL} There was an issue reading from config.json.")
-        return
-    if configuration.get("colorblindMode", "").lower() == "true":
-        global RED_COLOR, GREEN_COLOR
-        RED_COLOR = ORANGE_COLOR
-        GREEN_COLOR = BLUE_COLOR
-    if configuration.get("aiMaxSearchDepth", "").isdigit():
-        setAiMaxSearchDepth(max(int(configuration["aiMaxSearchDepth"]), 1))
-    if configuration.get("boardDimension", "").isdigit():
-        global SAVE_STATE_OUTPUT_HEIGHT, COLUMN_LABELS
-        setBoardDimension(int(configuration["boardDimension"]))
-        SAVE_STATE_OUTPUT_HEIGHT = BOARD_DIMENSION + 6
-        COLUMN_LABELS = list(map(chr, range(65, 65 + BOARD_DIMENSION)))
-    if configuration.get("eraseMode", "").lower() == "false":
-        global ERASE_MODE_ON
-        ERASE_MODE_ON = False
-    if configuration.get("aiMaxValidMovesToEvaluateEachTurn", "").isdigit():
-        setAiMaxValidMovesToEvaluate(int(configuration["aiMaxValidMovesToEvaluateEachTurn"]))
-
-
 def validateLoadedSaveState(board, piece, turn):
     """Make sure the state loaded from the save file is valid. Returns a boolean"""
     if piece not in [BLACK, WHITE]:
@@ -424,7 +386,7 @@ def printGameRules():
     print("\nType 'q' at any move prompt to quit the game.")
     print("Type 's' save the game.")
     print("Type 'h' at your turn to see previous moves.")
-    print("Game constants are modifiable in the config.json file.")
+    print("AI constants are modifiable in the strategy.py file.")
     showRules = input("Would you like to see the rules? (y/n)   ").strip().lower()
     erasePreviousLines(1)
     if showRules == 'q':
@@ -486,8 +448,14 @@ def printAsciiTitleArt():
 
 def main():
     """Prompts user for input and creates a new GameRunner"""
-    global AI_DUEL_MODE
+    global AI_DUEL_MODE, ERASE_MODE_ON
     os.system("")  # allows output text coloring for Windows OS
+    if "-e" in sys.argv or "-eraseModeOff" in sys.argv:
+        ERASE_MODE_ON = False
+    if "-cb" in sys.argv or "-colorblindMode" in sys.argv:
+        global RED_COLOR, GREEN_COLOR
+        RED_COLOR = ORANGE_COLOR
+        GREEN_COLOR = BLUE_COLOR
     if "-d" in sys.argv or "-aiDuel" in sys.argv:
         UserPlayerClass = getDuelingAi()
         print(f"\n{INFO_SYMBOL} You are in AI Duel Mode!")
@@ -496,7 +464,6 @@ def main():
         UserPlayerClass = HumanPlayer
         AI_DUEL_MODE = False
     printAsciiTitleArt()
-    loadConfiguration()
     printGameRules()
     game = GameRunner(UserPlayerClass, OthelloStrategy)
     game.start()
