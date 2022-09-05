@@ -109,13 +109,6 @@ class GameRunner:
             elif coord == 'QS' or coord == 'SQ':
                 self.saveGame(self.board, self.userPiece)
                 self.endGame()
-            elif coord == 'P':
-                erasePreviousLines(self.linesWrittenToConsole)
-                self.printBoard(getValidMoves(self.userPiece, self.board))
-                print("Your available moves have been highlighted.")
-                coord = input("It's your turn, which spot would you like to play? (A1 - %s%d):\t" % (
-                    COLUMN_LABELS[-1], BOARD_DIMENSION)).strip().upper()
-                self.linesWrittenToConsole = BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 2
             elif coord == 'H':
                 if len(self.boardHistory) < 2:
                     coord = input("No previous moves to see. Enter a valid move to play:   ").strip().upper()
@@ -164,10 +157,7 @@ class GameRunner:
 
     def start(self):
         """Starts the game and handles all basic gameplay functionality"""
-        if self.turn == self.userPiece:
-            self.printBoard(getValidMoves(self.userPiece, self.board))
-        else:
-            self.printBoard()
+        self.printBoard(getValidMoves(self.turn, self.board))
         print("\n")
         numValidMovesInARow = 0
         gameOver, winner = False, None
@@ -180,21 +170,16 @@ class GameRunner:
                 if currentPlayer.isAI:
                     userInput = input(f"{nameOfCurrentPlayer}'s turn, press enter for it to play.\t").strip().lower()
                     erasePreviousLines(1)
-                    while userInput in ['q', 's', 'qs', 'p']:
+                    while userInput in ['q', 's', 'qs', 'sq']:
                         if userInput == 'q':
                             self.endGame()
                         elif userInput == 's':
                             self.saveGame(self.board, self.turn)
                             userInput = input("Press enter to continue. ").strip().lower()
                             erasePreviousLines(2)
-                        elif userInput == 'qs':
+                        elif userInput == 'qs' or userInput == 'sq':
                             self.saveGame(self.board, self.turn)
                             self.endGame()
-                        elif userInput == 'p':
-                            erasePreviousLines(self.linesWrittenToConsole)
-                            self.printBoard(getValidMoves(self.turn, self.board))
-                            userInput = input("AI's available moves have been highlighted. Press enter to continue.").strip().lower()
-                            self.linesWrittenToConsole = BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 1
                 startTime = time.time()
                 row, col = self.getNextMove(currentPlayer)
                 endTime = time.time()
@@ -437,7 +422,6 @@ def erasePreviousLines(numLines, overrideEraseMode=False):
 def printGameRules():
     """Gives the user the option to view the rules of the game"""
     print("\nType 'q' at any move prompt to quit the game.")
-    print("Type 'p' to show the available moves.")
     print("Type 's' save the game.")
     print("Type 'h' at your turn to see previous moves.")
     print("Game constants are modifiable in the config.json file.")
