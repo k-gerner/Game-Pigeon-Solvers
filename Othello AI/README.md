@@ -95,9 +95,6 @@ some of them inside of `strategy.py`:
   miss the best move. Recommended: 12-20
 * `BOARD_DIMENSION`: The height/width of the board. Recommended: 8
 
-<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Othello/colorblindGameBoard.png" alt = "colorblind board output" width="40%">
-
-
 ### Dueling AIs Mode
 Do you have your own Othello AI? Challenge mine! This program
 includes the ability for you to challenge it with a rival AI. To
@@ -117,15 +114,18 @@ In order for your AI to be eligible, it must meet a few requirements:
 
 ### Optional Command Line Arguments
 
-* Colorblind mode: Use Blue/Orange instead of Green/Red for piece 
-colorings. To enable, include the flag`-cb` or `-colorblindMode`.
 * Erase mode: Condenses the output into a single, self-updating game
   board (instead of printing out the game board and instructions on
   new lines each move). This is **on** by default, but if you would 
 like to **disable** this feature and preserve all output to the 
 terminal, include the flag `-e` or `-eraseModeOff`.
 * Dueling AIs Mode: See the [Dueling AIs Mode](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Othello%20AI#dueling-ais-mode)
-section for more information. Invoked with `-d` or `-aiDuel`.
+section for more information. Invoked with `-d` or `-aiDuel`.  
+* Colorblind mode: Use Blue/Orange instead of Green/Red for piece
+  colorings. To enable, include the flag`-cb` or `-colorblindMode`.
+
+<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Othello/colorblindGameBoard.png" alt = "colorblind board output" width="40%">
+
 
 ### ✨ New in Version 2.0
 * Do you have an Othello 4 AI of your own? Now you can challenge my
