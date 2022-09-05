@@ -29,7 +29,7 @@ You can invoke the tool by running
 > python3 OthelloClient.py
 ```
 Once you do this, you will see some info about how to interact with the 
-tool, further explained in the [Gameplay Features](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Othello#gameplay-features) section. 
+tool, further explained in the [Gameplay Features](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Othello%20AI#gameplay-features) section. 
 You will be asked if you would like to see the rules, and then you will 
 be prompted to choose which color you want to be, BLACK (`0`) or WHITE 
 (`O`). Whoever is BLACK will go first. You will then be prompted to 
