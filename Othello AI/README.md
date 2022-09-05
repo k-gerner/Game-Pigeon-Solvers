@@ -16,13 +16,12 @@ rules used are actually the rules for Othello, which is why this A.I.
 is for Othello instead of Reversi.
 
 ### How to use  
-First, download the files in this folder. The contents of each file are as follows:  
+First, download the files in this folder. The contents of each file 
+are as follows:  
 * `OthelloClient.py`: Contains the logic for the UI and user input, as 
 well as the game runner
 * `strategy.py`: Contains the A.I. strategy logic, as well as some 
 functions for manipulating a game board
-* `config.json`: Contains constants that affect the A.I. logic, 
-accessibility settings, and more. More information in the [Configuration](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Othello#configuration) section.
 * `README.md`: You're reading it right now!  
 
 You can invoke the tool by running 
@@ -30,7 +29,7 @@ You can invoke the tool by running
 > python3 OthelloClient.py
 ```
 Once you do this, you will see some info about how to interact with the 
-tool, further explained in the [Additional Features](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Othello#additional-features) section. 
+tool, further explained in the [Gameplay Features](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Othello#gameplay-features) section. 
 You will be asked if you would like to see the rules, and then you will 
 be prompted to choose which color you want to be, BLACK (`0`) or WHITE 
 (`O`). Whoever is BLACK will go first. You will then be prompted to 
@@ -71,28 +70,7 @@ metric could be employed to make a decent heuristic to evaluate
 boards, however I chose not to implement this in order to hopefully 
 save some time when evaluating board states.  
 
-### Configuration  
-
-I chose to implement a (hopefully) more straightforward way of modifyi
-ng the constants used for the A.I. and game rules. The `config.json` 
-file contains the default values for these constants, as well as a 
-brief explanation of what each constant represents, and the suggested 
-values. Edit this file if you want to modify any of the settings. The 
-modifiable settings are:  
-* `aiMaxSearchDepth`: The maximum moves ahead the AI will look to 
-determine its move. Recommended: 5-7
-* `aiMaxValidMovesToEvaluateEachTurn`: The maximum moves that the AI 
-will consider. Smaller numbers will be faster but may cause the AI to 
-miss the best move. Recommended: 12-20
-* `boardDimension`: The height/width of the board. Recommended: 8
-* `colorblindMode`: Use Blue/Orange instead of Green/Red for piece colorings
-* `eraseMode`: Condense the output into a single, self-updating game 
-board (instead of printing out the game board and instructions on 
-new lines each move)
-
-<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Othello/colorblindGameBoard.png" alt = "colorblind board output" width="40%">
-
-### Additional Features
+### Gameplay Features
 At the input prompt, you can enter one of several commands.
 #### Save the game: `s`
 Save the game by typing `s`. This will create a save file named
@@ -106,6 +84,16 @@ ago you want to view. Press `enter` to repeatedly step one move
 ahead, or `e` to exit back to play mode.
 #### Quit: `q`
 Inputting `q` will quit the game.  
+
+### Modifiable Parameters
+If you would like to tweak the parameters of the AI, you can modify 
+some of them inside of `strategy.py`:
+* `MAX_DEPTH`: The maximum moves ahead the AI will look to
+  determine its move. Recommended: 5-8
+* `MAX_VALID_MOVES_TO_EVALUATE`: The maximum moves that the AI
+  will consider. Smaller numbers will be faster but may cause the AI to
+  miss the best move. Recommended: 12-20
+* `BOARD_DIMENSION`: The height/width of the board. Recommended: 8
 
 ### Dueling AIs Mode
 Do you have your own Othello AI? Challenge mine! This program
@@ -124,6 +112,21 @@ In order for your AI to be eligible, it must meet a few requirements:
   as a parameter, and returns the chosen move coordinates in the form of
   a tuple in the format `(rowNumber, columnNumber)`
 
+### Optional Command Line Arguments
+
+* Erase mode: Condenses the output into a single, self-updating game
+  board (instead of printing out the game board and instructions on
+  new lines each move). This is **on** by default, but if you would 
+like to **disable** this feature and preserve all output to the 
+terminal, include the flag `-e` or `-eraseModeOff`.
+* Dueling AIs Mode: See the [Dueling AIs Mode](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Othello%20AI#dueling-ais-mode)
+section for more information. Invoked with `-d` or `-aiDuel`.  
+* Colorblind mode: Use Blue/Orange instead of Green/Red for piece
+  colorings. To enable, include the flag`-cb` or `-colorblindMode`.
+
+<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Othello/colorblindGameBoard.png" alt = "colorblind board output" width="40%">
+
+
 ### ✨ New in Version 2.0
 * Do you have an Othello 4 AI of your own? Now you can challenge my
   AI with yours! See the [Dueling AIs Mode](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Othello%20AI#dueling-ais-mode)
@@ -132,6 +135,9 @@ In order for your AI to be eligible, it must meet a few requirements:
 now be written to a text file. When you start a new game, if a save
 state is detected, you will be asked if you would like to resume that
 game.
+* The modifiable parameters are now located in `strategy.py` instead 
+of a separate JSON file. Additionally, eraseMode and colorblindMode 
+are now optional command line arguments.
 
 \
 \
