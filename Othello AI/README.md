@@ -93,21 +93,12 @@ new lines each move)
 <img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Othello/colorblindGameBoard.png" alt = "colorblind board output" width="40%">
 
 ### Additional Features
-At the input prompt, you can enter one of several commands.  
-#### Print available moves: `p`
-When it is the A.I.'s turn, instead of pressing `enter`, you can 
-input `p` to highlight the valid moves that the A.I. has available. 
-This can also be used to redisplay the board after showing the save 
-state (see below). 
-#### Show the current board's save state: `s`
-Inputting `s` will print out the python code for the current board's 
-save state. This can be useful for if you want to exit the game and 
-continue it at a later point. To do this, you should copy the output 
-lines, and paste them info `OthelloClient.py` in the `__init__` 
-function of `GameRunner`. Paste it under the comment that says 
-`# paste board save state here`. Make sure to remove it once you no 
-longer wish to use that save state. This is a bit of a crude way to 
-do this, and will be updated in a future version.  
+At the input prompt, you can enter one of several commands.
+#### Save the game: `s`
+Save the game by typing `s`. This will create a save file named
+`saved_game.txt` which contains save data for the current game state.
+When you start a new game, if a save state is detected, you will be
+asked if you would like to resume that game. 
 #### See previous moves: `h`
 When it is your turn, inputting `h` will allow you to see previous 
 moves that have been played. You will be prompted for how many turns 
@@ -137,7 +128,11 @@ In order for your AI to be eligible, it must meet a few requirements:
 * Do you have an Othello 4 AI of your own? Now you can challenge my
   AI with yours! See the [Dueling AIs Mode](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Othello%20AI#dueling-ais-mode)
   section for more information!
-  
+* Saving the game is now much more streamlined. The save state will
+now be written to a text file. When you start a new game, if a save
+state is detected, you will be asked if you would like to resume that
+game.
+
 \
 \
 \
