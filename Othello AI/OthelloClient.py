@@ -95,7 +95,7 @@ class GameRunner:
             return player.getMove(self.board)
         coord = input("It's your turn, which spot would you like to play? (A1 - %s%d):\t" % (
             COLUMN_LABELS[-1], BOARD_DIMENSION)).strip().upper()
-        self.linesWrittenToConsole = BOARD_DIMENSION + 6
+        self.linesWrittenToConsole = BOARD_DIMENSION + 7
         while True:
             if coord == 'Q':
                 self.endGame()
@@ -126,6 +126,8 @@ class GameRunner:
                     if numMovesPrevious.isdigit() and 1 <= int(numMovesPrevious) <= len(self.boardHistory):
                         erasePreviousLines(self.linesWrittenToConsole)
                         self.printMoveHistory(int(numMovesPrevious))
+                        erasePreviousLines(BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT)
+                        self.printBoard(getValidMoves(self.userPiece, self.board))
                         coord = input(f"{INFO_SYMBOL} You're back in play mode. Which spot would you like to play?   ").strip().upper()
                         self.linesWrittenToConsole = BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 1
                     else:
@@ -200,7 +202,7 @@ class GameRunner:
                 playMove(self.turn, row, col, self.board)
                 self.boardHistory.append([[row, col], copyOfBoard(self.board)])
                 erasePreviousLines(self.linesWrittenToConsole)
-                self.printBoard([[row, col]] + getValidMoves(self.userPiece, self.board))
+                self.printBoard([[row, col]] + getValidMoves(opponentOf(self.turn), self.board))
                 if currentPlayer.isAI:
                     additionalOutput = "  (%0.2f sec" % timeToPlayMove
                     if hasattr(currentPlayer, 'numBoardsEvaluated'):
@@ -393,7 +395,7 @@ def loadSavedGame():
             erasePreviousLines(1)
             if useExistingSave != 'y':
                 print(f"{INFO_SYMBOL} Starting a new game...")
-                return
+                return None, None, None
             lineNum = 0
             currentLine = linesFromSaveFile[lineNum].strip()
             while currentLine != "SAVE STATE:":
