@@ -11,11 +11,13 @@ BLACK = "0"
 WHITE = "O"
 EMPTY = "."
 
-BOARD_DIMENSION = 8
-MAX_DEPTH = 7
-MAX_VALID_MOVES_TO_EVALUATE = 20
-WIN_SCORE = 1000000000
+##### MODIFIABLE #####
+BOARD_DIMENSION = 8                 # Range: 4 to 26
+MAX_DEPTH = 7                       # Recommended: 5 to 8
+MAX_VALID_MOVES_TO_EVALUATE = 20    # Recommended: 12 to 20
+######################
 
+WIN_SCORE = 1000000000
 CORNER_COORDINATES = {(0, 0), (0, BOARD_DIMENSION - 1), (BOARD_DIMENSION - 1, 0),
                       (BOARD_DIMENSION - 1, BOARD_DIMENSION - 1)}
 CORNER_ADJACENT_COORDINATES = {(0, 1), (1, 1), (1, 0),
@@ -203,16 +205,6 @@ def evaluateBoardByFilledRows(board, color):
 
     return score
 
-def setAiMaxSearchDepth(maxDepth):
-    """Sets the MAX_DEPTH constant"""
-    global MAX_DEPTH
-    MAX_DEPTH = maxDepth
-
-def setAiMaxValidMovesToEvaluate(maxNumValidMoves):
-    """Sets the MAX_VALID_MOVES_TO_EVALUATE constant"""
-    global MAX_VALID_MOVES_TO_EVALUATE
-    MAX_VALID_MOVES_TO_EVALUATE = maxNumValidMoves
-
 def validMovesComparator(move1, move2):
     """
     Defines a way to sort two possible moves.
@@ -227,13 +219,6 @@ def validMovesComparator(move1, move2):
         return 1
     else:
         return 0
-
-def setBoardDimension(dimension):
-    global BOARD_DIMENSION
-    if 4 <= dimension <= 26:
-        BOARD_DIMENSION = dimension
-    else:
-        print("Board dimension must be between 4 and 26. Using default size (8x8).")
 
 def pieceAt(row, col, board):
     """Gets the piece at the given coordinate"""
