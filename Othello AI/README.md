@@ -135,6 +135,9 @@ section for more information. Invoked with `-d` or `-aiDuel`.
 now be written to a text file. When you start a new game, if a save
 state is detected, you will be asked if you would like to resume that
 game.
+* The modifiable parameters are now located in `strategy.py` instead 
+of a separate JSON file. Additionally, eraseMode and colorblindMode 
+are now optional command line arguments.
 
 \
 \
