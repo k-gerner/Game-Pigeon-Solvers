@@ -138,6 +138,8 @@ game.
 * The modifiable parameters are now located in `strategy.py` instead 
 of a separate JSON file. Additionally, eraseMode and colorblindMode 
 are now optional command line arguments.
+* The code structure of the client has been refactored to match the 
+other clients in this repository.
 
 \
 \
