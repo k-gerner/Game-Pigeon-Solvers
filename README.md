@@ -86,6 +86,8 @@ pieces from enemy pieces
 of green/red
 - Save state functionality for if you want to exit the program and 
 come back later 
+- Ability to see all the previous moves that have been played, one by 
+one, displayed on the game board.
 - Output to the terminal will be updated in place instead of 
 printing lines and lines of output across turns. This can be 
 disabled if you would like to have all output to the terminal 

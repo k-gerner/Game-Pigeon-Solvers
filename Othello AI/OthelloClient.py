@@ -71,8 +71,8 @@ class HumanPlayer(Player):
                     erasePreviousLines(1)
                 else:
                     numMovesPrevious = input(f"How many moves ago do you want to see? (1 to {len(BOARD_HISTORY) - 1})  ").strip()
-                    linesWrittenToConsole += 1
                     if numMovesPrevious.isdigit() and 1 <= int(numMovesPrevious) <= len(BOARD_HISTORY) - 1:
+                        linesWrittenToConsole += 1
                         erasePreviousLines(linesWrittenToConsole)
                         printMoveHistory(int(numMovesPrevious))
                         erasePreviousLines(BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT)
@@ -82,7 +82,7 @@ class HumanPlayer(Player):
                         linesWrittenToConsole = BOARD_DIMENSION + 4
                     else:
                         coord = input(f"{ERROR_SYMBOL} Invalid input. Enter a valid move to play:   ").strip().upper()
-                        erasePreviousLines(1)
+                        erasePreviousLines(2)
             elif len(coord) in ([2] if BOARD_DIMENSION < 10 else [2, 3]) and coord[0] in COLUMN_LABELS and \
                     coord[1:].isdigit() and int(coord[1:]) in range(1, BOARD_DIMENSION + 1):
                 row, col = int(coord[1]) - 1, COLUMN_LABELS.index(coord[0])
@@ -402,7 +402,7 @@ def main():
             if currentPlayer.isAI:
                 userInput = input(f"{nameOfCurrentPlayer}'s turn, press enter for it to play.\t").strip().lower()
                 erasePreviousLines(1)
-                while userInput in ['q', 's', 'qs', 'sq']:
+                while userInput in ['q', 's', 'qs', 'sq', 'h']:
                     if userInput == 'q':
                         endGame()
                     elif userInput == 's':
@@ -412,6 +412,24 @@ def main():
                     elif userInput == 'qs' or userInput == 'sq':
                         saveGame(BOARD, turn)
                         endGame()
+                    elif userInput == 'h':
+                        if len(BOARD_HISTORY) < 2:
+                            userInput = input("No previous moves to see. Press enter to continue.  ").strip().lower()
+                            erasePreviousLines(1)
+                        else:
+                            numMovesPrevious = input(f"How many moves ago do you want to see? (1 to {len(BOARD_HISTORY) - 1})  ").strip()
+                            if numMovesPrevious.isdigit() and 1 <= int(numMovesPrevious) <= len(BOARD_HISTORY) - 1:
+                                linesWrittenToConsole += 1
+                                erasePreviousLines(linesWrittenToConsole)
+                                printMoveHistory(int(numMovesPrevious))
+                                erasePreviousLines(BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT)
+                                printBoard(getValidMoves(turn, BOARD))
+                                userInput = input(f"{INFO_SYMBOL} You're back in play mode. Press enter to continue.  ").strip().lower()
+                                erasePreviousLines(1)
+                                linesWrittenToConsole = BOARD_DIMENSION + 4
+                            else:
+                                userInput = input(f"{ERROR_SYMBOL} Invalid input. Press enter to continue.   ").strip().lower()
+                                erasePreviousLines(2)
             startTime = time.time()
             row, col = currentPlayer.getMove(BOARD)
             endTime = time.time()

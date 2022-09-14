@@ -78,10 +78,10 @@ Save the game by typing `s`. This will create a save file named
 When you start a new game, if a save state is detected, you will be
 asked if you would like to resume that game. 
 #### See previous moves: `h`
-When it is your turn, inputting `h` will allow you to see previous 
-moves that have been played. You will be prompted for how many turns 
-ago you want to view. Press `enter` to repeatedly step one move 
-ahead, or `e` to exit back to play mode.
+Inputting `h` will allow you to see previous moves that have been 
+played. You will be prompted for how many turns ago you want to view. 
+Press `enter` to repeatedly step one move ahead, or `e` to exit back 
+to play mode.
 #### Quit: `q`
 Inputting `q` will quit the game.  
 
@@ -127,19 +127,23 @@ section for more information. Invoked with `-d` or `-aiDuel`.
 <img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Othello/colorblindGameBoard.png" alt = "colorblind board output" width="40%">
 
 
-### ✨ New in Version 2.0
-* Do you have an Othello 4 AI of your own? Now you can challenge my
-  AI with yours! See the [Dueling AIs Mode](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Othello%20AI#dueling-ais-mode)
-  section for more information!
-* Saving the game is now much more streamlined. The save state will
-now be written to a text file. When you start a new game, if a save
-state is detected, you will be asked if you would like to resume that
-game.
-* The modifiable parameters are now located in `strategy.py` instead 
-of a separate JSON file. Additionally, eraseMode and colorblindMode 
-are now optional command line arguments.
-* The code structure of the client has been refactored to match the 
-other clients in this repository.
+### ✨ New in Version 2.1
+* You will now be able to see the board history while in AI Duel mode.
+
+#### Older Changelog
+* v2.0
+  * Do you have an Othello 4 AI of your own? Now you can challenge my
+      AI with yours! See the [Dueling AIs Mode](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Othello%20AI#dueling-ais-mode)
+      section for more information!
+  * Saving the game is now much more streamlined. The save state will
+    now be written to a text file. When you start a new game, if a 
+  save state is detected, you will be asked if you would like to 
+  resume that game.
+  * The modifiable parameters are now located in `strategy.py` instead
+    of a separate JSON file. Additionally, eraseMode and colorblindMode
+    are now optional command line arguments.
+  * The code structure of the client has been refactored to match the
+    other clients in this repository.
 
 \
 \
