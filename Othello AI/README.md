@@ -129,6 +129,8 @@ section for more information. Invoked with `-d` or `-aiDuel`.
 
 ### ✨ New in Version 2.1
 * You will now be able to see the board history while in AI Duel mode.
+* At the end of the game, the average time taken per move will be 
+displayed for each player.
 
 #### Older Changelog
 * v2.0

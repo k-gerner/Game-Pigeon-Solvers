@@ -19,6 +19,7 @@ EMPTY = "."
 GREEN_COLOR = '\033[92m'
 RED_COLOR = '\033[91m'
 BLUE_COLOR = '\033[38;5;39m'
+YELLOW_COLOR = '\033[38;5;226m'
 ORANGE_COLOR = '\033[38;5;208m'
 NO_COLOR = '\033[0m'
 HIGHLIGHT = '\033[48;5;238m'
@@ -34,6 +35,7 @@ ERASE_MODE_ON = True
 ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
 INFO_SYMBOL = f"{BLUE_COLOR}<!>{NO_COLOR}"
 SAVE_FILENAME = "saved_game.txt"
+TIME_TAKEN_PER_PLAYER = {}
 
 # Relevant to game state
 BOARD = []
@@ -119,7 +121,14 @@ def printBoard(highlightedCoordinates=None, board=None):
             pieceColor += textColorOf(piece)
             print(f"{pieceColor}%s{NO_COLOR} " % piece, end='')
         if rowNum == BOARD_DIMENSION // 2:
-            print("   %d turns remain." % (numberOfPieceOnBoard(EMPTY, board)), end='')
+            movesRemaining = numberOfPieceOnBoard(EMPTY, board)
+            if movesRemaining <= 5:
+                movesRemainingColor = ORANGE_COLOR
+            elif movesRemaining <= 10:
+                movesRemainingColor = YELLOW_COLOR
+            else:
+                movesRemainingColor = NO_COLOR
+            print(f"   {movesRemainingColor}{movesRemaining} turn{'' if movesRemaining == 1 else 's'} remain{'s' if movesRemaining == 1 else ''}.{NO_COLOR}", end='')
         print()
     userScore, aiScore = currentScore(USER_PIECE, board)
     additionalIndent = " " * ((2 + (2 * (BOARD_DIMENSION // 2 - 1))) - (1 if userScore >= 10 else 0))
@@ -165,9 +174,14 @@ def endGame(winner=None):
     if winner:
         textColor = textColorOf(winner)
         colorName = nameOfPieceColor(winner)
-        print(f"\n{textColor}{colorName}{NO_COLOR} wins!")
+        print(f"\n{textColor}{colorName}{NO_COLOR} wins!\n")
     else:
-        print("\nThe game ended in a draw!")
+        print("\nThe game ended in a draw!\n")
+    userTimeTaken = round(TIME_TAKEN_PER_PLAYER[USER_PIECE][1]/TIME_TAKEN_PER_PLAYER[USER_PIECE][2], 2)
+    aiTimeTaken = round(TIME_TAKEN_PER_PLAYER[OPPONENT_PIECE][1]/TIME_TAKEN_PER_PLAYER[OPPONENT_PIECE][2], 2)
+    print("Average time taken per move:")
+    print(f"{GREEN_COLOR}{TIME_TAKEN_PER_PLAYER[USER_PIECE][0]}{NO_COLOR}: {userTimeTaken}s")
+    print(f"{RED_COLOR}{TIME_TAKEN_PER_PLAYER[OPPONENT_PIECE][0]}{NO_COLOR}: {aiTimeTaken}s")
     print("\nThanks for playing!")
     exit(0)
 
@@ -349,7 +363,7 @@ def createNewBoard():
     return board
 
 def main():
-    global BOARD, USER_PIECE, OPPONENT_PIECE
+    global BOARD, USER_PIECE, OPPONENT_PIECE, TIME_TAKEN_PER_PLAYER
     os.system("") # allows colored terminal to work on Windows OS
     if "-e" in sys.argv or "-eraseModeOff" in sys.argv:
         global ERASE_MODE_ON
@@ -386,6 +400,10 @@ def main():
     players = {
         USER_PIECE: UserPlayerClass(USER_PIECE),
         OPPONENT_PIECE: OthelloStrategy(OPPONENT_PIECE)
+    }
+    TIME_TAKEN_PER_PLAYER = {
+        USER_PIECE: [userPlayerName, 0, 0],    # [player name, total time, num moves]
+        OPPONENT_PIECE: [aiPlayerName, 0, 0]
     }
 
     printBoard(getValidMoves(turn, BOARD))
@@ -433,7 +451,10 @@ def main():
             startTime = time.time()
             row, col = currentPlayer.getMove(BOARD)
             endTime = time.time()
-            timeToPlayMove = round(endTime - startTime, 2)
+            timeToPlayMove = (endTime - startTime)
+            TIME_TAKEN_PER_PLAYER[turn][1] += timeToPlayMove
+            TIME_TAKEN_PER_PLAYER[turn][2] += 1
+            timeToPlayMove = round(timeToPlayMove, 2)
             playMove(turn, row, col, BOARD)
             BOARD_HISTORY.append([[[row, col]], copyOfBoard(BOARD)])
             erasePreviousLines(linesWrittenToConsole)
@@ -462,10 +483,10 @@ def main():
                     endGame()
             noValidMovesColor = textColorOf(turn)
             playAgainColor = textColorOf(opponentOf(turn))
+            erasePreviousLines(2)
             print(
-                f"{noValidMovesColor}%s{NO_COLOR} has no valid moves this turn! {playAgainColor}%s{NO_COLOR} will play again." % (
+                f"{INFO_SYMBOL} {noValidMovesColor}%s{NO_COLOR} has no valid moves this turn! {playAgainColor}%s{NO_COLOR} will play again.\n" % (
                     nameOfPieceColor(turn), nameOfPieceColor(opponentOf(turn))))
-            linesWrittenToConsole += 3 + BOARD_DIMENSION
         gameOver, winner = checkGameOver(BOARD)
         turn = opponentOf(turn)
     endGame(winner)
