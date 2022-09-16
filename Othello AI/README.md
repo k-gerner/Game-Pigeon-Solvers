@@ -1,5 +1,5 @@
 # Othello
-<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Othello/sampleOthelloBoard.jpg" alt = "Othello game board in Game Pigeon's UI" width="30%" align = "right">  
+<img src="/Images/Othello/sampleOthelloBoard.jpg" alt = "Othello game board in Game Pigeon's UI" width="30%" align = "right">  
 
 ### The Basics
 The overall objective of the game is to end the game with more pieces 
@@ -29,13 +29,13 @@ You can invoke the tool by running
 > python3 OthelloClient.py
 ```
 Once you do this, you will see some info about how to interact with the 
-tool, further explained in the [Gameplay Features](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Othello%20AI#gameplay-features) section. 
+tool, further explained in the [Gameplay Features](#gameplay-features) section. 
 You will be asked if you would like to see the rules, and then you will 
 be prompted to choose which color you want to be, BLACK (`0`) or WHITE 
 (`O`). Whoever is BLACK will go first. You will then be prompted to 
 either enter your move, or press `enter` for the A.I. to play.  
 
-<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Othello/othelloGameBoard.png" alt = "sample board output" width="40%">  
+<img src="/Images/Othello/othelloGameBoard.png" alt = "sample board output" width="40%">  
 
 ### How it works
 The A.I. works by using a move selection algorithm known as [Minimax](https://en.wikipedia.org/wiki/Minimax), 
@@ -119,12 +119,12 @@ In order for your AI to be eligible, it must meet a few requirements:
   new lines each move). This is **on** by default, but if you would 
 like to **disable** this feature and preserve all output to the 
 terminal, include the flag `-e` or `-eraseModeOff`.
-* Dueling AIs Mode: See the [Dueling AIs Mode](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Othello%20AI#dueling-ais-mode)
+* Dueling AIs Mode: See the [Dueling AIs Mode](#dueling-ais-mode)
 section for more information. Invoked with `-d` or `-aiDuel`.  
 * Colorblind mode: Use Blue/Orange instead of Green/Red for piece
   colorings. To enable, include the flag`-cb` or `-colorblindMode`.
 
-<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Othello/colorblindGameBoard.png" alt = "colorblind board output" width="40%">
+<img src="/Images/Othello/colorblindGameBoard.png" alt = "colorblind board output" width="40%">
 
 
 ### ✨ New in Version 2.1
@@ -135,7 +135,7 @@ displayed for each player.
 #### Older Changelog
 * v2.0
   * Do you have an Othello 4 AI of your own? Now you can challenge my
-      AI with yours! See the [Dueling AIs Mode](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Othello%20AI#dueling-ais-mode)
+      AI with yours! See the [Dueling AIs Mode](#dueling-ais-mode)
       section for more information!
   * Saving the game is now much more streamlined. The save state will
     now be written to a text file. When you start a new game, if a 
@@ -152,4 +152,4 @@ displayed for each player.
 \
 \
 If you made it this far, you should check out my other A.I.s and 
-solvers! I'm especially proud of my [Gomoku A.I.](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI)!
+solvers! I'm especially proud of my [Gomoku A.I.](/Gomoku%20AI)!

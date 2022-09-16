@@ -1,17 +1,17 @@
 # Gomoku
-<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Gomoku/sampleGomokuBoard.jpg" alt = "sample board" width="30%" align = "right">  
+<img src="/Images/Gomoku/sampleGomokuBoard.jpg" alt = "sample board" width="30%" align = "right">  
 
 ### Table of contents
-1. [The Basics](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#the-basics)  
-2. [How to use](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#how-to-use)  
-3. [Features](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#features)  
-4. [How it works](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#how-it-works)  
-     i. [Minimax and Alpha-Beta Pruning](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#minimax-and-alpha-beta-pruning)  
-     ii. [Zobrist Hashing and Transposition Tables](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#zobrist-hashing-and-transposition-tables)  
-     iii. [Determining valid moves](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#determining-valid-moves)  
-     iv. [Iterative Deepening and evaluating board states](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#iterative-deepening-and-evaluating-board-states) 
-5. [Dueling AIs Mode](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#dueling-ais-mode)
-6. [Further Reading](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#further-reading)  
+1. [The Basics](#the-basics)  
+2. [How to use](#how-to-use)  
+3. [Features](#features)  
+4. [How it works](#how-it-works)  
+     i. [Minimax and Alpha-Beta Pruning](#minimax-and-alpha-beta-pruning)  
+     ii. [Zobrist Hashing and Transposition Tables](#zobrist-hashing-and-transposition-tables)  
+     iii. [Determining valid moves](#determining-valid-moves)  
+     iv. [Iterative Deepening and evaluating board states](#iterative-deepening-and-evaluating-board-states) 
+5. [Dueling AIs Mode](#dueling-ais-mode)
+6. [Further Reading](#further-reading)  
 
 ### The Basics 
 In Gomoku, the objective is to get 5 of your pieces to line up in 
@@ -24,7 +24,7 @@ win instead of 3.
 ### How to use 
 First, download the `gomoku_client.py` and `strategy.py` files and 
 place them both in the same directory. If you would like to challenge
-my AI with your own, see the [Dueling AIs Mode](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#dueling-ais-mode)
+my AI with your own, see the [Dueling AIs Mode](#dueling-ais-mode)
 section. If you would like to challenge the AI yourself, you can 
 invoke the tool by running  
 ```
@@ -74,12 +74,12 @@ long each search takes on my 2015 Macbook Pro at depths 4, 5, and 6:
     - `MAX_DEPTH = 5` &#8594; `8s`  
     - `MAX_DEPTH = 6` &#8594; `30s`  
 
-<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Gomoku/gomokuStartingPrompts.png" alt = "starting prompts" width="40%" align = left>  
-<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Gomoku/gomokuBoardOutput.png" alt = "sample board output" width="20%">  
+<img src="/Images/Gomoku/gomokuStartingPrompts.png" alt = "starting prompts" width="40%" align = left>  
+<img src="/Images/Gomoku/gomokuBoardOutput.png" alt = "sample board output" width="20%">  
   
 ### Features 
 - As mentioned above, you can change several parameters to fine-tune the A.I. yourself. 
-For more information about that, see the bottom of the [How to use](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#how-to-use) section. 
+For more information about that, see the bottom of the [How to use](#how-to-use) section. 
 - Save the game by typing `s`. This will create a save file named 
 `saved_game.txt` which contains save data for the current game state. 
 When you start a new game, if a save state is detected, you will be 
@@ -88,8 +88,8 @@ asked if you would like to resume that game.
   a new board to be printed after each move, you can add the command
   line argument `-e` or `-eraseModeOff`.
 - Do you have a Gomoku AI of your own? Try out Dueling AIs mode! See
-  the [Dueling AIs Mode](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#dueling-ais-mode)
-  section for more information!
+  the [Dueling AIs Mode](#dueling-ais-mode) section for more 
+information!
 - Each move on the board is color-coded to make it easier to 
 distinguish between friendly and enemy pieces.
 - The most recently played move is highlighted slightly grey.
@@ -286,7 +286,7 @@ https://medium.com/@LukeASalamone/creating-an-ai-for-gomoku-28a4c84c7a52
 #### Older Changelog
 * v2.0
   * Do you have a Gomoku AI of your own? Now you can challenge my
-      AI with yours! See the [Dueling AIs Mode](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#dueling-ais-mode)
+      AI with yours! See the [Dueling AIs Mode](#dueling-ais-mode)
       section for more information!
   * Saving the game is now much more streamlined. The save state will
     now be written to a text file. When you start a new game, if a save
