@@ -177,8 +177,8 @@ def endGame(winner=None):
         print(f"\n{textColor}{colorName}{NO_COLOR} wins!\n")
     else:
         print("\nThe game ended in a draw!\n")
-    userTimeTaken = round(TIME_TAKEN_PER_PLAYER[USER_PIECE][1]/TIME_TAKEN_PER_PLAYER[USER_PIECE][2], 2)
-    aiTimeTaken = round(TIME_TAKEN_PER_PLAYER[OPPONENT_PIECE][1]/TIME_TAKEN_PER_PLAYER[OPPONENT_PIECE][2], 2)
+    userTimeTaken = round(TIME_TAKEN_PER_PLAYER[USER_PIECE][1]/max(1, TIME_TAKEN_PER_PLAYER[USER_PIECE][2]), 2)
+    aiTimeTaken = round(TIME_TAKEN_PER_PLAYER[OPPONENT_PIECE][1]/max(1, TIME_TAKEN_PER_PLAYER[OPPONENT_PIECE][2]), 2)
     print("Average time taken per move:")
     print(f"{GREEN_COLOR}{TIME_TAKEN_PER_PLAYER[USER_PIECE][0]}{NO_COLOR}: {userTimeTaken}s")
     print(f"{RED_COLOR}{TIME_TAKEN_PER_PLAYER[OPPONENT_PIECE][0]}{NO_COLOR}: {aiTimeTaken}s")
