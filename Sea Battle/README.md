@@ -28,7 +28,7 @@ different set of ships, as seen below:
 <img src="/Images/Sea%20Battle/starting_10board.png" alt = "starting 10x10 board" width="32%"><br/>  
 
 Before each turn, the best moves will be shown on the board in blue. 
-To see the scores that the A.I. has calcuated for each location on 
+To see the scores that the A.I. has calculated for each location on 
 the board, you can type `sdc` to show the space densities table (or 
 `sd` to display with no color). The number mostly corresponds to how 
 many ways a ship could be placed at that location, so a higher number 
