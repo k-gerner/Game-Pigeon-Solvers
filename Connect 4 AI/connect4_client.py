@@ -3,6 +3,7 @@
 # Connect 4 Solver, client facing
 import os
 import sys
+import time
 from importlib import import_module
 from Player import Player
 from strategy import Strategy, opponentOf, performMove, checkIfGameOver, isValidMove
@@ -30,6 +31,7 @@ gameBoard = [[EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],  # bottom row
              [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
              [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY]]  # top row
 userPiece = YELLOW
+TIME_TAKEN_PER_PLAYER = {}
 
 # class for the Human player
 class HumanPlayer(Player):
@@ -43,8 +45,7 @@ class HumanPlayer(Player):
         while True:
             if col == 'q':
                 erasePreviousLines(1)
-                print("Thanks for playing!")
-                exit(0)
+                endGame()
             elif not col.isdigit() or int(col) not in range(1, 8):
                 erasePreviousLines(1)
                 col = input(f"{ERROR_SYMBOL} Invalid input. Please enter a number 1 through 7:\t")
@@ -80,6 +81,18 @@ def printBoard(board, recentMove=None):
             print(f"{pieceColor}%s{NO_COLOR} " % spot, end='')
         print(f"{BLUE_COLOR}|{NO_COLOR}")
     print(" " + f"{BLUE_COLOR}%s{NO_COLOR}" % "-" * 17)
+
+
+def endGame():
+    """Ends the game"""
+    opponentPiece = opponentOf(userPiece)
+    userTimeTaken = round(TIME_TAKEN_PER_PLAYER[userPiece][1]/max(1, TIME_TAKEN_PER_PLAYER[userPiece][2]), 2)
+    aiTimeTaken = round(TIME_TAKEN_PER_PLAYER[opponentPiece][1]/max(1, TIME_TAKEN_PER_PLAYER[opponentPiece][2]), 2)
+    print("Average time taken per move:")
+    print(f"{GREEN_COLOR}{TIME_TAKEN_PER_PLAYER[userPiece][0]}{NO_COLOR}: {userTimeTaken}s")
+    print(f"{RED_COLOR}{TIME_TAKEN_PER_PLAYER[opponentPiece][0]}{NO_COLOR}: {aiTimeTaken}s")
+    print("\nThanks for playing!\n")
+    exit(0)
 
 
 def erasePreviousLines(numLines, overrideEraseMode=False):
@@ -119,7 +132,7 @@ def getDuelingAi():
 
 def main():
     """main method that prompts the user for input"""
-    global userPiece
+    global userPiece, TIME_TAKEN_PER_PLAYER
     os.system("")  # allows colored terminal to work on Windows OS
     if "-e" in sys.argv or "-eraseModeOff" in sys.argv:
         global ERASE_MODE_ON
@@ -138,26 +151,30 @@ def main():
         "Would you like to be RED ('r') or YELLOW ('y')? (yellow goes first!):\t").strip().lower()
     if userPieceInput == 'r':
         userPiece = RED
-        aiPiece = YELLOW
+        opponentPiece = YELLOW
         playerHighlightColor = RED_COLOR
         aiHighlightColor = YELLOW_COLOR
         print(f"{userPlayerName} will be {RED_COLOR}RED{NO_COLOR}!")
     elif userPieceInput == 'y':
         userPiece = YELLOW
-        aiPiece = RED
+        opponentPiece = RED
         playerHighlightColor = YELLOW_COLOR
         aiHighlightColor = RED_COLOR
         print(f"{userPlayerName} will be {YELLOW_COLOR}YELLOW{NO_COLOR}!")
     else:
         userPiece = RED
-        aiPiece = YELLOW
+        opponentPiece = YELLOW
         playerHighlightColor = RED_COLOR
         aiHighlightColor = YELLOW_COLOR
         print(f"{ERROR_SYMBOL} Invalid input. {userPlayerName} will be {RED_COLOR}RED{NO_COLOR}!")
 
-    print(f"{userPlayerName}: {playerHighlightColor}{userPiece}{NO_COLOR}\t{aiPlayerName}: {aiHighlightColor}{aiPiece}{NO_COLOR}")
-    playerNames = {aiPiece: aiPlayerName, userPiece: userPlayerName}
-    players = {aiPiece: Strategy(aiPiece), userPiece: UserPlayerClass(userPiece)}
+    TIME_TAKEN_PER_PLAYER = {
+        userPiece: [userPlayerName, 0, 0],    # [player name, total time, num moves]
+        opponentPiece: [aiPlayerName, 0, 0]
+    }
+    print(f"{userPlayerName}: {playerHighlightColor}{userPiece}{NO_COLOR}\t{aiPlayerName}: {aiHighlightColor}{opponentPiece}{NO_COLOR}")
+    playerNames = {opponentPiece: aiPlayerName, userPiece: userPlayerName}
+    players = {opponentPiece: Strategy(opponentPiece), userPiece: UserPlayerClass(userPiece)}
     turn = YELLOW
     gameOver = False
     winningPiece = None
@@ -172,10 +189,14 @@ def main():
             userInput = input(f"{nameOfCurrentPlayer}'s turn, press enter for it to play.\t").strip().lower()
             if userInput == 'q':
                 erasePreviousLines(1)
-                print("Thanks for playing!")
-                exit(0)
+                endGame()
             erasePreviousLines(2)
+        startTime = time.time()
         column = currentPlayer.getMove(gameBoard)
+        endTime = time.time()
+        totalTimeTakenForMove = endTime - startTime
+        TIME_TAKEN_PER_PLAYER[turn][1] += totalTimeTakenForMove
+        TIME_TAKEN_PER_PLAYER[turn][2] += 1
         performMove(gameBoard, column, turn)
         erasePreviousLines(BOARD_OUTPUT_HEIGHT + (0 if firstTurn else 1))
         printBoard(gameBoard, column)
@@ -190,6 +211,7 @@ def main():
         print(f"{RED_COLOR}RED{NO_COLOR} wins!\n")
     else:
         print(f"{YELLOW_COLOR}YELLOW{NO_COLOR} wins!\n")
+    endGame()
 
 
 if __name__ == "__main__":

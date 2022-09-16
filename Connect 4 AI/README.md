@@ -49,11 +49,15 @@ In order for your AI to be eligible, it must meet a few requirements:
 as a parameter, and returns the chosen move as an `int` representing 
 the index of the column (0-6)
 
-### ✨ New in Version 2.0
-* Do you have a Connect 4 AI of your own? Now you can challenge my
-AI with yours! See the [Dueling AIs Mode](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Connect%204%20AI#dueling-ais-mode) 
-section for more information!
+### ✨ New in Version 2.1
+* At the end of the game, the average time taken per move will be
+  displayed for each player.
+
 #### Older Changelog
+* v2.0
+  * Do you have a Connect 4 AI of your own? Now you can challenge my
+    AI with yours! See the [Dueling AIs Mode](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Connect%204%20AI#dueling-ais-mode)
+    section for more information!
 * v1.1
   * The game will now be played on a single game board instead of printing a new board after each turn. This can be turned off with the command line argument `-e` or `-eraseModeOff`.
   * The column number of the most recently played move will be colored green.
