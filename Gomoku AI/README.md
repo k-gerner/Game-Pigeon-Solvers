@@ -279,16 +279,19 @@ https://stackoverflow.com/questions/6952607/what-would-be-a-good-ai-strategy-to-
 https://webdocs.cs.ualberta.ca/~mmueller/courses/2014-AAAI-games-tutorial/slides/AAAI-14-Tutorial-Games-3-AlphaBeta.pdf  
 https://medium.com/@LukeASalamone/creating-an-ai-for-gomoku-28a4c84c7a52
 
-### ✨ New in Version 2.0
-* Do you have a Gomoku AI of your own? Now you can challenge my
-AI with yours! See the [Dueling AIs Mode](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#dueling-ais-mode) 
-section for more information!
-* Saving the game is now much more streamlined. The save state will 
-now be written to a text file. When you start a new game, if a save 
-state is detected, you will be asked if you would like to resume that 
-game. 
+### ✨ New in Version 2.1
+* At the end of the game, the average time taken per move will be
+  displayed for each player.
 
 #### Older Changelog
+* v2.0
+  * Do you have a Gomoku AI of your own? Now you can challenge my
+      AI with yours! See the [Dueling AIs Mode](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI#dueling-ais-mode)
+      section for more information!
+  * Saving the game is now much more streamlined. The save state will
+    now be written to a text file. When you start a new game, if a save
+    state is detected, you will be asked if you would like to resume that
+    game.
 * v1.1
   * The game will now be played on a single game board instead of 
   printing a new board after each turn. This can be turned off with 
