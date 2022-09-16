@@ -29,17 +29,16 @@ different set of ships, as seen below:
 
 Before each turn, the best moves will be shown on the board in blue. 
 To see the scores that the A.I. has calculated for each location on 
-the board, you can type `sdc` to show the space densities table (or 
-`sd` to display with no color). The number mostly corresponds to how 
-many ways a ship could be placed at that location, so a higher number 
-means that the space is more likely to have a ship. The AI also 
-takes into account the number of spaces that would be cleared if the 
-spot were to result in a hit/sink. While only the optimal move(s) 
-will be shown on the board display, the densities table uses a color 
-gradient so that you can easily see the good locations on the board 
-if you do not wish to play in one of the optimal spaces. At the 
-beginning of a 10x10 game, the game board and density table will 
-look like this:  
+the board, you can type `d` to show the space densities table. The 
+number mostly corresponds to how many ways a ship could be placed 
+at that location, so a higher number means that the space is more 
+likely to have a ship. The AI also takes into account the number of 
+spaces that would be cleared if the spot were to result in a hit/sink.
+While only the optimal move(s) will be shown on the board display, the 
+densities table uses a color gradient so that you can easily see the 
+good locations on the board if you do not wish to play in one of the
+optimal spaces. At the beginning of a 10x10 game, the game board and 
+density table will look like this:  
 
 <img src="/Images/Sea%20Battle/starting_bestmoves.png" alt = "starting 10x10 board best moves" width="40%" align = "left">
 <img src="/Images/Sea%20Battle/starting_densities.png" alt = "starting 10x10 space densities" width="45%"><br/>    
@@ -61,7 +60,16 @@ not in the optimal move set, the player will be asked to confirm that
 they meant to choose that location. This is to prevent accidental 
 incorrect input.
 
-### ✨ New in Version 1.1
-* The game will now be played on a single game board instead of 
-printing a new board after each turn. This can be turned off with 
-the command line argument `-e` or `-eraseModeOff`.
+### ✨ New in Version 1.2
+* The space densities table will now be displayed in place of the 
+board, instead of below it.
+* The space densities table will now default to having colored text.
+* The space densities table will now be displayed by typing `d`
+  (formerly `sd` or `sdc`)
+* The game board can be redisplayed by typing `b` (formerly `sb`)
+
+#### Older Changelog
+* v1.1
+  * The game will now be played on a single game board instead of 
+  printing a new board after each turn. This can be turned off with 
+  the command line argument `-e` or `-eraseModeOff`.

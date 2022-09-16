@@ -107,7 +107,7 @@ def print_board(most_recent_move=None, optimal_locations=None):
 			print("")
 	print()
 
-def print_space_densities(color_mode = False):
+def print_space_densities(color_mode=True):
 	"""
 	Prints out the space densities chart in a readable format
 	"""
@@ -434,22 +434,20 @@ def get_player_move():
 		if spot == 'Q':
 			print("\nThanks for playing!\n")
 			exit(0)
-		elif spot == 'SD' or spot == "SDC":
+		elif spot == 'D':
 			erasePreviousLines(linesToErase)
-			print_space_densities(spot == "SDC")
+			print_space_densities()
 			linesToErase = SPACE_DENSITY_TABLE_OUTPUT_HEIGHT
-			print("The space densities table is shown above. To show the game board, type 'sb'")
+			print("The space densities table is shown above. To show the game board, type 'b'")
 			spot = input("Which spot would you like to play? (A1 - %s%d):\t" % (COLUMN_LABELS[-1], SIZE)).strip().upper()
 			erasePreviousLines(2)
-			# erasePreviousLines(SPACE_DENSITY_TABLE_OUTPUT_HEIGHT + 2)
-		elif spot == "SB":
+		elif spot == "B":
 			erasePreviousLines(linesToErase)
 			print_board(optimal_locations=get_optimal_moves())
 			print("\nThe current game board is shown above.")
 			linesToErase = BOARD_OUTPUT_HEIGHT + 2
 			spot = input("Which spot would you like to play? (A1 - %s%d):\t" % (COLUMN_LABELS[-1], SIZE)).strip().upper()
 			erasePreviousLines(1)
-			# erasePreviousLines(BOARD_OUTPUT_HEIGHT + 2)
 		elif len(spot) >= 4 or len(spot) == 0 or spot[0] not in COLUMN_LABELS or not spot[1:].isdigit() or int(spot[1:]) > SIZE or int(spot[1:]) < 1:
 			spot = input(f"{ERROR_SYMBOL} Invalid input. Please try again.\t").strip().upper()
 			erasePreviousLines(1)
@@ -494,9 +492,8 @@ def main():
  |_____/ \\___|\\__,_| |____/ \\__,_|\\__|\\__|_|\\___|
  """)
 	print("The default board size is 10x10.")
-	print("To show the space density table, type 'sd' at the move selection prompt.")
-	print("To color the space density table, type 'sdc' at the move selection prompt.")
-	print("To re-display the current game board, type 'sb' at the move selection prompt.")
+	print("To show the color-coded space density table, type 'd' at the move selection prompt.")
+	print("To re-display the current game board, type 'b' at the move selection prompt.")
 	print("To quit, type 'q' at any prompt.\n")
 
 	board_dimension = input("What is the dimension of the board (8, 9, or 10)? (Default is 10x10)\nEnter a single number:\t").strip()
