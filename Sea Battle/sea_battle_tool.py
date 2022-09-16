@@ -517,8 +517,10 @@ def main():
 		print(f"\nThe %s that %s most likely to contain a ship %s been colored {OPTIMAL_COLOR}blue{NO_COLOR}." % (words[0], words[1], words[2]))
 		most_recent_move = get_player_move()
 		row, col = most_recent_move
-		humanReadableMoveCoordinate = COLUMN_LABELS[col] + str(row + 1)
-		outcome = input(f"Was that shot at {humanReadableMoveCoordinate} a miss (M), a partial-hit (H), or a sink (S)?\t").strip().upper()
+		erasePreviousLines(BOARD_OUTPUT_HEIGHT + 2)
+		print_board([row, col], best_move_coordinates_list)
+		print("\nThe selected move has been highlighted.")
+		outcome = input(f"Was that shot a miss (M), a partial-hit (H), or a sink (S)?\t").strip().upper()
 		erasePreviousLines(1)
 		while True:
 			if outcome == 'Q':
