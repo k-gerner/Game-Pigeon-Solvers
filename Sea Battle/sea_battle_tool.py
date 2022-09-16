@@ -42,7 +42,7 @@ SPACE_DENSITY_TABLE_OUTPUT_HEIGHT = -1 # Height of the output from printing the 
 
 
 def create_game_board(dimension):
-	'''Creates the gameBoard with the specified number of rows and columns'''
+	"""Creates the gameBoard with the specified number of rows and columns"""
 	global SIZE, REMAINING_SHIPS, BOARD_OUTPUT_HEIGHT, SPACE_DENSITY_TABLE_OUTPUT_HEIGHT, COLUMN_LABELS
 	SIZE = dimension
 	BOARD_OUTPUT_HEIGHT = SIZE + 4
@@ -67,10 +67,12 @@ def create_game_board(dimension):
 		raise ValueError("Board can only be 8x8, 9x9, or 10x10.")
 
 
-def print_board(most_recent_move = None, optimal_locations = []):
-	'''
+def print_board(most_recent_move=None, optimal_locations=None):
+	"""
 	Print the game board in a readable format
-	'''
+	"""
+	if optimal_locations is None:
+		optimal_locations = []
 	print("\n\t    %s\n" % " ".join(COLUMN_LABELS))
 	ships_remain = []
 	for length in list(reversed(sorted(REMAINING_SHIPS.keys()))):
@@ -78,7 +80,6 @@ def print_board(most_recent_move = None, optimal_locations = []):
 	for rowNum in range(SIZE):
 		print("\t%d%s| " % (rowNum+1, "" if rowNum > 8 else " "), end = '')
 		for colNum in range(SIZE):
-			# print("%s " % spot, end='')
 			spot = game_board[rowNum][colNum]
 			pieceColor = MOST_RECENT_HIGHLIGHT_COLOR if [rowNum, colNum] == most_recent_move else ''
 			if spot == HIT:
@@ -106,14 +107,14 @@ def print_board(most_recent_move = None, optimal_locations = []):
 			print("")
 	print()
 
-def print_space_densities(color_mode = False):
-	'''
+def print_space_densities(color_mode=True):
+	"""
 	Prints out the space densities chart in a readable format
-	'''
+	"""
 	def get_color(value, max_val, min_val):
-		'''
+		"""
 		Get the color that corresponds to the given value
-		'''
+		"""
 		if value == max_val:
 			return OPTIMAL_COLOR # blue
 		elif value == 0:
@@ -162,9 +163,9 @@ def erasePreviousLines(numLines, overrideEraseMode=False):
 		print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(numLines, 0), end='')
 
 def game_over():
-	'''
+	"""
 	Checks if the game is over
-	'''
+	"""
 	if not any(EMPTY in row for row in game_board):
 		return True
 	for ship_size in REMAINING_SHIPS:
@@ -173,10 +174,10 @@ def game_over():
 	return True
 
 def create_density_pyramid():
-	'''
+	"""
 	Create a pyramid-shaped 2D list that contains the scores for each index given an open sequence of n spaces.
 	This will make the generate_space_densities function faster
-	'''
+	"""
 	remaining_ships = []
 	for key in REMAINING_SHIPS:
 		num_remaining = REMAINING_SHIPS[key]
@@ -194,10 +195,10 @@ def create_density_pyramid():
 		DENSITY_PYRAMID.append(row)
 
 def generate_space_densities():
-	'''
+	"""
 	Generate a board where each space has densities that relate to the number of ways ships could be placed there
 	NOTE: The implementation is ugly, but it works. I was trying to get this done as quick as possible.
-	'''
+	"""
 	def fill_list_with_density_pyramid_data(arr, start_index, sequence_length):
 		'''
 		Take data from the density pyramid and populate a portion of the given list with that data
@@ -357,9 +358,9 @@ def generate_space_densities():
 	return space_densities
 
 def get_optimal_moves():
-	'''
+	"""
 	Get a list of the coordinates of the best moves
-	'''
+	"""
 	space_densities = generate_space_densities()
 	max_score = -1
 	best_move_coordinates = []
@@ -374,11 +375,11 @@ def get_optimal_moves():
 	return best_move_coordinates
 
 def sink_ship(row, col):
-	'''
+	"""
     Changes the game board to display that a ship has sunk
     Updates the density pyramid
     Updates the ships remaining totals
-    '''
+    """
 	game_board[row][col] = DESTROY
 	dir_increments = [
 		[0, -1], # left
@@ -425,22 +426,28 @@ def sink_ship(row, col):
 				game_board[new_row][new_col] = MISS
 
 def get_player_move():
-	'''Takes in the user's input and performs that move on the board, returns the coordinates of the move'''
+	"""Takes in the user's input and performs that move on the board, returns the coordinates of the move"""
 	spot = input("Which spot would you like to play? (A1 - %s%d):\t" % (COLUMN_LABELS[-1], SIZE)).strip().upper()
+	erasePreviousLines(1)
+	linesToErase = BOARD_OUTPUT_HEIGHT + 2
 	while True:
 		if spot == 'Q':
 			print("\nThanks for playing!\n")
 			exit(0)
-		elif spot == 'SD' or spot == "SDC":
-			print_space_densities(spot == "SDC")
-			print("The space densities table is shown above.")
+		elif spot == 'D':
+			erasePreviousLines(linesToErase)
+			print_space_densities()
+			linesToErase = SPACE_DENSITY_TABLE_OUTPUT_HEIGHT
+			print("The space densities table is shown above. To show the game board, type 'b'")
 			spot = input("Which spot would you like to play? (A1 - %s%d):\t" % (COLUMN_LABELS[-1], SIZE)).strip().upper()
-			erasePreviousLines(SPACE_DENSITY_TABLE_OUTPUT_HEIGHT + 2)
-		elif spot == "SB" and not ERASE_MODE_ON:
+			erasePreviousLines(2)
+		elif spot == "B":
+			erasePreviousLines(linesToErase)
 			print_board(optimal_locations=get_optimal_moves())
-			print("The current game board is shown above.")
+			print("\nThe current game board is shown above.")
+			linesToErase = BOARD_OUTPUT_HEIGHT + 2
 			spot = input("Which spot would you like to play? (A1 - %s%d):\t" % (COLUMN_LABELS[-1], SIZE)).strip().upper()
-			erasePreviousLines(BOARD_OUTPUT_HEIGHT + 2)
+			erasePreviousLines(1)
 		elif len(spot) >= 4 or len(spot) == 0 or spot[0] not in COLUMN_LABELS or not spot[1:].isdigit() or int(spot[1:]) > SIZE or int(spot[1:]) < 1:
 			spot = input(f"{ERROR_SYMBOL} Invalid input. Please try again.\t").strip().upper()
 			erasePreviousLines(1)
@@ -464,13 +471,14 @@ def get_player_move():
 					break
 			else:
 				break
+	if linesToErase == SPACE_DENSITY_TABLE_OUTPUT_HEIGHT:
+		print()
 	return [row, col]
 
 def main():
-	'''
+	"""
 	Main method
-	'''
-
+	"""
 	os.system("") # allows colored terminal to work on Windows OS
 	if len(sys.argv) == 2 and sys.argv[1] in ["-e", "-eraseModeOff"]:
 		global ERASE_MODE_ON
@@ -484,10 +492,8 @@ def main():
  |_____/ \\___|\\__,_| |____/ \\__,_|\\__|\\__|_|\\___|
  """)
 	print("The default board size is 10x10.")
-	print("To show the space density table, type 'sd' at the move selection prompt.")
-	print("To color the space density table, type 'sdc' at the move selection prompt.")
-	if not ERASE_MODE_ON:
-		print("To re-display the current game board, type 'sb' at the move selection prompt.")
+	print("To show the color-coded space density table, type 'd' at the move selection prompt.")
+	print("To re-display the current game board, type 'b' at the move selection prompt.")
 	print("To quit, type 'q' at any prompt.\n")
 
 	board_dimension = input("What is the dimension of the board (8, 9, or 10)? (Default is 10x10)\nEnter a single number:\t").strip()
@@ -533,10 +539,10 @@ def main():
 		if game_over():
 			break
 		best_move_coordinates_list = get_optimal_moves()
-		erasePreviousLines(BOARD_OUTPUT_HEIGHT + 3)
+		erasePreviousLines(BOARD_OUTPUT_HEIGHT + 2)
 		print_board([row, col], best_move_coordinates_list)
 
-	erasePreviousLines(BOARD_OUTPUT_HEIGHT + 3)
+	erasePreviousLines(BOARD_OUTPUT_HEIGHT + 2)
 	print_board(most_recent_move)
 	print("\nGood job, you won!\n")
 
