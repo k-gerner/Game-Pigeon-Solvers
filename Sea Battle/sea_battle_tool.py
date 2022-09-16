@@ -42,7 +42,7 @@ SPACE_DENSITY_TABLE_OUTPUT_HEIGHT = -1 # Height of the output from printing the 
 
 
 def create_game_board(dimension):
-	'''Creates the gameBoard with the specified number of rows and columns'''
+	"""Creates the gameBoard with the specified number of rows and columns"""
 	global SIZE, REMAINING_SHIPS, BOARD_OUTPUT_HEIGHT, SPACE_DENSITY_TABLE_OUTPUT_HEIGHT, COLUMN_LABELS
 	SIZE = dimension
 	BOARD_OUTPUT_HEIGHT = SIZE + 4
@@ -67,10 +67,12 @@ def create_game_board(dimension):
 		raise ValueError("Board can only be 8x8, 9x9, or 10x10.")
 
 
-def print_board(most_recent_move = None, optimal_locations = []):
-	'''
+def print_board(most_recent_move = None, optimal_locations=None):
+	"""
 	Print the game board in a readable format
-	'''
+	"""
+	if optimal_locations is None:
+		optimal_locations = []
 	print("\n\t    %s\n" % " ".join(COLUMN_LABELS))
 	ships_remain = []
 	for length in list(reversed(sorted(REMAINING_SHIPS.keys()))):
@@ -107,9 +109,9 @@ def print_board(most_recent_move = None, optimal_locations = []):
 	print()
 
 def print_space_densities(color_mode = False):
-	'''
+	"""
 	Prints out the space densities chart in a readable format
-	'''
+	"""
 	def get_color(value, max_val, min_val):
 		'''
 		Get the color that corresponds to the given value
@@ -162,9 +164,9 @@ def erasePreviousLines(numLines, overrideEraseMode=False):
 		print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(numLines, 0), end='')
 
 def game_over():
-	'''
+	"""
 	Checks if the game is over
-	'''
+	"""
 	if not any(EMPTY in row for row in game_board):
 		return True
 	for ship_size in REMAINING_SHIPS:
@@ -173,10 +175,10 @@ def game_over():
 	return True
 
 def create_density_pyramid():
-	'''
+	"""
 	Create a pyramid-shaped 2D list that contains the scores for each index given an open sequence of n spaces.
 	This will make the generate_space_densities function faster
-	'''
+	"""
 	remaining_ships = []
 	for key in REMAINING_SHIPS:
 		num_remaining = REMAINING_SHIPS[key]
@@ -194,10 +196,10 @@ def create_density_pyramid():
 		DENSITY_PYRAMID.append(row)
 
 def generate_space_densities():
-	'''
+	"""
 	Generate a board where each space has densities that relate to the number of ways ships could be placed there
 	NOTE: The implementation is ugly, but it works. I was trying to get this done as quick as possible.
-	'''
+	"""
 	def fill_list_with_density_pyramid_data(arr, start_index, sequence_length):
 		'''
 		Take data from the density pyramid and populate a portion of the given list with that data
@@ -357,9 +359,9 @@ def generate_space_densities():
 	return space_densities
 
 def get_optimal_moves():
-	'''
+	"""
 	Get a list of the coordinates of the best moves
-	'''
+	"""
 	space_densities = generate_space_densities()
 	max_score = -1
 	best_move_coordinates = []
@@ -374,11 +376,11 @@ def get_optimal_moves():
 	return best_move_coordinates
 
 def sink_ship(row, col):
-	'''
+	"""
     Changes the game board to display that a ship has sunk
     Updates the density pyramid
     Updates the ships remaining totals
-    '''
+    """
 	game_board[row][col] = DESTROY
 	dir_increments = [
 		[0, -1], # left
@@ -425,7 +427,7 @@ def sink_ship(row, col):
 				game_board[new_row][new_col] = MISS
 
 def get_player_move():
-	'''Takes in the user's input and performs that move on the board, returns the coordinates of the move'''
+	"""Takes in the user's input and performs that move on the board, returns the coordinates of the move"""
 	spot = input("Which spot would you like to play? (A1 - %s%d):\t" % (COLUMN_LABELS[-1], SIZE)).strip().upper()
 	while True:
 		if spot == 'Q':
@@ -467,10 +469,9 @@ def get_player_move():
 	return [row, col]
 
 def main():
-	'''
+	"""
 	Main method
-	'''
-
+	"""
 	os.system("") # allows colored terminal to work on Windows OS
 	if len(sys.argv) == 2 and sys.argv[1] in ["-e", "-eraseModeOff"]:
 		global ERASE_MODE_ON
