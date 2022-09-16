@@ -17,7 +17,7 @@ tool by running
 ```
 You will be presented with the intro screen with some instructions:  
 
-<img src="/Images/Sea%20Battle/starting_prompts.png" alt = "starting instructions" width="60%"><br/>  
+<img src="/Images/Sea%20Battle/starting_prompts.png" alt = "starting instructions" width="65%"><br/>  
   
 You will be asked which dimension you want to make the board. Sea 
 Battle has 8x8, 9x9, and 10x10 modes available. Each mode has a 
