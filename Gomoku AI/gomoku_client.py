@@ -22,6 +22,7 @@ MOST_RECENT_HIGHLIGHT_COLOR = '\u001b[48;5;238m' # dark grey; to make lighter, i
 ERASE_MODE_ON = True
 BOARD_OUTPUT_HEIGHT = -1
 SAVE_STATE_OUTPUT_HEIGHT = -1
+TIME_TAKEN_PER_PLAYER = {}
 COLUMN_LABELS = "<Will be filled later>"
 SAVE_FILENAME = "saved_game.txt"
 
@@ -42,6 +43,7 @@ class HumanPlayer(Player):
 		erasePreviousLines(1)
 		while True:
 			if spot.lower() == 'q':
+				printAverageTimeTakenByPlayers()
 				print("\nThanks for playing!\n")
 				exit(0)
 			elif spot.lower() == 's':
@@ -105,6 +107,15 @@ def erasePreviousLines(numLines, overrideEraseMode=False):
 	eraseMode = ERASE_MODE_ON if not overrideEraseMode else (not ERASE_MODE_ON)
 	if eraseMode:
 		print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(numLines, 0), end='')
+
+def printAverageTimeTakenByPlayers():
+	"""Prints out the average time taken per move for each player"""
+	opponentPiece = opponentOf(userPiece)
+	userTimeTaken = round(TIME_TAKEN_PER_PLAYER[userPiece][1]/max(1, TIME_TAKEN_PER_PLAYER[userPiece][2]), 2)
+	aiTimeTaken = round(TIME_TAKEN_PER_PLAYER[opponentPiece][1]/max(1, TIME_TAKEN_PER_PLAYER[opponentPiece][2]), 2)
+	print("Average time taken per move:")
+	print(f"{GREEN_COLOR}{TIME_TAKEN_PER_PLAYER[userPiece][0]}{NO_COLOR}: {userTimeTaken}s")
+	print(f"{RED_COLOR}{TIME_TAKEN_PER_PLAYER[opponentPiece][0]}{NO_COLOR}: {aiTimeTaken}s")
 
 def saveGame(board, turn):
 	"""Saves the given board state to a save file"""
@@ -219,7 +230,7 @@ def getDuelingAi():
 
 def main():
 	"""main method that prompts the user for input"""
-	global gameBoard, userPiece, BOARD_OUTPUT_HEIGHT, SAVE_STATE_OUTPUT_HEIGHT, COLUMN_LABELS
+	global gameBoard, userPiece, BOARD_OUTPUT_HEIGHT, SAVE_STATE_OUTPUT_HEIGHT, COLUMN_LABELS, TIME_TAKEN_PER_PLAYER
 	os.system("") # allows colored terminal to work on Windows OS
 	if "-e" in sys.argv or "-eraseModeOff" in sys.argv:
 		global ERASE_MODE_ON
@@ -259,26 +270,30 @@ def main():
 		erasePreviousLines(2)
 		if playerColorInput == 'b':
 			userPiece = BLACK
-			aiPiece = WHITE
+			opponentPiece = WHITE
 			print(f"{userPlayerName} will be {GREEN_COLOR}BLACK{NO_COLOR}!")
 		else:
 			userPiece = WHITE
-			aiPiece = BLACK
+			opponentPiece = BLACK
 			if playerColorInput == 'w':
 				print(f"{userPlayerName} will be {GREEN_COLOR}WHITE{NO_COLOR}!")
 			else:
 				print(f"{ERROR_SYMBOL} Invalid input. {userPlayerName} will be {GREEN_COLOR}WHITE{NO_COLOR}!")
 	else:
-		aiPiece = opponentOf(userPiece)
+		opponentPiece = opponentOf(userPiece)
 		boardDimension = len(gameBoard)
 
+	TIME_TAKEN_PER_PLAYER = {
+		userPiece: [userPlayerName, 0, 0],    # [player name, total time, num moves]
+		opponentPiece: [aiPlayerName, 0, 0]
+	}
 	COLUMN_LABELS = list(map(chr, range(65, 65 + boardDimension)))
 	BOARD_OUTPUT_HEIGHT = boardDimension + 5
 	SAVE_STATE_OUTPUT_HEIGHT = boardDimension + 5
-	playerNames = {userPiece: userPlayerName, aiPiece: aiPlayerName}
-	players = {aiPiece: Strategy(aiPiece, boardDimension), userPiece: UserPlayerClass(userPiece)}
+	playerNames = {userPiece: userPlayerName, opponentPiece: aiPlayerName}
+	players = {opponentPiece: Strategy(opponentPiece, boardDimension), userPiece: UserPlayerClass(userPiece)}
 
-	print(f"\n{userPlayerName}: {GREEN_COLOR}{userPiece}{NO_COLOR}\t{aiPlayerName}: {RED_COLOR}{aiPiece}{NO_COLOR}")
+	print(f"\n{userPlayerName}: {GREEN_COLOR}{userPiece}{NO_COLOR}\t{aiPlayerName}: {RED_COLOR}{opponentPiece}{NO_COLOR}")
 	print("Type 'q' to quit.\nType 's' to save the game.")
 	printGameBoard()
 	print("\n")
@@ -293,6 +308,7 @@ def main():
 			erasePreviousLines(1)
 			while userInput in ['q', 's']:
 				if userInput == 'q':
+					printAverageTimeTakenByPlayers()
 					print("\nThanks for playing!\n")
 					exit(0)
 				else:
@@ -302,16 +318,19 @@ def main():
 		startTime = time.time()
 		rowPlayed, colPlayed = currentPlayer.getMove(gameBoard)
 		endTime = time.time()
-		minutesTaken = int(endTime - startTime) // 60
-		secondsTaken = (endTime - startTime) % 60
-		timeTakenOutputStr = ("  (%dm " if minutesTaken > 0 else "  (") + ("%.2fs)" % secondsTaken)
+		totalTimeTakenForMove = endTime - startTime
+		TIME_TAKEN_PER_PLAYER[turn][1] += totalTimeTakenForMove
+		TIME_TAKEN_PER_PLAYER[turn][2] += 1
+		minutesTaken = int(totalTimeTakenForMove) // 60
+		secondsTaken = totalTimeTakenForMove % 60
+		timeTakenOutputStr = ("  (%dm " if minutesTaken > 0 else "  (") + ("%.2fs)" % secondsTaken) if currentPlayer.isAI else ""
 		performMove(gameBoard, rowPlayed, colPlayed, turn)
 		erasePreviousLines(BOARD_OUTPUT_HEIGHT)
 		printGameBoard([[rowPlayed, colPlayed]])
 		moveFormatted = COLUMN_LABELS[colPlayed] + str(rowPlayed + 1)
-		print("%s played in spot %s%s\n" % (nameOfCurrentPlayer, moveFormatted, timeTakenOutputStr if currentPlayer.isAI else ""))
+		print("%s played in spot %s%s\n" % (nameOfCurrentPlayer, moveFormatted, timeTakenOutputStr))
 		turn = opponentOf(turn)
-		gameOver, winner = players[aiPiece].isTerminal(gameBoard)
+		gameOver, winner = players[opponentPiece].isTerminal(gameBoard)
 
 	if winner is None:
 		print("Nobody wins, it's a tie!")
@@ -319,6 +338,8 @@ def main():
 		highlightColor = GREEN_COLOR if winner == userPiece else RED_COLOR
 		winnerColorName = "BLACK" if winner == BLACK else "WHITE"
 		print(f"{highlightColor}{winnerColorName}{NO_COLOR} wins!\n")
+	printAverageTimeTakenByPlayers()
+	print("\nThanks for playing!\n")
 
 
 
