@@ -225,6 +225,7 @@ def validateLoadedSaveState():
 
 def loadSavedGame():
 	"""Try to load the saved game data. Returns boolean for if the save was successful."""
+	global game_board
 	with open(SAVE_FILENAME, 'r') as saveFile:
 		try:
 			linesFromSaveFile = saveFile.readlines()
@@ -242,8 +243,9 @@ def loadSavedGame():
 			lineNum += 1
 
 			currentLine = linesFromSaveFile[lineNum].strip()
+			board_from_save_file = []
 			while not currentLine.startswith("Ships remaining:"):
-				game_board.append(currentLine.split())
+				board_from_save_file.append(currentLine.split())
 				lineNum += 1
 				currentLine = linesFromSaveFile[lineNum].strip()
 			lineNum += 1
@@ -257,6 +259,7 @@ def loadSavedGame():
 
 			if not validateLoadedSaveState():
 				raise ValueError
+			game_board = board_from_save_file
 			deleteSaveFile = input(f"{INFO_SYMBOL} Saved game was successfully loaded! Delete the save file? (y/n)\t").strip().lower()
 			erasePreviousLines(1)
 			fileDeletedText = ""
