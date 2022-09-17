@@ -1,7 +1,7 @@
 # Kyle Gerner
 # Started 9.5.2021
 # Sea Battle AI (Battleship clone)
-
+from datetime import datetime
 import math
 import os
 import sys
@@ -36,6 +36,8 @@ ERASE_MODE_ON = True
 CURSOR_UP_ONE = '\033[1A'
 ERASE_LINE = '\033[2K'
 ERROR_SYMBOL = f"{MISS_COLOR}<!>{NO_COLOR}"
+INFO_SYMBOL = f"{OPTIMAL_COLOR}<!>{NO_COLOR}"
+SAVE_FILENAME = "saved_game.txt"
 
 BOARD_OUTPUT_HEIGHT = -1 # Height of the output from printing the board; Gets set when board is created
 SPACE_DENSITY_TABLE_OUTPUT_HEIGHT = -1 # Height of the output from printing the space density table; Gets set when board is created
@@ -107,6 +109,7 @@ def print_board(most_recent_move=None, optimal_locations=None):
 			print("")
 	print()
 
+
 def print_space_densities(color_mode=True):
 	"""
 	Prints out the space densities chart in a readable format
@@ -156,11 +159,13 @@ def print_space_densities(color_mode=True):
 		print("|")
 	print("   %s\n" % ("-"*55))
 
+
 def erasePreviousLines(numLines, overrideEraseMode=False):
 	"""Erases the specified previous number of lines from the terminal"""
 	eraseMode = ERASE_MODE_ON if not overrideEraseMode else (not ERASE_MODE_ON)
 	if eraseMode:
 		print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(numLines, 0), end='')
+
 
 def game_over():
 	"""
@@ -172,6 +177,38 @@ def game_over():
 		if REMAINING_SHIPS[ship_size] > 0:
 			return False
 	return True
+
+
+def save_game():
+	"""Saves the given board state to a save file"""
+	if os.path.exists(SAVE_FILENAME):
+		with open(SAVE_FILENAME, 'r') as saveFile:
+			try:
+				timeOfPreviousSave = saveFile.readlines()[3].strip()
+				overwrite = input(f"{INFO_SYMBOL} A save state already exists from {timeOfPreviousSave}.\nIs it okay to overwrite it? (y/n)\t").strip().lower()
+				erasePreviousLines(1)
+				while overwrite not in ['y', 'n']:
+					erasePreviousLines(1)
+					overwrite = input(f"{ERROR_SYMBOL} Invalid input. Is it okay to overwrite the existing save state? (y/n)\t").strip().lower()
+				erasePreviousLines(1)
+				if overwrite == 'n':
+					print(f"{INFO_SYMBOL} The current game state will not be saved.")
+					return
+			except IndexError:
+				pass
+	with open(SAVE_FILENAME, 'w') as saveFile:
+		saveFile.write("This file contains the save state of a previously played game.\n")
+		saveFile.write("Modifying this file may cause issues with loading the save state.\n\n")
+		timeOfSave = datetime.now().strftime("%m/%d/%Y at %I:%M:%S %p")
+		saveFile.write(timeOfSave + "\n\n")
+		saveFile.write("SAVE STATE:\n")
+		for row in game_board:
+			saveFile.write(" ".join(row) + "\n")
+		saveFile.write("\nShips remaining:\n")
+		for shipSize, numShips in REMAINING_SHIPS.items():
+			saveFile.write(f"{shipSize}: {numShips}\n")
+	print(f"{INFO_SYMBOL} The game has been saved!")
+
 
 def create_density_pyramid():
 	"""
@@ -194,24 +231,25 @@ def create_density_pyramid():
 					row[space] += num_remaining
 		DENSITY_PYRAMID.append(row)
 
+
 def generate_space_densities():
 	"""
 	Generate a board where each space has densities that relate to the number of ways ships could be placed there
 	NOTE: The implementation is ugly, but it works. I was trying to get this done as quick as possible.
 	"""
 	def fill_list_with_density_pyramid_data(arr, start_index, sequence_length):
-		'''
+		"""
 		Take data from the density pyramid and populate a portion of the given list with that data
-		'''
+		"""
 		data = DENSITY_PYRAMID[sequence_length - 1]
 		for i in range(sequence_length):
 			arr[i + start_index] += data[i]
 
 	def get_num_open_neighbors_in_direction(arr, start_index, ship_size):
-		'''
+		"""
 		Find the number of open spaces in each direction from the starting index
 		Returns a tuple of the # spaces in the positive direction, and negative direction respectively
-		'''
+		"""
 		pos, neg = 0, 0
 		hits_in_pos_dir = 1
 		hits_in_neg_dir = 1
@@ -236,10 +274,10 @@ def generate_space_densities():
 		return pos, neg
 
 	def get_num_immediate_neighbors(row, col):
-		'''
+		"""
 		Find the number of open spaces that are immediately next to the specified coordinate.
 		0 < num_open < 8
-		'''
+		"""
 		num_open = 0
 		for row_add in [-1, 0, 1]:
 			for col_add in [-1, 0, 1]:
@@ -357,6 +395,7 @@ def generate_space_densities():
 
 	return space_densities
 
+
 def get_optimal_moves():
 	"""
 	Get a list of the coordinates of the best moves
@@ -373,6 +412,7 @@ def get_optimal_moves():
 				max_score = density_score
 				best_move_coordinates = [[row_index, col_index]]
 	return best_move_coordinates
+
 
 def sink_ship(row, col):
 	"""
@@ -405,8 +445,10 @@ def sink_ship(row, col):
 		sunken_ship_size = len(sunken_coordinates)
 		REMAINING_SHIPS[sunken_ship_size] -= 1
 		create_density_pyramid()
-	except:
-		print("Looks like there was some confusion. Ships can only be 1 - 4 units long.\nTerminating session.")
+	except KeyError:
+		possible_lengths = str(list(REMAINING_SHIPS.keys()))[1:-1]
+		print(f"Looks like there was some confusion. Ships can only be one of the following lengths: {possible_lengths}")
+		print("Terminating session.")
 		exit(0)
 
 	sunken_neighbor_distances = [
@@ -424,6 +466,7 @@ def sink_ship(row, col):
 			new_row, new_col = coord[0] + increment[0], coord[1] + increment[1]
 			if 0 <= new_row < SIZE and 0 <= new_col < SIZE and game_board[new_row][new_col] == EMPTY:
 				game_board[new_row][new_col] = MISS
+
 
 def get_player_move():
 	"""Takes in the user's input and performs that move on the board, returns the coordinates of the move"""
@@ -448,6 +491,10 @@ def get_player_move():
 			linesToErase = BOARD_OUTPUT_HEIGHT + 2
 			spot = input("Which spot would you like to play? (A1 - %s%d):\t" % (COLUMN_LABELS[-1], SIZE)).strip().upper()
 			erasePreviousLines(1)
+		elif spot == 'S':
+			save_game()
+			spot = input("Which spot would you like to play? (A1 - %s%d):\t" % (COLUMN_LABELS[-1], SIZE)).strip().upper()
+			erasePreviousLines(2)
 		elif len(spot) >= 4 or len(spot) == 0 or spot[0] not in COLUMN_LABELS or not spot[1:].isdigit() or int(spot[1:]) > SIZE or int(spot[1:]) < 1:
 			spot = input(f"{ERROR_SYMBOL} Invalid input. Please try again.\t").strip().upper()
 			erasePreviousLines(1)
@@ -474,6 +521,7 @@ def get_player_move():
 	if linesToErase == SPACE_DENSITY_TABLE_OUTPUT_HEIGHT:
 		print()
 	return [row, col]
+
 
 def main():
 	"""
@@ -506,7 +554,6 @@ def main():
 	create_game_board(int(board_dimension))
 	create_density_pyramid()
 
-	most_recent_move = None
 	best_move_coordinates_list = get_optimal_moves()
 	print_board(optimal_locations=best_move_coordinates_list)
 	while True:
@@ -522,22 +569,19 @@ def main():
 		print("\nThe selected move has been highlighted.")
 		outcome = input(f"Was that shot a miss (M), a partial-hit (H), or a sink (S)?\t").strip().upper()
 		erasePreviousLines(1)
-		while True:
-			if outcome == 'Q':
-				print("\nThanks for playing!\n")
-				exit(0)
-			elif outcome == "H":
-				game_board[row][col] = HIT
-				break
-			elif outcome == "S":
-				sink_ship(row, col)
-				break
-			elif outcome == "M":
-				game_board[row][col] = MISS
-				break
-			else:
-				outcome = input(f"{ERROR_SYMBOL} Invalid input. Try again:\t").strip().upper()
-				erasePreviousLines(1)
+		while outcome not in ['Q', 'H', 'S', 'M']:
+			outcome = input(f"{ERROR_SYMBOL} Invalid input. Try again:\t").strip().upper()
+			erasePreviousLines(1)
+		if outcome == 'M':
+			game_board[row][col] = MISS
+		elif outcome == "H":
+			game_board[row][col] = HIT
+		elif outcome == "S":
+			sink_ship(row, col)
+		else: # outcome = Q
+			print("\nThanks for playing!\n")
+			exit(0)
+
 		if game_over():
 			break
 		best_move_coordinates_list = get_optimal_moves()
