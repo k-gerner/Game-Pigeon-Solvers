@@ -150,14 +150,21 @@ def saveGame(board, turn):
 def validateLoadedSaveState(board, piece, turn):
 	"""Make sure the state loaded from the save file is valid. Returns a boolean"""
 	if piece not in [BLACK, WHITE]:
+		print(f"{ERROR_SYMBOL} Invalid user piece!")
 		return False
 	if turn not in [BLACK, WHITE]:
+		print(f"{ERROR_SYMBOL} Invalid player turn!")
 		return False
 	boardDimension = len(board)
+	if not 6 < boardDimension < 100:
+		print(f"{ERROR_SYMBOL} Invalid board dimension!")
+		return False
 	for row in board:
 		if len(row) != boardDimension:
+			print(f"{ERROR_SYMBOL} Board is not square!")
 			return False
 		if row.count(EMPTY) + row.count(BLACK) + row.count(WHITE) != boardDimension:
+			print(f"{ERROR_SYMBOL} Board contains invalid pieces!")
 			return False
 	return True
 

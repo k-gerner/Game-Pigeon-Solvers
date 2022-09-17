@@ -58,17 +58,25 @@ resulted in a miss, hit, or sink. It will then update the board and
 space densities accordingly. If the player chooses a space that is 
 not in the optimal move set, the player will be asked to confirm that 
 they meant to choose that location. This is to prevent accidental 
-incorrect input.
+incorrect input.  
 
-### ✨ New in Version 1.2
-* The space densities table will now be displayed in place of the 
-board, instead of below it.
-* The space densities table will now default to having colored text.
-* The space densities table will now be displayed by typing `d`
-  (formerly `sd` or `sdc`)
-* The game board can be redisplayed by typing `b` (formerly `sb`)
+If at any point you would like to save the game to come back later, 
+you can type `s` at a move selection prompt.
+
+### ✨ New in Version 1.3
+* You can now save the game by typing `s`. This will create a save 
+file named `saved_game.txt` which contains save data for the current 
+game state. When you start a new game, if a save state is detected, 
+you will be asked if you would like to resume that game.
 
 #### Older Changelog
+* v1.2
+  * The space densities table will now be displayed in place of the
+      board, instead of below it.
+  * The space densities table will now default to having colored text.
+  * The space densities table will now be displayed by typing `d`
+    (formerly `sd` or `sdc`)
+  * The game board can be redisplayed by typing `b` (formerly `sb`)
 * v1.1
   * The game will now be played on a single game board instead of 
   printing a new board after each turn. This can be turned off with 

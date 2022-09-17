@@ -56,11 +56,17 @@ as a parameter, and returns the chosen move coordinates in the form of
 a tuple in the format `(rowNumber, columnNumber)`
 
 
-### ✨ New in Version 2.0
-* Do you have a Tic Tac Toe AI of your own? Now you can challenge my 
-AI with yours! See the [Dueling AIs Mode](#dueling-ais-mode)
-section for more information!
+### ✨ New in Version 2.1
+* You can now save the game by typing `s`. This will create a save
+  file named `saved_game.txt` which contains save data for the current
+  game state. When you start a new game, if a save state is detected,
+  you will be asked if you would like to resume that game.
+
 #### Older Changelog
+* v2.0
+  * Do you have a Tic Tac Toe AI of your own? Now you can challenge my
+  AI with yours! See the [Dueling AIs Mode](#dueling-ais-mode)
+  section for more information!
 * v1.1
   * The game will now be played on a single game board instead of 
   printing a new board after each turn. This can be turned off 
