@@ -209,9 +209,11 @@ def save_game():
 	print(f"{INFO_SYMBOL} The game has been saved!")
 
 
-def validateLoadedSaveState():
+def validateLoadedSaveState(board):
 	"""Make sure the state loaded from the save file is valid. Returns a boolean"""
-	for row in game_board:
+	if len(board) not in [8, 9, 10]:
+		return False
+	for row in board:
 		for spot in row:
 			if spot not in [DESTROY, HIT, MISS, EMPTY]:
 				return False
@@ -257,7 +259,7 @@ def loadSavedGame():
 				lineNum += 1
 				currentLine = linesFromSaveFile[lineNum].strip()
 
-			if not validateLoadedSaveState():
+			if not validateLoadedSaveState(board_from_save_file):
 				raise ValueError
 			game_board = board_from_save_file
 			deleteSaveFile = input(f"{INFO_SYMBOL} Saved game was successfully loaded! Delete the save file? (y/n)\t").strip().lower()
