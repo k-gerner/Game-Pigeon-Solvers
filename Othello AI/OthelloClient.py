@@ -134,6 +134,7 @@ def printBoard(highlightedCoordinates=None, board=None):
     additionalIndent = " " * ((2 + (2 * (BOARD_DIMENSION // 2 - 1))) - (1 if userScore >= 10 else 0))
     print(f"\t{additionalIndent}{GREEN_COLOR}{userScore}{NO_COLOR} to {RED_COLOR}{aiScore}{NO_COLOR}\n")
 
+
 def printMoveHistory(numMovesPrevious):
     """Prints the move history of the current game"""
     while True:
@@ -151,6 +152,7 @@ def printMoveHistory(numMovesPrevious):
         else:
             erasePreviousLines(BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 2)
 
+
 def textColorOf(piece):
     """Gets the text color of the given piece, or an empty string if no piece given"""
     if piece == USER_PIECE:
@@ -160,6 +162,7 @@ def textColorOf(piece):
     else:
         return ""
 
+
 def nameOfPieceColor(piece):
     """Gets the name of the color of the given piece"""
     if piece == BLACK:
@@ -168,6 +171,7 @@ def nameOfPieceColor(piece):
         return "WHITE"
     else:
         return "EMPTY"
+
 
 def endGame(winner=None):
     """Ends the game"""
@@ -184,6 +188,7 @@ def endGame(winner=None):
     print(f"{RED_COLOR}{TIME_TAKEN_PER_PLAYER[OPPONENT_PIECE][0]}{NO_COLOR}: {aiTimeTaken}s")
     print("\nThanks for playing!")
     exit(0)
+
 
 def saveGame(board, turn):
     """Saves the given board state to a save file"""
@@ -215,11 +220,13 @@ def saveGame(board, turn):
         saveFile.write("Turn: " + turn)
     print(f"{INFO_SYMBOL} The game has been saved!")
 
+
 def erasePreviousLines(numLines, overrideEraseMode=False):
     """Erases the specified previous number of lines from the terminal"""
     eraseMode = ERASE_MODE_ON if not overrideEraseMode else (not ERASE_MODE_ON)
     if eraseMode:
         print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(numLines, 0), end='')
+
 
 def printGameRules(isAIDuelMode):
     """Gives the user the option to view the rules of the game"""
@@ -240,6 +247,7 @@ def printGameRules(isAIDuelMode):
     - GAMEPLAY: Trap enemy pieces between two friendly pieces to convert them to friendly pieces
         """)
 
+
 def printAsciiTitleArt():
     """Prints the fancy text when you start the program"""
     print("""
@@ -257,6 +265,7 @@ def printAsciiTitleArt():
 \\_____/ \\__|_| |_|\\___|_|_|\\___/  /_/    \\_\\_____|
     """)
 
+
 def getOpposingAiModuleName():
     """Reads the command line arguments to determine the name of module for the opposing AI"""
     remainingCommandLineArgs = sys.argv[2:]
@@ -265,6 +274,7 @@ def getOpposingAiModuleName():
             return arg
     print(f"{ERROR_SYMBOL} You need to provide the name of your AI strategy module.")
     exit(0)
+
 
 def getDuelingAi():
     """Returns the imported AI Strategy class if the import is valid"""
@@ -282,6 +292,7 @@ def getDuelingAi():
     except AttributeError:
         print(f"{ERROR_SYMBOL} Please make sure your AI's class name is 'OthelloStrategy'")
         exit(0)
+
 
 def loadSavedGame():
     """Try to load the saved game data"""
@@ -324,19 +335,28 @@ def loadSavedGame():
             print(f"{ERROR_SYMBOL} There was an issue reading from the save file. Starting a new game...")
             return None, None, None
 
+
 def validateLoadedSaveState(board, piece, turn):
     """Make sure the state loaded from the save file is valid. Returns a boolean"""
+    if len(board) != BOARD_DIMENSION:
+        print(f"{ERROR_SYMBOL} Board dimension does not match!")
+        return False
     if piece not in [BLACK, WHITE]:
+        print(f"{ERROR_SYMBOL} Invalid user piece!")
         return False
     if turn not in [BLACK, WHITE]:
+        print(f"{ERROR_SYMBOL} Invalid player turn!")
         return False
     boardDimension = len(board)
     for row in board:
         if len(row) != boardDimension:
+            print(f"{ERROR_SYMBOL} Board is not square!")
             return False
         if row.count(EMPTY) + row.count(BLACK) + row.count(WHITE) != boardDimension:
+            print(f"{ERROR_SYMBOL} Board contains invalid pieces!")
             return False
     return True
+
 
 def getUserPieceColorInput():
     """Gets input from the user to determine which color they will be"""
@@ -353,6 +373,7 @@ def getUserPieceColorInput():
         "orange" if RED_COLOR == ORANGE_COLOR else "red"))
     return color
 
+
 def createNewBoard():
     """Creates the initial game board state"""
     board = [[EMPTY for _ in range(BOARD_DIMENSION)] for __ in range(BOARD_DIMENSION)]
@@ -361,6 +382,7 @@ def createNewBoard():
     board[BOARD_DIMENSION // 2][BOARD_DIMENSION // 2] = BLACK
     board[BOARD_DIMENSION // 2 - 1][BOARD_DIMENSION // 2 - 1] = BLACK
     return board
+
 
 def main():
     global BOARD, USER_PIECE, OPPONENT_PIECE, TIME_TAKEN_PER_PLAYER

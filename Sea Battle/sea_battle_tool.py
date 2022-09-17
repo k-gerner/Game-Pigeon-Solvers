@@ -211,16 +211,24 @@ def save_game():
 
 def validateLoadedSaveState(board):
 	"""Make sure the state loaded from the save file is valid. Returns a boolean"""
-	if len(board) not in [8, 9, 10]:
+	board_dimension = len(board)
+	if board_dimension not in [8, 9, 10]:
+		print(f"{ERROR_SYMBOL} Invalid board size!")
 		return False
 	for row in board:
+		if len(row) != board_dimension:
+			print(f"{ERROR_SYMBOL} Board is not square!")
+			return False
 		for spot in row:
 			if spot not in [DESTROY, HIT, MISS, EMPTY]:
+				print(f"{ERROR_SYMBOL} Board contains invalid pieces!")
 				return False
 	for ship_size, num_ships in REMAINING_SHIPS.items():
 		if not 1 <= ship_size <= 4:
+			print(f"{ERROR_SYMBOL} Invalid ship size: {ship_size}")
 			return False
 		if not num_ships > 0:
+			print(f"{ERROR_SYMBOL} Invalid number of ships remaining for size {ship_size}: {num_ships}")
 			return False
 	return True
 
