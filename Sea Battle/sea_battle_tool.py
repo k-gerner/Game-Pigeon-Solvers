@@ -45,13 +45,9 @@ SPACE_DENSITY_TABLE_OUTPUT_HEIGHT = -1 # Height of the output from printing the 
 
 def create_game_board(dimension):
 	"""Creates the gameBoard with the specified number of rows and columns"""
-	global SIZE, REMAINING_SHIPS, BOARD_OUTPUT_HEIGHT, SPACE_DENSITY_TABLE_OUTPUT_HEIGHT, COLUMN_LABELS
-	SIZE = dimension
-	BOARD_OUTPUT_HEIGHT = SIZE + 4
-	SPACE_DENSITY_TABLE_OUTPUT_HEIGHT = SIZE + 5
-	COLUMN_LABELS = list(map(chr, range(65, 65 + SIZE)))
-	for row_num in range(SIZE):
-		game_board.append([EMPTY] * SIZE)
+	global REMAINING_SHIPS
+	for row_num in range(dimension):
+		game_board.append([EMPTY] * dimension)
 	if dimension == 10:
 		return
 	elif dimension == 9:
@@ -66,7 +62,9 @@ def create_game_board(dimension):
 			4: 1
 		}
 	else:
-		raise ValueError("Board can only be 8x8, 9x9, or 10x10.")
+		print(f"{ERROR_SYMBOL} Board can only be 8x8, 9x9, or 10x10.")
+		print("Terminating session.")
+		exit(0)
 
 
 def print_board(most_recent_move=None, optimal_locations=None):
@@ -204,10 +202,72 @@ def save_game():
 		saveFile.write("SAVE STATE:\n")
 		for row in game_board:
 			saveFile.write(" ".join(row) + "\n")
-		saveFile.write("\nShips remaining:\n")
+		saveFile.write("Ships remaining:\n")
 		for shipSize, numShips in REMAINING_SHIPS.items():
 			saveFile.write(f"{shipSize}: {numShips}\n")
+		saveFile.write("END")
 	print(f"{INFO_SYMBOL} The game has been saved!")
+
+
+def validateLoadedSaveState():
+	"""Make sure the state loaded from the save file is valid. Returns a boolean"""
+	for row in game_board:
+		for spot in row:
+			if spot not in [DESTROY, HIT, MISS, EMPTY]:
+				return False
+	for ship_size, num_ships in REMAINING_SHIPS.items():
+		if not 1 <= ship_size <= 4:
+			return False
+		if not num_ships > 0:
+			return False
+	return True
+
+
+def loadSavedGame():
+	"""Try to load the saved game data. Returns boolean for if the save was successful."""
+	with open(SAVE_FILENAME, 'r') as saveFile:
+		try:
+			linesFromSaveFile = saveFile.readlines()
+			timeOfPreviousSave = linesFromSaveFile[3].strip()
+			useExistingSave = input(f"{INFO_SYMBOL} Would you like to load the saved game from {timeOfPreviousSave}? (y/n)\t").strip().lower()
+			erasePreviousLines(1)
+			if useExistingSave != 'y':
+				print(f"{INFO_SYMBOL} Starting a new game...")
+				return
+			lineNum = 0
+			currentLine = linesFromSaveFile[lineNum].strip()
+			while currentLine != "SAVE STATE:":
+				lineNum += 1
+				currentLine = linesFromSaveFile[lineNum].strip()
+			lineNum += 1
+
+			currentLine = linesFromSaveFile[lineNum].strip()
+			while not currentLine.startswith("Ships remaining:"):
+				game_board.append(currentLine.split())
+				lineNum += 1
+				currentLine = linesFromSaveFile[lineNum].strip()
+			lineNum += 1
+
+			currentLine = linesFromSaveFile[lineNum].strip()
+			while not currentLine.startswith("END"):
+				ship_size, num_ships = currentLine.split(":")[:2]
+				REMAINING_SHIPS[int(ship_size.strip())] = int(num_ships.strip())
+				lineNum += 1
+				currentLine = linesFromSaveFile[lineNum].strip()
+
+			if not validateLoadedSaveState():
+				raise ValueError
+			deleteSaveFile = input(f"{INFO_SYMBOL} Saved game was successfully loaded! Delete the save file? (y/n)\t").strip().lower()
+			erasePreviousLines(1)
+			fileDeletedText = ""
+			if deleteSaveFile == 'y':
+				os.remove(SAVE_FILENAME)
+				fileDeletedText = "Save file deleted. "
+			print(f"{INFO_SYMBOL} {fileDeletedText}Resuming saved game...")
+			return True
+		except:
+			print(f"{ERROR_SYMBOL} There was an issue reading from the save file. Starting a new game...")
+			return False
 
 
 def create_density_pyramid():
@@ -527,6 +587,7 @@ def main():
 	"""
 	Main method
 	"""
+	global SIZE, BOARD_OUTPUT_HEIGHT, SPACE_DENSITY_TABLE_OUTPUT_HEIGHT, COLUMN_LABELS
 	os.system("") # allows colored terminal to work on Windows OS
 	if len(sys.argv) == 2 and sys.argv[1] in ["-e", "-eraseModeOff"]:
 		global ERASE_MODE_ON
@@ -542,18 +603,29 @@ def main():
 	print("The default board size is 10x10.")
 	print("To show the color-coded space density table, type 'd' at the move selection prompt.")
 	print("To re-display the current game board, type 'b' at the move selection prompt.")
+	print("To save the game, type 's' at the move selection prompt.")
 	print("To quit, type 'q' at any prompt.\n")
 
-	board_dimension = input("What is the dimension of the board (8, 9, or 10)? (Default is 10x10)\nEnter a single number:\t").strip()
-	erasePreviousLines(2)
-	if board_dimension.isdigit() and int(board_dimension) in [8, 9, 10]:
-		print("The board will be %sx%s!" % (board_dimension, board_dimension))
-	else:
-		board_dimension = 10
-		print(f"{ERROR_SYMBOL} Invalid input. The board will be 10x10!")
-	create_game_board(int(board_dimension))
-	create_density_pyramid()
+	useSavedGame = False
+	if os.path.exists(SAVE_FILENAME):
+		useSavedGame = loadSavedGame()
+	board_dimension = len(game_board)
 
+	if not useSavedGame:
+		board_dimension = input("What is the dimension of the board (8, 9, or 10)? (Default is 10x10)\nEnter a single number:\t").strip()
+		erasePreviousLines(2)
+		if board_dimension.isdigit() and int(board_dimension) in [8, 9, 10]:
+			print("The board will be %sx%s!" % (board_dimension, board_dimension))
+		else:
+			board_dimension = 10
+			print(f"{ERROR_SYMBOL} Invalid input. The board will be 10x10!")
+		create_game_board(int(board_dimension))
+	SIZE = int(board_dimension)
+	BOARD_OUTPUT_HEIGHT = SIZE + 4
+	SPACE_DENSITY_TABLE_OUTPUT_HEIGHT = SIZE + 5
+	COLUMN_LABELS = list(map(chr, range(65, 65 + SIZE)))
+
+	create_density_pyramid()
 	best_move_coordinates_list = get_optimal_moves()
 	print_board(optimal_locations=best_move_coordinates_list)
 	while True:
