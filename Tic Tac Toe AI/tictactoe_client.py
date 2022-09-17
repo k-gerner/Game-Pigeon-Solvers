@@ -4,6 +4,7 @@
 from Player import Player
 from strategy import Strategy, opponentOf, isTerminal, performMove
 from importlib import import_module
+from datetime import datetime
 import os
 import sys
 
@@ -25,6 +26,7 @@ CURSOR_UP_ONE = '\033[1A'
 ERASE_LINE = '\033[2K'
 ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
 INFO_SYMBOL = f"{BLUE_COLOR}<!>{NO_COLOR}"
+SAVE_FILENAME = "saved_game.txt"
 
 # class for the Human player
 class HumanPlayer(Player):
@@ -32,24 +34,31 @@ class HumanPlayer(Player):
 	def __init__(self, color):
 		super().__init__(color, isAI=False)
 
+
 	def getMove(self, board):
 		"""Takes in the user's input and returns the move"""
 		spot = input("It's your turn, which spot would you like to play? (A1 - %s%d):\t" % (ROW_LABELS[-1], len(board))).strip().upper()
+		erasePreviousLines(1)
 		while True:
-			erasePreviousLines(1)
 			if spot == 'Q':
 				print("\nThanks for playing!\n")
 				exit(0)
+			elif spot == 'S':
+				saveGame(self.color, self.color)
+				spot = input("Which spot would you like to play? (A1 - %s%d):\t" % (ROW_LABELS[-1], len(board))).strip().upper()
+				erasePreviousLines(2)
 			elif len(spot) >= 3 or len(spot) == 0 or spot[0] not in ROW_LABELS or not spot[1:].isdigit() or int(spot[1:]) > len(board) or int(spot[1:]) < 1:
 				spot = input(f"{ERROR_SYMBOL} Invalid input. Please try again.\t").strip().upper()
+				erasePreviousLines(1)
 			elif board[ROW_LABELS.index(spot[0])][int(spot[1:]) - 1] != EMPTY:
 				spot = input(f"{ERROR_SYMBOL} That spot is already taken, please choose another:\t").strip().upper()
+				erasePreviousLines(1)
 			else:
 				break
-		erasePreviousLines(1)
 		row = ROW_LABELS.index(spot[0])
 		col = int(spot[1:]) - 1
 		return row, col
+
 
 def printGameBoard(pieceToHighlightGreen):
 	"""Prints the gameBoard in a human-readable format"""
@@ -70,11 +79,48 @@ def printGameBoard(pieceToHighlightGreen):
 			print("\t   ---+---+---")
 	print("\t    1   2   3\n")
 
+
 def erasePreviousLines(numLines, overrideEraseMode=False):
 	"""Erases the specified previous number of lines from the terminal"""
 	eraseMode = ERASE_MODE_ON if not overrideEraseMode else (not ERASE_MODE_ON)
 	if eraseMode:
 		print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(numLines, 0), end='')
+
+
+def saveGame(userPiece, turn):
+	"""Saves the given board state to a save file"""
+	if os.path.exists(SAVE_FILENAME):
+		with open(SAVE_FILENAME, 'r') as saveFile:
+			try:
+				timeOfPreviousSave = saveFile.readlines()[3].strip()
+				overwrite = input(f"{INFO_SYMBOL} A save state already exists from {timeOfPreviousSave}.\nIs it okay to overwrite it? (y/n)\t").strip().lower()
+				erasePreviousLines(1)
+				while overwrite not in ['y', 'n']:
+					erasePreviousLines(1)
+					overwrite = input(f"{ERROR_SYMBOL} Invalid input. Is it okay to overwrite the existing save state? (y/n)\t").strip().lower()
+				erasePreviousLines(1)
+				if overwrite == 'n':
+					print(f"{INFO_SYMBOL} The current game state will not be saved.")
+					return
+			except IndexError:
+				pass
+	with open(SAVE_FILENAME, 'w') as saveFile:
+		saveFile.write("This file contains the save state of a previously played game.\n")
+		saveFile.write("Modifying this file may cause issues with loading the save state.\n\n")
+		timeOfSave = datetime.now().strftime("%m/%d/%Y at %I:%M:%S %p")
+		saveFile.write(timeOfSave + "\n\n")
+		saveFile.write("SAVE STATE:\n")
+		for row in gameBoard:
+			rowWithDifferentEmptyCharacter = row.copy()
+			for index, piece in enumerate(rowWithDifferentEmptyCharacter):
+				if piece == EMPTY:
+					rowWithDifferentEmptyCharacter[index] = "-"
+			saveFile.write(" ".join(rowWithDifferentEmptyCharacter) + "\n")
+		saveFile.write("User piece: " + str(userPiece)  +"\n")
+		saveFile.write("Opponent piece: " + opponentOf(userPiece)  +"\n")
+		saveFile.write("Turn: " + turn)
+	print(f"{INFO_SYMBOL} The game has been saved!")
+
 
 def getOpposingAiModuleName():
 	"""Reads the command line arguments to determine the name of module for the opposing AI"""
@@ -84,6 +130,7 @@ def getOpposingAiModuleName():
 			return arg
 	print(f"{ERROR_SYMBOL} You need to provide the name of your AI strategy module.")
 	exit(0)
+
 
 def getDuelingAi():
 	"""Returns the imported AI Strategy class if the import is valid"""
@@ -101,6 +148,7 @@ def getDuelingAi():
 	except AttributeError:
 		print(f"{ERROR_SYMBOL} Please make sure your AI's class name is 'Strategy'")
 		exit(0)
+
 
 def main():
 	"""main method that prompts the user for input"""
@@ -162,13 +210,18 @@ def main():
 		currentPlayer = players[turn]
 		if currentPlayer.isAI:
 			userInput = input(f"{nameOfPlayer}'s turn, press enter for it to play.\t").strip().lower()
-			if userInput == 'q':
-				print("\nThanks for playing!\n")
-				exit(0)
-			erasePreviousLines(2)
+			erasePreviousLines(1)
+			while userInput in ['q', 's']:
+				if userInput == 'q':
+					print("\nThanks for playing!\n")
+					exit(0)
+				elif userInput == 's':
+					saveGame(userPiece, turn)
+					userInput = input(f"{nameOfPlayer}'s turn, press enter for it to play.\t").strip().lower()
+					erasePreviousLines(2)
 		rowPlayed, colPlayed = currentPlayer.getMove(gameBoard)
 		performMove(gameBoard, rowPlayed, colPlayed, turn)
-		erasePreviousLines(BOARD_OUTPUT_HEIGHT + (0 if first_turn else 1))
+		erasePreviousLines(BOARD_OUTPUT_HEIGHT + (1 if first_turn else 2))
 		first_turn = False
 		printGameBoard(greenColorPiece)
 		move_formatted = ROW_LABELS[rowPlayed] + str(colPlayed + 1)
