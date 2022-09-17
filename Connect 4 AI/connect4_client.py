@@ -64,6 +64,16 @@ class HumanPlayer(Player):
         return int(col) - 1
 
 
+def getHighlightColorForPiece(piece):
+    """Gets the color highlight color for a given piece"""
+    if piece == RED:
+        return RED_COLOR
+    elif piece == YELLOW:
+        return YELLOW_COLOR
+    else:
+        return NO_COLOR
+
+
 def printBoard(board, recentMove=None):
     """Prints the given game board"""
     columnColor = NO_COLOR
@@ -79,12 +89,7 @@ def printBoard(board, recentMove=None):
     for rowNum in range(len(board) - 1, -1, -1):
         print(f" {BLUE_COLOR}|{NO_COLOR} ", end='')
         for spot in board[rowNum]:
-            if spot == RED:
-                pieceColor = RED_COLOR
-            elif spot == YELLOW:
-                pieceColor = YELLOW_COLOR
-            else:
-                pieceColor = NO_COLOR
+            pieceColor = getHighlightColorForPiece(spot)
             print(f"{pieceColor}%s{NO_COLOR} " % spot, end='')
         print(f"{BLUE_COLOR}|{NO_COLOR}")
     print(" " + f"{BLUE_COLOR}%s{NO_COLOR}" % "-" * 17)
@@ -131,6 +136,80 @@ def saveGame(turn):
         saveFile.write("Opponent piece: " + opponentOf(userPiece)  +"\n")
         saveFile.write("Turn: " + turn)
     print(f"{INFO_SYMBOL} The game has been saved!")
+
+
+def validateLoadedSaveState(board, piece, turn):
+    """Make sure the state loaded from the save file is valid. Returns a boolean"""
+    if piece not in [RED, YELLOW]:
+        print(f"{ERROR_SYMBOL} Invalid user piece!")
+        return False
+    if turn not in [RED, YELLOW]:
+        print(f"{ERROR_SYMBOL} Invalid player turn!")
+        return False
+    for row in board:
+        if len(row) != 7:
+            print(f"{ERROR_SYMBOL} Invalid board!")
+            return False
+        if row.count(EMPTY) + row.count(RED) + row.count(YELLOW) != 7:
+            print(f"{ERROR_SYMBOL} Board contains invalid pieces!")
+            return False
+    return True
+
+
+def loadSavedGame():
+    """Try to load the saved game data"""
+    global userPiece, gameBoard
+    with open(SAVE_FILENAME, 'r') as saveFile:
+        try:
+            linesFromSaveFile = saveFile.readlines()
+            timeOfPreviousSave = linesFromSaveFile[3].strip()
+            useExistingSave = input(f"{INFO_SYMBOL} Would you like to load the saved game from {timeOfPreviousSave}? (y/n)\t").strip().lower()
+            erasePreviousLines(1)
+            if useExistingSave != 'y':
+                print(f"{INFO_SYMBOL} Starting a new game...\n")
+                return
+            lineNum = 0
+            currentLine = linesFromSaveFile[lineNum].strip()
+            while currentLine != "SAVE STATE:":
+                lineNum += 1
+                currentLine = linesFromSaveFile[lineNum].strip()
+            lineNum += 1
+            currentLine = linesFromSaveFile[lineNum].strip()
+            boardFromSaveFile = []
+            while not currentLine.startswith("User piece"):
+                boardFromSaveFile.append(currentLine.split())
+                lineNum += 1
+                currentLine = linesFromSaveFile[lineNum].strip()
+            userPiece = currentLine.split(": ")[1].strip()
+            lineNum += 2
+            currentLine = linesFromSaveFile[lineNum].strip()
+            turn = currentLine.split(": ")[1].strip()
+            if not validateLoadedSaveState(boardFromSaveFile, userPiece, turn):
+                raise ValueError
+            gameBoard = boardFromSaveFile
+            deleteSaveFile = input(f"{INFO_SYMBOL} Saved game was successfully loaded! Delete the save file? (y/n)\t").strip().lower()
+            erasePreviousLines(1)
+            fileDeletedText = ""
+            if deleteSaveFile == 'y':
+                os.remove(SAVE_FILENAME)
+                fileDeletedText = "Save file deleted. "
+            print(f"{INFO_SYMBOL} {fileDeletedText}Resuming saved game...\n")
+            return turn
+        except:
+            print(f"{ERROR_SYMBOL} There was an issue reading from the save file. Starting a new game...\n")
+            return None
+
+
+def printAsciiTitleArt():
+    """Prints the fancy text when you start the program"""
+    print("""
+   _____                            _     _  _   
+  / ____|                          | |   | || |  
+ | |     ___  _ __  _ __   ___  ___| |_  | || |_ 
+ | |    / _ \| '_ \| '_ \ / _ \/ __| __| |__   _|
+ | |___| (_) | | | | | | |  __/ (__| |_     | |  
+  \_____\___/|_| |_|_| |_|\___|\___|\__|    |_|      
+    """)
 
 
 def erasePreviousLines(numLines, overrideEraseMode=False):
@@ -183,37 +262,44 @@ def main():
         UserPlayerClass = HumanPlayer
         AI_DUEL_MODE = False
     print("\nWelcome to Kyle's Connect 4 AI!")
+    printAsciiTitleArt()
     userPlayerName = "Your AI" if AI_DUEL_MODE else "You"
     aiPlayerName = "My AI" if AI_DUEL_MODE else "AI"
-    userPieceInput = input(
-        "Would you like to be RED ('r') or YELLOW ('y')? (yellow goes first!):\t").strip().lower()
-    if userPieceInput == 'r':
-        userPiece = RED
-        opponentPiece = YELLOW
-        playerHighlightColor = RED_COLOR
-        aiHighlightColor = YELLOW_COLOR
-        print(f"{userPlayerName} will be {RED_COLOR}RED{NO_COLOR}!")
-    elif userPieceInput == 'y':
-        userPiece = YELLOW
-        opponentPiece = RED
-        playerHighlightColor = YELLOW_COLOR
-        aiHighlightColor = RED_COLOR
-        print(f"{userPlayerName} will be {YELLOW_COLOR}YELLOW{NO_COLOR}!")
-    else:
-        userPiece = RED
-        opponentPiece = YELLOW
-        playerHighlightColor = RED_COLOR
-        aiHighlightColor = YELLOW_COLOR
-        print(f"{ERROR_SYMBOL} Invalid input. {userPlayerName} will be {RED_COLOR}RED{NO_COLOR}!")
+
+    turn = YELLOW
+    useSavedGame = False
+    if os.path.exists(SAVE_FILENAME):
+        turnFromSaveFile = loadSavedGame()
+        if turnFromSaveFile is not None:
+            turn = turnFromSaveFile
+            opponentPiece = opponentOf(userPiece)
+            useSavedGame = True
+    if not useSavedGame:
+        userPieceInput = input(
+            "Would you like to be RED ('r') or YELLOW ('y')? (yellow goes first!):\t").strip().lower()
+        erasePreviousLines(1)
+        if userPieceInput == 'r':
+            userPiece = RED
+            opponentPiece = YELLOW
+            print(f"{userPlayerName} will be {RED_COLOR}RED{NO_COLOR}!")
+        elif userPieceInput == 'y':
+            userPiece = YELLOW
+            opponentPiece = RED
+            print(f"{userPlayerName} will be {YELLOW_COLOR}YELLOW{NO_COLOR}!")
+        else:
+            userPiece = RED
+            opponentPiece = YELLOW
+            print(f"{ERROR_SYMBOL} Invalid input. {userPlayerName} will be {RED_COLOR}RED{NO_COLOR}!")
 
     TIME_TAKEN_PER_PLAYER = {
         userPiece: [userPlayerName, 0, 0],    # [player name, total time, num moves]
         opponentPiece: [aiPlayerName, 0, 0]
     }
-    print(f"{userPlayerName}: {playerHighlightColor}{userPiece}{NO_COLOR}\t{aiPlayerName}: {aiHighlightColor}{opponentPiece}{NO_COLOR}")
+    userHighlightColor = getHighlightColorForPiece(userPiece)
+    opponentHighlightColor = getHighlightColorForPiece(opponentPiece)
+    print(f"{userPlayerName}: {userHighlightColor}{userPiece}{NO_COLOR}\t{aiPlayerName}: {opponentHighlightColor}{opponentPiece}{NO_COLOR}")
     playerNames = {opponentPiece: aiPlayerName, userPiece: userPlayerName}
     players = {opponentPiece: Strategy(opponentPiece), userPiece: UserPlayerClass(userPiece)}
-    turn = YELLOW
     gameOver = False
     winningPiece = None
     print("Type 's' at any prompt to save the game.")

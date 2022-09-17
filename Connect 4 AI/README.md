@@ -58,6 +58,10 @@ as a parameter, and returns the chosen move as an `int` representing
 the index of the column (0-6)
 
 ### ✨ New in Version 2.1
+* You can now save the game by typing `s`. This will create a save
+  file named `saved_game.txt` which contains save data for the current
+  game state. When you start a new game, if a save state is detected,
+  you will be asked if you would like to resume that game.
 * At the end of the game, the average time taken per move will be
   displayed for each player.
 
