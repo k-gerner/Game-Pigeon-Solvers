@@ -5,6 +5,7 @@ import os
 import sys
 import time
 from importlib import import_module
+from datetime import datetime
 from Player import Player
 from strategy import Strategy, opponentOf, performMove, checkIfGameOver, isValidMove
 
@@ -22,6 +23,7 @@ CURSOR_UP_ONE = '\033[1A'
 ERASE_LINE = '\033[2K'
 ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
 INFO_SYMBOL = f"{BLUE_COLOR}<!>{NO_COLOR}"
+SAVE_FILENAME = "saved_game.txt"
 
 EMPTY, RED, YELLOW = '.', 'o', '@'
 gameBoard = [[EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],  # bottom row
@@ -42,20 +44,25 @@ class HumanPlayer(Player):
     def getMove(self, board):
         """Takes in the user's input and returns the move"""
         col = input("It's your turn, which column would you like to play? (1-7):\t").strip().lower()
+        erasePreviousLines(1)
         while True:
             if col == 'q':
-                erasePreviousLines(1)
                 endGame()
+            elif col == 's':
+                saveGame(self.color)
+                col = input("Which column would you like to play? (1-7):\t").strip().lower()
+                erasePreviousLines(2)
             elif not col.isdigit() or int(col) not in range(1, 8):
-                erasePreviousLines(1)
                 col = input(f"{ERROR_SYMBOL} Invalid input. Please enter a number 1 through 7:\t")
-            elif not isValidMove(gameBoard, int(col) - 1):
                 erasePreviousLines(1)
+            elif not isValidMove(gameBoard, int(col) - 1):
                 col = input(f"{ERROR_SYMBOL} That column is full, please choose another:\t")
+                erasePreviousLines(1)
             else:
                 break
-        erasePreviousLines(2)
+        erasePreviousLines(1)
         return int(col) - 1
+
 
 def printBoard(board, recentMove=None):
     """Prints the given game board"""
@@ -93,6 +100,37 @@ def endGame():
     print(f"{RED_COLOR}{TIME_TAKEN_PER_PLAYER[opponentPiece][0]}{NO_COLOR}: {aiTimeTaken}s")
     print("\nThanks for playing!\n")
     exit(0)
+
+
+def saveGame(turn):
+    """Saves the given board state to a save file"""
+    if os.path.exists(SAVE_FILENAME):
+        with open(SAVE_FILENAME, 'r') as saveFile:
+            try:
+                timeOfPreviousSave = saveFile.readlines()[3].strip()
+                overwrite = input(f"{INFO_SYMBOL} A save state already exists from {timeOfPreviousSave}.\nIs it okay to overwrite it? (y/n)\t").strip().lower()
+                erasePreviousLines(1)
+                while overwrite not in ['y', 'n']:
+                    erasePreviousLines(1)
+                    overwrite = input(f"{ERROR_SYMBOL} Invalid input. Is it okay to overwrite the existing save state? (y/n)\t").strip().lower()
+                erasePreviousLines(1)
+                if overwrite == 'n':
+                    print(f"{INFO_SYMBOL} The current game state will not be saved.")
+                    return
+            except IndexError:
+                pass
+    with open(SAVE_FILENAME, 'w') as saveFile:
+        saveFile.write("This file contains the save state of a previously played game.\n")
+        saveFile.write("Modifying this file may cause issues with loading the save state.\n\n")
+        timeOfSave = datetime.now().strftime("%m/%d/%Y at %I:%M:%S %p")
+        saveFile.write(timeOfSave + "\n\n")
+        saveFile.write("SAVE STATE:\n")
+        for row in gameBoard:
+            saveFile.write(" ".join(row) + "\n")
+        saveFile.write("User piece: " + str(userPiece)  +"\n")
+        saveFile.write("Opponent piece: " + opponentOf(userPiece)  +"\n")
+        saveFile.write("Turn: " + turn)
+    print(f"{INFO_SYMBOL} The game has been saved!")
 
 
 def erasePreviousLines(numLines, overrideEraseMode=False):
@@ -178,6 +216,7 @@ def main():
     turn = YELLOW
     gameOver = False
     winningPiece = None
+    print("Type 's' at any prompt to save the game.")
     print("Type 'q' at any prompt to quit.")
     printBoard(gameBoard)
     print()
@@ -187,9 +226,15 @@ def main():
         currentPlayer = players[turn]
         if currentPlayer.isAI:
             userInput = input(f"{nameOfCurrentPlayer}'s turn, press enter for it to play.\t").strip().lower()
-            if userInput == 'q':
-                erasePreviousLines(1)
-                endGame()
+            while userInput in ['q', 's']:
+                if userInput == 'q':
+                    erasePreviousLines(1)
+                    endGame()
+                elif userInput == 's':
+                    erasePreviousLines(1)
+                    saveGame(currentPlayer.color)
+                    userInput = input(f"{nameOfCurrentPlayer}'s turn, press enter for it to play.\t").strip().lower()
+                    erasePreviousLines(1)
             erasePreviousLines(2)
         startTime = time.time()
         column = currentPlayer.getMove(gameBoard)
