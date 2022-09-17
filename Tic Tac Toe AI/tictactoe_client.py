@@ -114,12 +114,79 @@ def saveGame(userPiece, turn):
 			rowWithDifferentEmptyCharacter = row.copy()
 			for index, piece in enumerate(rowWithDifferentEmptyCharacter):
 				if piece == EMPTY:
+					# replace EMPTY character with '-' so it can be parsed correctly when loading save
 					rowWithDifferentEmptyCharacter[index] = "-"
 			saveFile.write(" ".join(rowWithDifferentEmptyCharacter) + "\n")
 		saveFile.write("User piece: " + str(userPiece)  +"\n")
 		saveFile.write("Opponent piece: " + opponentOf(userPiece)  +"\n")
 		saveFile.write("Turn: " + turn)
 	print(f"{INFO_SYMBOL} The game has been saved!")
+
+
+def validateLoadedSaveState(board, piece, turn):
+	"""Make sure the state loaded from the save file is valid. Returns a boolean"""
+	if piece not in [X_PIECE, O_PIECE]:
+		print(f"{ERROR_SYMBOL} Invalid user piece!")
+		return False
+	if turn not in [X_PIECE, O_PIECE]:
+		print(f"{ERROR_SYMBOL} Invalid player turn!")
+		return False
+	for row in board:
+		if len(row) != 3:
+			print(f"{ERROR_SYMBOL} Invalid board!")
+			return False
+		if row.count(EMPTY) + row.count(X_PIECE) + row.count(O_PIECE) != 3:
+			print(f"{ERROR_SYMBOL} Board contains invalid pieces!")
+			return False
+	return True
+
+
+def loadSavedGame():
+	"""Try to load the saved game data"""
+	global gameBoard
+	with open(SAVE_FILENAME, 'r') as saveFile:
+		try:
+			linesFromSaveFile = saveFile.readlines()
+			timeOfPreviousSave = linesFromSaveFile[3].strip()
+			useExistingSave = input(f"{INFO_SYMBOL} Would you like to load the saved game from {timeOfPreviousSave}? (y/n)\t").strip().lower()
+			erasePreviousLines(1)
+			if useExistingSave != 'y':
+				print(f"{INFO_SYMBOL} Starting a new game...\n")
+				return None, None
+			lineNum = 0
+			currentLine = linesFromSaveFile[lineNum].strip()
+			while currentLine != "SAVE STATE:":
+				lineNum += 1
+				currentLine = linesFromSaveFile[lineNum].strip()
+			lineNum += 1
+			currentLine = linesFromSaveFile[lineNum].strip()
+			boardFromSaveFile = []
+			while not currentLine.startswith("User piece"):
+				piecesInRow = currentLine.split()
+				for index, piece in enumerate(piecesInRow):
+					if piece == "-":
+						piecesInRow[index] = EMPTY
+				boardFromSaveFile.append(piecesInRow)
+				lineNum += 1
+				currentLine = linesFromSaveFile[lineNum].strip()
+			userPiece = currentLine.split(": ")[1].strip()
+			lineNum += 2
+			currentLine = linesFromSaveFile[lineNum].strip()
+			turn = currentLine.split(": ")[1].strip()
+			if not validateLoadedSaveState(boardFromSaveFile, userPiece, turn):
+				raise ValueError
+			gameBoard = boardFromSaveFile
+			deleteSaveFile = input(f"{INFO_SYMBOL} Saved game was successfully loaded! Delete the save file? (y/n)\t").strip().lower()
+			erasePreviousLines(1)
+			fileDeletedText = ""
+			if deleteSaveFile == 'y':
+				os.remove(SAVE_FILENAME)
+				fileDeletedText = "Save file deleted. "
+			print(f"{INFO_SYMBOL} {fileDeletedText}Resuming saved game...\n")
+			return turn, userPiece
+		except:
+			print(f"{ERROR_SYMBOL} There was an issue reading from the save file. Starting a new game...\n")
+			return None, None
 
 
 def getOpposingAiModuleName():
@@ -175,38 +242,48 @@ def main():
                                                                       
                                                                       
 		""")
+	print("Type 's' at any prompt to save the game.")
 	print("Press 'q' at any point to quit.")
-	userPieceSelect = input("\nDo you want to be X or O? (X goes first)\t").strip().lower()
-	erasePreviousLines(1)
-	while userPieceSelect not in ['x', 'o']:
-		if userPieceSelect == 'q':
-			print("Thanks for playing!\n")
-			exit(0)
-		userPieceSelect = input(f"{ERROR_SYMBOL} Invalid input. Please choose either 'x' or 'o':\t").strip().lower()
-		erasePreviousLines(1)
-	if userPieceSelect == 'x':
-		userPiece = X_PIECE
-		aiPiece = O_PIECE
-	else:
-		userPiece = O_PIECE
-		aiPiece = X_PIECE
-	print(f"{'Your AI' if AI_DUEL_MODE else 'Human'}: {GREEN_COLOR}{userPiece}{NO_COLOR}")
-	print(f"{'My AI' if AI_DUEL_MODE else 'AI'}: {RED_COLOR}{aiPiece}{NO_COLOR}")
 
-	players[aiPiece] = Strategy(aiPiece)
+	turn = X_PIECE
+	useSavedGame = False
+	if os.path.exists(SAVE_FILENAME):
+		turnFromSaveFile, userPiece = loadSavedGame()
+		if turnFromSaveFile is not None:
+			turn = turnFromSaveFile
+			opponentPiece = opponentOf(userPiece)
+			useSavedGame = True
+	if not useSavedGame:
+		userPieceSelect = input("\nDo you want to be X or O? (X goes first)\t").strip().lower()
+		erasePreviousLines(1)
+		while userPieceSelect not in ['x', 'o']:
+			if userPieceSelect == 'q':
+				print("Thanks for playing!\n")
+				exit(0)
+			userPieceSelect = input(f"{ERROR_SYMBOL} Invalid input. Please choose either X or O:\t").strip().lower()
+			erasePreviousLines(1)
+		if userPieceSelect == 'x':
+			userPiece = X_PIECE
+			opponentPiece = O_PIECE
+		else:
+			userPiece = O_PIECE
+			opponentPiece = X_PIECE
+	print(f"{'Your AI' if AI_DUEL_MODE else 'Human'}: {GREEN_COLOR}{userPiece}{NO_COLOR}")
+	print(f"{'My AI' if AI_DUEL_MODE else 'AI'}: {RED_COLOR}{opponentPiece}{NO_COLOR}")
+
+	players[opponentPiece] = Strategy(opponentPiece)
 	players[userPiece] = UserPlayerClass(userPiece)
 
 	greenColorPiece = userPiece
 	printGameBoard(greenColorPiece)
 
-	turn = X_PIECE
 	first_turn = True
 	gameOver, winner = False, None
 	while not gameOver:
 		if AI_DUEL_MODE:
-			nameOfPlayer = "My AI" if turn == aiPiece else "Your AI"
+			nameOfPlayer = "My AI" if turn == opponentPiece else "Your AI"
 		else:
-			nameOfPlayer = "AI" if turn == aiPiece else "You"
+			nameOfPlayer = "AI" if turn == opponentPiece else "You"
 		currentPlayer = players[turn]
 		if currentPlayer.isAI:
 			userInput = input(f"{nameOfPlayer}'s turn, press enter for it to play.\t").strip().lower()
