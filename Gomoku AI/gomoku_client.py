@@ -211,12 +211,13 @@ def loadSavedGame():
 
 def getOpposingAiModuleName():
 	"""Reads the command line arguments to determine the name of module for the opposing AI"""
-	remainingCommandLineArgs = sys.argv[2:]
-	for arg in remainingCommandLineArgs:
-		if "-" not in arg:
-			return arg
-	print(f"{ERROR_SYMBOL} You need to provide the name of your AI strategy module.")
-	exit(0)
+	try:
+		indexOfFlag = sys.argv.index("-d") if "-d" in sys.argv else sys.argv.index("-aiDuel")
+		module = sys.argv[indexOfFlag + 1].split(".py")[0]
+		return module
+	except (IndexError, ValueError):
+		print(f"{ERROR_SYMBOL} You need to provide the name of your AI strategy module.")
+		exit(0)
 
 def getDuelingAi():
 	"""Returns the imported AI Strategy class if the import is valid"""
@@ -229,7 +230,7 @@ def getDuelingAi():
 		return DuelingAi
 	except ImportError:
 		print(f"{ERROR_SYMBOL} Please provide a valid module to import.\n" +
-			  f"{INFO_SYMBOL} Pass the name of your Python file as a command line argument, WITHOUT the .py extension.")
+			  f"{INFO_SYMBOL} Pass the name of your Python file as a command line argument.")
 		exit(0)
 	except AttributeError:
 		print(f"{ERROR_SYMBOL} Please make sure your AI's class name is 'Strategy'")
