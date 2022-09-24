@@ -88,12 +88,12 @@ asked if you would like to resume that game.
   played. You will be prompted for how many turns ago you want to view.
   Press `enter` to repeatedly step one move ahead, or `e` to exit back
   to play mode.
+- Do you have a Gomoku AI of your own? Try out Dueling AIs mode! See
+  the [Dueling AIs Mode](#dueling-ais-mode) section for more
+  information!
 - The board will update in place by default. If you instead would like
   a new board to be printed after each move, you can add the command
   line argument `-e` or `-eraseModeOff`.
-- Do you have a Gomoku AI of your own? Try out Dueling AIs mode! See
-  the [Dueling AIs Mode](#dueling-ais-mode) section for more 
-information!
 - Each move on the board is color-coded to make it easier to 
 distinguish between friendly and enemy pieces.
 - The most recently played move is highlighted slightly grey.
