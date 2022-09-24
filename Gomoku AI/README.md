@@ -84,12 +84,16 @@ For more information about that, see the bottom of the [How to use](#how-to-use)
 `saved_game.txt` which contains save data for the current game state. 
 When you start a new game, if a save state is detected, you will be 
 asked if you would like to resume that game.
+- Inputting `h` will allow you to see previous moves that have been
+  played. You will be prompted for how many turns ago you want to view.
+  Press `enter` to repeatedly step one move ahead, or `e` to exit back
+  to play mode.
+- Do you have a Gomoku AI of your own? Try out Dueling AIs mode! See
+  the [Dueling AIs Mode](#dueling-ais-mode) section for more
+  information!
 - The board will update in place by default. If you instead would like
   a new board to be printed after each move, you can add the command
   line argument `-e` or `-eraseModeOff`.
-- Do you have a Gomoku AI of your own? Try out Dueling AIs mode! See
-  the [Dueling AIs Mode](#dueling-ais-mode) section for more 
-information!
 - Each move on the board is color-coded to make it easier to 
 distinguish between friendly and enemy pieces.
 - The most recently played move is highlighted slightly grey.
@@ -280,6 +284,10 @@ https://webdocs.cs.ualberta.ca/~mmueller/courses/2014-AAAI-games-tutorial/slides
 https://medium.com/@LukeASalamone/creating-an-ai-for-gomoku-28a4c84c7a52
 
 ### ✨ New in Version 2.1
+* You can now see previous moves that have been played by typing `h`. 
+These will be displayed in place on the board. You will be prompted 
+for how many turns ago you want to view. Press `enter` to repeatedly 
+step one move ahead, or `e` to exit back to play mode.
 * At the end of the game, the average time taken per move will be
   displayed for each player.
 

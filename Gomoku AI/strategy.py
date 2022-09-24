@@ -541,7 +541,7 @@ class Strategy(Player):
 					print('\r[%s%s] %d%% (%d/%d moves checked) @ maxDepth = %d' % ("="*barCompleteMultiplier, "-"*(25-barCompleteMultiplier), percentComplete, movesChecked, len(validMoves), localMaxDepth), end = "")
 					movesChecked += 1
 
-				boardCopy = list(map(list, board)) # copies board
+				boardCopy = copyOfBoard(board)#list(map(list, board)) # copies board
 				performMove(boardCopy, move[0], move[1], self.AI_COLOR)
 				newZobristValue = self.createZobristValueForNewMove(move, self.AI_COLOR, zobristValueForBoard)
 				if depth >= 2 and newZobristValue in self.BOARD_STATE_DICT:
@@ -579,7 +579,7 @@ class Strategy(Player):
 			score = math.inf
 			bestMoveForHuman = validMoves[0]
 			for move in validMoves:
-				boardCopy = list(map(list, board)) # copies board
+				boardCopy = copyOfBoard(board) # copies board
 				performMove(boardCopy, move[0], move[1], self.HUMAN_COLOR)
 				newZobristValue = self.createZobristValueForNewMove(move, self.HUMAN_COLOR, zobristValueForBoard)
 				if depth >= 2 and newZobristValue in self.BOARD_STATE_DICT:
@@ -822,3 +822,7 @@ def opponentOf(color):
 def performMove(board, row, col, color):
 	"""Performs a given move on the board"""
 	board[row][col] = color
+
+def copyOfBoard(board):
+	"""Returns a copy of the given board"""
+	return list(map(list, board))
