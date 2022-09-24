@@ -59,6 +59,8 @@ pieces from enemy pieces, including highlighting the most recently
 played move
 - Save state functionality for if you want to exit the program and 
 come back later 
+- Ability to see all the previous moves that have been played, one by
+  one, displayed on the game board.
 - Progress bar will be displayed as the AI is evaluating moves
 - Output to the terminal will be updated in place instead of printing 
 lines and lines of output across turns. This can be disabled if you 
