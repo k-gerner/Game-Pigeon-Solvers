@@ -232,7 +232,7 @@ def printGameRules():
     """Gives the user the option to view the rules of the game"""
     print("\nType 'q' at any move prompt to quit the game.")
     print("Type 's' save the game.")
-    print("Type 'h' at your turn to see previous moves.")
+    print("Type 'h' to see previous moves.")
     print("AI constants are modifiable in the strategy.py file.")
     showRules = input("Would you like to see the rules? (y/n)   ").strip().lower()
     erasePreviousLines(1)
