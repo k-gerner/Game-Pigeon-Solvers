@@ -290,7 +290,7 @@ def getDuelingAi():
         return DuelingAi
     except ImportError:
         print(f"{ERROR_SYMBOL} Please provide a valid module to import.\n" +
-              f"{INFO_SYMBOL} Pass the name of your Python file as a command line argument, WITHOUT the .py extension.")
+              f"{INFO_SYMBOL} Pass the name of your Python file as a command line argument.")
         exit(0)
     except AttributeError:
         print(f"{ERROR_SYMBOL} Please make sure your AI's class name is 'Strategy'")
