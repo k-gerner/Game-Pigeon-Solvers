@@ -26,7 +26,7 @@ BOARD_DIMENSION = 10
 TIME_TAKEN_PER_PLAYER = {}
 COLUMN_LABELS = "<Will be filled later>"
 SAVE_FILENAME = "saved_game.txt"
-BOARD_HISTORY = []
+BOARD_HISTORY = [] # [highlightCoordinates, board]
 
 CURSOR_UP_ONE = '\033[1A'
 ERASE_LINE = '\033[2K'
