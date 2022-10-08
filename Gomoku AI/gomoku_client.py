@@ -369,7 +369,7 @@ def main():
 					exit(0)
 				elif userInput == 'H':
 					if len(BOARD_HISTORY) < 2:
-						userInput = input(f"{INFO_SYMBOL} No previous moves to see. Enter a valid move to play:   ").strip().upper()
+						userInput = input(f"{INFO_SYMBOL} No previous moves to see. Press enter to continue.   ").strip().upper()
 						erasePreviousLines(1)
 					else:
 						numMovesPrevious = input(f"How many moves ago do you want to see? (1 to {len(BOARD_HISTORY) - 1})  ").strip()
