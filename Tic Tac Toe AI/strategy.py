@@ -147,7 +147,7 @@ def isTerminal(board):
     [1] being the winning color (None if neither color wins)
     """
 	winner = findWinner(board)
-	if winner != None:
+	if winner is not None:
 		return True, winner
 
 	for row in board:
