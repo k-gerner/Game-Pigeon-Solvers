@@ -21,7 +21,6 @@ MOST_RECENT_HIGHLIGHT_COLOR = '\u001b[48;5;238m' # dark grey; to make lighter, i
 
 ERASE_MODE_ON = True
 BOARD_OUTPUT_HEIGHT = -1
-SAVE_STATE_OUTPUT_HEIGHT = -1
 BOARD_DIMENSION = 10
 TIME_TAKEN_PER_PLAYER = {}
 COLUMN_LABELS = "<Will be filled later>"
@@ -291,7 +290,7 @@ def getDuelingAi():
 
 def main():
 	"""main method that prompts the user for input"""
-	global gameBoard, userPiece, BOARD_OUTPUT_HEIGHT, SAVE_STATE_OUTPUT_HEIGHT, COLUMN_LABELS, TIME_TAKEN_PER_PLAYER, BOARD_DIMENSION
+	global gameBoard, userPiece, BOARD_OUTPUT_HEIGHT, COLUMN_LABELS, TIME_TAKEN_PER_PLAYER, BOARD_DIMENSION
 	os.system("") # allows colored terminal to work on Windows OS
 	if "-e" in sys.argv or "-eraseModeOff" in sys.argv:
 		global ERASE_MODE_ON
@@ -352,7 +351,6 @@ def main():
 	COLUMN_LABELS = list(map(chr, range(65, 65 + boardDimension)))
 	BOARD_DIMENSION = boardDimension
 	BOARD_OUTPUT_HEIGHT = boardDimension + 5
-	SAVE_STATE_OUTPUT_HEIGHT = boardDimension + 5
 	playerNames = {userPiece: userPlayerName, opponentPiece: aiPlayerName}
 	players = {opponentPiece: Strategy(opponentPiece, boardDimension), userPiece: UserPlayerClass(userPiece)}
 
