@@ -522,6 +522,8 @@ class Strategy(Player):
 		validMoves = self.getValidMoves(board)
 		if len(validMoves) == 0:
 			return -1, -1, 0
+		if depth == 0 and len(validMoves) == 1:
+			return validMoves[0][0], validMoves[0][1], 0
 		if maxOrMin == MAX:
 			# want to maximize this move
 			score = -math.inf
