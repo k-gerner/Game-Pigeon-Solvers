@@ -53,23 +53,7 @@ class HumanPlayer(Player):
 				spot = input("Enter a coordinates for a move, or press 'q' to quit:\t").strip().upper()
 				erasePreviousLines(2)
 			elif spot == 'H':
-				if len(BOARD_HISTORY) < 2:
-					spot = input(f"{INFO_SYMBOL} No previous moves to see. Enter a valid move to play:   ").strip().upper()
-					erasePreviousLines(1)
-				else:
-					numMovesPrevious = input(f"How many moves ago do you want to see? (1 to {len(BOARD_HISTORY) - 1})  ").strip()
-					erasePreviousLines(1)
-					if numMovesPrevious.isdigit() and 1 <= int(numMovesPrevious) <= len(BOARD_HISTORY) - 1:
-						erasePreviousLines(BOARD_OUTPUT_HEIGHT)
-						printMoveHistory(int(numMovesPrevious))
-						erasePreviousLines(BOARD_DIMENSION + 3)
-						printGameBoard(BOARD_HISTORY[-1][0])
-						spot = input(f"{INFO_SYMBOL} You're back in play mode. Which spot would you like to play?   ").strip().upper()
-						erasePreviousLines(1)
-						print("\n") # make this output the same height as the other options
-					else:
-						spot = input(f"{ERROR_SYMBOL} Invalid input. Enter a valid move to play:   ").strip().upper()
-						erasePreviousLines(1)
+				spot = getBoardHistoryInputFromUser(isAi=False)
 			elif len(spot) >= 4 or len(spot) == 0 or spot[0] not in COLUMN_LABELS or not spot[1:].isdigit() or int(spot[1:]) > len(board) or int(spot[1:]) < 1:
 				spot = input(f"{ERROR_SYMBOL} Invalid input. Please try again.\t").strip().upper()
 				erasePreviousLines(1)
@@ -130,6 +114,31 @@ def printMoveHistory(numMovesPrevious):
 			return
 		else:
 			erasePreviousLines(BOARD_OUTPUT_HEIGHT)
+
+def getBoardHistoryInputFromUser(isAi):
+	"""
+    Prompts the user for input for how far the board history function.
+    Returns the user's input for the next move
+    """
+	nextMovePrompt = "Press enter to continue." if isAi else "Enter a valid move to play:"
+	if len(BOARD_HISTORY) < 2:
+		userInput = input(f"{INFO_SYMBOL} No previous moves to see. {nextMovePrompt}   ").strip().upper()
+		erasePreviousLines(1)
+	else:
+		numMovesPrevious = input(f"How many moves ago do you want to see? (1 to {len(BOARD_HISTORY) - 1})  ").strip()
+		erasePreviousLines(1)
+		if numMovesPrevious.isdigit() and 1 <= int(numMovesPrevious) <= len(BOARD_HISTORY) - 1:
+			erasePreviousLines(BOARD_OUTPUT_HEIGHT)
+			printMoveHistory(int(numMovesPrevious))
+			erasePreviousLines(BOARD_DIMENSION + 3)
+			printGameBoard(BOARD_HISTORY[-1][0])
+			userInput = input(f"{INFO_SYMBOL} You're back in play mode. {nextMovePrompt}   ").strip().upper()
+			erasePreviousLines(1)
+			print("\n") # make this output the same height as the other options
+		else:
+			userInput = input(f"{ERROR_SYMBOL} Invalid input. {nextMovePrompt}   ").strip().upper()
+			erasePreviousLines(1)
+	return userInput
 
 def printAsciiTitleArt():
 	"""Prints the fancy text when you start the program"""
@@ -368,23 +377,7 @@ def main():
 					print("\nThanks for playing!\n")
 					exit(0)
 				elif userInput == 'H':
-					if len(BOARD_HISTORY) < 2:
-						userInput = input(f"{INFO_SYMBOL} No previous moves to see. Press enter to continue.   ").strip().upper()
-						erasePreviousLines(1)
-					else:
-						numMovesPrevious = input(f"How many moves ago do you want to see? (1 to {len(BOARD_HISTORY) - 1})  ").strip()
-						erasePreviousLines(1)
-						if numMovesPrevious.isdigit() and 1 <= int(numMovesPrevious) <= len(BOARD_HISTORY) - 1:
-							erasePreviousLines(BOARD_OUTPUT_HEIGHT)
-							printMoveHistory(int(numMovesPrevious))
-							erasePreviousLines(BOARD_DIMENSION + 3)
-							printGameBoard(BOARD_HISTORY[-1][0])
-							userInput = input(f"{INFO_SYMBOL} You're back in play mode. Press enter to continue.   ").strip().upper()
-							erasePreviousLines(1)
-							print("\n") # make this output the same height as the other options
-						else:
-							userInput = input(f"{ERROR_SYMBOL} Invalid input. Press enter to continue.   ").strip().upper()
-							erasePreviousLines(1)
+					userInput = getBoardHistoryInputFromUser(isAi=True)
 				else:
 					saveGame(gameBoard, turn)
 					userInput = input(f"Press enter for {nameOfCurrentPlayer} to play, or press 'q' to quit:\t").strip().upper()
