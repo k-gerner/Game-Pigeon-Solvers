@@ -2,7 +2,7 @@
 # Kyle G 6.6.2021
 
 from Player import Player
-from strategy import Strategy, opponentOf, isTerminal, performMove
+from strategy import Strategy, opponentOf, isTerminal, performMove, copyOfBoard
 from importlib import import_module
 from datetime import datetime
 import os
@@ -13,6 +13,7 @@ ROW_LABELS = "ABC"
 gameBoard = [[EMPTY, EMPTY, EMPTY], 
 			 [EMPTY, EMPTY, EMPTY],
 			 [EMPTY, EMPTY, EMPTY]]
+USER_PIECE = X_PIECE
 
 GREEN_COLOR = '\033[92m'  	 # green
 RED_COLOR = '\033[91m'	  	 # red
@@ -27,6 +28,7 @@ ERASE_LINE = '\033[2K'
 ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
 INFO_SYMBOL = f"{BLUE_COLOR}<!>{NO_COLOR}"
 SAVE_FILENAME = "saved_game.txt"
+BOARD_HISTORY = []
 
 # class for the Human player
 class HumanPlayer(Player):
@@ -43,8 +45,10 @@ class HumanPlayer(Player):
 			if spot == 'Q':
 				print("\nThanks for playing!\n")
 				exit(0)
+			elif spot == 'H':
+				spot = getBoardHistoryInputFromUser(False)
 			elif spot == 'S':
-				saveGame(self.color, self.color)
+				saveGame(self.color)
 				spot = input("Which spot would you like to play? (A1 - %s%d):\t" % (ROW_LABELS[-1], len(board))).strip().upper()
 				erasePreviousLines(2)
 			elif len(spot) >= 3 or len(spot) == 0 or spot[0] not in ROW_LABELS or not spot[1:].isdigit() or int(spot[1:]) > len(board) or int(spot[1:]) < 1:
@@ -60,17 +64,19 @@ class HumanPlayer(Player):
 		return row, col
 
 
-def printGameBoard(pieceToHighlightGreen):
+def printGameBoard(board=None):
 	"""Prints the gameBoard in a human-readable format"""
+	if board is None:
+		board = gameBoard
 	print()
-	for rowNum in range(len(gameBoard)):
-		row = gameBoard[rowNum]
+	for rowNum in range(len(board)):
+		row = board[rowNum]
 		print("\t%s  " % ROW_LABELS[rowNum], end = '')
 		for colNum in range(len(row)):
-			piece = gameBoard[rowNum][colNum]
+			piece = board[rowNum][colNum]
 			if piece == EMPTY:
 				pieceColor = NO_COLOR
-			elif piece == pieceToHighlightGreen:
+			elif piece == USER_PIECE:
 				pieceColor = GREEN_COLOR
 			else:
 				pieceColor = RED_COLOR
@@ -80,6 +86,53 @@ def printGameBoard(pieceToHighlightGreen):
 	print("\t    1   2   3\n")
 
 
+def printMoveHistory(numMovesPrevious):
+	"""Prints the move history of the current game"""
+	while True:
+		printGameBoard(BOARD_HISTORY[-(numMovesPrevious + 1)])
+		if numMovesPrevious == 0:
+			return
+		print("(%d move%s before current board state)\n" % (numMovesPrevious, "s" if numMovesPrevious != 1 else ""))
+		numMovesPrevious -= 1
+		userInput = input("Press enter for next move, or 'e' to return to game.  ").strip().lower()
+		erasePreviousLines(1)
+		if userInput == 'q':
+			erasePreviousLines(2)
+			print("Thanks for playing!\n")
+			exit(0)
+		elif userInput == 'e':
+			erasePreviousLines(2)
+			return
+		else:
+			erasePreviousLines(BOARD_OUTPUT_HEIGHT + 3)
+
+
+def getBoardHistoryInputFromUser(isAi):
+	"""
+    Prompts the user for input for how far the board history function.
+    Returns the user's input for the next move
+    """
+	nextMovePrompt = "Press enter to continue." if isAi else "Enter a valid move to play:"
+	if len(BOARD_HISTORY) < 2:
+		userInput = input(f"{INFO_SYMBOL} No previous moves to see. {nextMovePrompt}   ").strip().upper()
+		erasePreviousLines(1)
+	else:
+		numMovesPrevious = input(f"How many moves ago do you want to see? (1 to {len(BOARD_HISTORY) - 1})  ").strip()
+		erasePreviousLines(1)
+		if numMovesPrevious.isdigit() and 1 <= int(numMovesPrevious) <= len(BOARD_HISTORY) - 1:
+			erasePreviousLines(BOARD_OUTPUT_HEIGHT + 2)
+			printMoveHistory(int(numMovesPrevious))
+			erasePreviousLines(BOARD_OUTPUT_HEIGHT + 1)
+			printGameBoard(BOARD_HISTORY[-1])
+			userInput = input(f"{INFO_SYMBOL} You're back in play mode. {nextMovePrompt}   ").strip().upper()
+			erasePreviousLines(2)
+			print("\n") # make this output the same height as the other options
+		else:
+			userInput = input(f"{ERROR_SYMBOL} Invalid input. {nextMovePrompt}   ").strip().upper()
+			erasePreviousLines(1)
+	return userInput
+
+
 def erasePreviousLines(numLines, overrideEraseMode=False):
 	"""Erases the specified previous number of lines from the terminal"""
 	eraseMode = ERASE_MODE_ON if not overrideEraseMode else (not ERASE_MODE_ON)
@@ -87,7 +140,7 @@ def erasePreviousLines(numLines, overrideEraseMode=False):
 		print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(numLines, 0), end='')
 
 
-def saveGame(userPiece, turn):
+def saveGame(turn):
 	"""Saves the given board state to a save file"""
 	if os.path.exists(SAVE_FILENAME):
 		with open(SAVE_FILENAME, 'r') as saveFile:
@@ -117,8 +170,8 @@ def saveGame(userPiece, turn):
 					# replace EMPTY character with '-' so it can be parsed correctly when loading save
 					rowWithDifferentEmptyCharacter[index] = "-"
 			saveFile.write(" ".join(rowWithDifferentEmptyCharacter) + "\n")
-		saveFile.write("User piece: " + str(userPiece)  +"\n")
-		saveFile.write("Opponent piece: " + opponentOf(userPiece)  +"\n")
+		saveFile.write("User piece: " + str(USER_PIECE)  +"\n")
+		saveFile.write("Opponent piece: " + opponentOf(USER_PIECE)  +"\n")
 		saveFile.write("Turn: " + turn)
 	print(f"{INFO_SYMBOL} The game has been saved!")
 
@@ -184,19 +237,20 @@ def loadSavedGame():
 				fileDeletedText = "Save file deleted. "
 			print(f"{INFO_SYMBOL} {fileDeletedText}Resuming saved game...\n")
 			return turn, userPiece
-		except:
+		except Exception:
 			print(f"{ERROR_SYMBOL} There was an issue reading from the save file. Starting a new game...\n")
 			return None, None
 
 
 def getOpposingAiModuleName():
 	"""Reads the command line arguments to determine the name of module for the opposing AI"""
-	remainingCommandLineArgs = sys.argv[2:]
-	for arg in remainingCommandLineArgs:
-		if "-" not in arg:
-			return arg
-	print(f"{ERROR_SYMBOL} You need to provide the name of your AI strategy module.")
-	exit(0)
+	try:
+		indexOfFlag = sys.argv.index("-d") if "-d" in sys.argv else sys.argv.index("-aiDuel")
+		module = sys.argv[indexOfFlag + 1].split(".py")[0]
+		return module
+	except (IndexError, ValueError):
+		print(f"{ERROR_SYMBOL} You need to provide the name of your AI strategy module.")
+		exit(0)
 
 
 def getDuelingAi():
@@ -210,7 +264,7 @@ def getDuelingAi():
 		return DuelingAi
 	except ImportError:
 		print(f"{ERROR_SYMBOL} Please provide a valid module to import.\n" +
-			  f"{INFO_SYMBOL} Pass the name of your Python file as a command line argument, WITHOUT the .py extension.")
+			  f"{INFO_SYMBOL} Pass the name of your Python file as a command line argument.")
 		exit(0)
 	except AttributeError:
 		print(f"{ERROR_SYMBOL} Please make sure your AI's class name is 'Strategy'")
@@ -219,7 +273,7 @@ def getDuelingAi():
 
 def main():
 	"""main method that prompts the user for input"""
-	global gameBoard
+	global gameBoard, USER_PIECE
 	players = {}
 	if "-e" in sys.argv or "-eraseModeOff" in sys.argv:
 		global ERASE_MODE_ON
@@ -243,16 +297,18 @@ def main():
                                                                       
 		""")
 	print("Type 's' at any prompt to save the game.")
+	print("Type 'h' to see previous moves.")
 	print("Press 'q' at any point to quit.")
 
 	turn = X_PIECE
 	useSavedGame = False
 	if os.path.exists(SAVE_FILENAME):
-		turnFromSaveFile, userPiece = loadSavedGame()
+		turnFromSaveFile, USER_PIECE = loadSavedGame()
 		if turnFromSaveFile is not None:
 			turn = turnFromSaveFile
-			opponentPiece = opponentOf(userPiece)
+			opponentPiece = opponentOf(USER_PIECE)
 			useSavedGame = True
+			BOARD_HISTORY.append(copyOfBoard(gameBoard))
 	if not useSavedGame:
 		userPieceSelect = input("\nDo you want to be X or O? (X goes first)\t").strip().lower()
 		erasePreviousLines(1)
@@ -263,19 +319,18 @@ def main():
 			userPieceSelect = input(f"{ERROR_SYMBOL} Invalid input. Please choose either X or O:\t").strip().lower()
 			erasePreviousLines(1)
 		if userPieceSelect == 'x':
-			userPiece = X_PIECE
+			USER_PIECE = X_PIECE
 			opponentPiece = O_PIECE
 		else:
-			userPiece = O_PIECE
+			USER_PIECE = O_PIECE
 			opponentPiece = X_PIECE
-	print(f"{'Your AI' if AI_DUEL_MODE else 'Human'}: {GREEN_COLOR}{userPiece}{NO_COLOR}")
+	print(f"{'Your AI' if AI_DUEL_MODE else 'Human'}: {GREEN_COLOR}{USER_PIECE}{NO_COLOR}")
 	print(f"{'My AI' if AI_DUEL_MODE else 'AI'}: {RED_COLOR}{opponentPiece}{NO_COLOR}")
 
 	players[opponentPiece] = Strategy(opponentPiece)
-	players[userPiece] = UserPlayerClass(userPiece)
+	players[USER_PIECE] = UserPlayerClass(USER_PIECE)
 
-	greenColorPiece = userPiece
-	printGameBoard(greenColorPiece)
+	printGameBoard()
 
 	first_turn = True
 	gameOver, winner = False, None
@@ -286,21 +341,24 @@ def main():
 			nameOfPlayer = "AI" if turn == opponentPiece else "You"
 		currentPlayer = players[turn]
 		if currentPlayer.isAI:
-			userInput = input(f"{nameOfPlayer}'s turn, press enter for it to play.\t").strip().lower()
+			userInput = input(f"{nameOfPlayer}'s turn, press enter for it to play.\t").strip().upper()
 			erasePreviousLines(1)
-			while userInput in ['q', 's']:
-				if userInput == 'q':
+			while userInput in ['Q', 'S', 'H']:
+				if userInput == 'Q':
 					print("\nThanks for playing!\n")
 					exit(0)
-				elif userInput == 's':
-					saveGame(userPiece, turn)
-					userInput = input(f"{nameOfPlayer}'s turn, press enter for it to play.\t").strip().lower()
+				elif userInput == 'H':
+					userInput = getBoardHistoryInputFromUser(True)
+				else:
+					saveGame(turn)
+					userInput = input(f"{nameOfPlayer}'s turn, press enter for it to play.\t").strip().upper()
 					erasePreviousLines(2)
 		rowPlayed, colPlayed = currentPlayer.getMove(gameBoard)
 		performMove(gameBoard, rowPlayed, colPlayed, turn)
+		BOARD_HISTORY.append(copyOfBoard(gameBoard))
 		erasePreviousLines(BOARD_OUTPUT_HEIGHT + (1 if first_turn else 2))
 		first_turn = False
-		printGameBoard(greenColorPiece)
+		printGameBoard()
 		move_formatted = ROW_LABELS[rowPlayed] + str(colPlayed + 1)
 		print(f"{nameOfPlayer} played in spot {move_formatted}")
 		turn = opponentOf(turn)
@@ -309,7 +367,7 @@ def main():
 	if winner is None:
 		print("Nobody wins, it's a tie!\n")
 	else:
-		highlightColor = GREEN_COLOR if winner == greenColorPiece else RED_COLOR
+		highlightColor = GREEN_COLOR if winner == USER_PIECE else RED_COLOR
 		print(f"{highlightColor}{winner}{NO_COLOR} player wins!\n")
 
 

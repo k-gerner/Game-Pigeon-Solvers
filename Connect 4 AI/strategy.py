@@ -70,7 +70,7 @@ class Strategy(Player):
 			score = math.inf
 			bestMoveForHuman = validMoves[0]
 			for move in validMoves:
-				boardCopy = list(map(list, board)) # copies board
+				boardCopy = copyOfBoard(board)
 				performMove(boardCopy, move, self.HUMAN_COLOR)
 				_, updatedScore = self.minimax(boardCopy, depth + 1, MAX, alpha, beta, localMaxDepth)
 				if updatedScore < score:

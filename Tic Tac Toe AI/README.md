@@ -55,12 +55,24 @@ In order for your AI to be eligible, it must meet a few requirements:
 as a parameter, and returns the chosen move coordinates in the form of 
 a tuple in the format `(rowNumber, columnNumber)`
 
-
-### ✨ New in Version 2.1
-* You can now save the game by typing `s`. This will create a save
+### Additional Features
+- Save the game by typing `s`. This will create a save
   file named `saved_game.txt` which contains save data for the current
   game state. When you start a new game, if a save state is detected,
   you will be asked if you would like to resume that game.
+- Inputting `h` will allow you to see previous moves that have been
+  played. You will be prompted for how many turns ago you want to view.
+  Press `enter` to repeatedly step one move ahead, or `e` to exit back
+  to play mode.
+
+### ✨ New in Version 2.1
+* You can now save the game by typing `s`. This will create a save
+  file named `saved_game.txt`. See the [Additional Features](#additional-features)
+  section for more information!
+* You can now see previous moves that have been played by typing `h`.
+  These will be displayed in place on the board. You will be prompted
+  for how many turns ago you want to view. Press `enter` to repeatedly
+  step one move ahead, or `e` to exit back to play mode.
 
 #### Older Changelog
 * v2.0

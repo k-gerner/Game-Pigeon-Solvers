@@ -243,6 +243,8 @@ in succession.
 your own Tic Tac Toe AI
 - Save state functionality for if you want to exit the program and
   come back later
+- Ability to see all the previous moves that have been played, one by
+  one, displayed on the game board.
 - Color-coded output on the game board to easily distinguish 
 friendly pieces from enemy pieces
 - Output to the terminal will be updated in place instead of 

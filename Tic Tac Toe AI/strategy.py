@@ -54,7 +54,7 @@ class Strategy(Player):
 			score = -math.inf
 			bestMove = validMoves[0] # default best move
 			for move in validMoves:
-				boardCopy = list(map(list, board)) # copies board
+				boardCopy = copyOfBoard(board)
 				performMove(boardCopy, move[0], move[1], self.AI_COLOR)
 				gameOver, winner = isTerminal(boardCopy)
 				if winner == self.AI_COLOR:
@@ -82,7 +82,7 @@ class Strategy(Player):
 			score = math.inf
 			bestMoveForHuman = validMoves[0]
 			for move in validMoves:
-				boardCopy = list(map(list, board)) # copies board
+				boardCopy = copyOfBoard(board)
 				performMove(boardCopy, move[0], move[1], self.HUMAN_COLOR)
 				gameOver, winner = isTerminal(boardCopy)
 				if winner == self.AI_COLOR:
@@ -147,7 +147,7 @@ def isTerminal(board):
     [1] being the winning color (None if neither color wins)
     """
 	winner = findWinner(board)
-	if winner != None:
+	if winner is not None:
 		return True, winner
 
 	for row in board:
@@ -165,3 +165,7 @@ def getValidMoves(board):
 			if board[rowNum][colNum] == EMPTY:
 				validLocations.append([rowNum, colNum])
 	return validLocations
+
+def copyOfBoard(board):
+	"""Returns a copy of the given board"""
+	return list(map(list, board))
