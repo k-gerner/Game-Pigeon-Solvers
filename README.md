@@ -116,6 +116,8 @@ your next guess
 on the board, making use of a color gradient to distinguish the 
 levels of certainty that a coordinate contains a ship (seriously, 
 it's super aesthetic looking, just look at the images in the README!)
+- Save state functionality for if you want to exit the program and
+  come back later
 - Board sizes of 8x8, 9x9, or 10x10
 - Output to the terminal will be updated in place instead of 
 printing lines and lines of output across turns. This can be 
@@ -134,6 +136,10 @@ be dropped to the lowest free space in the column you choose.
 - Minimax algorithm using Alpha-Beta Pruning
 - Dueling AI functionality allows you to challenge this AI with
 your own Connect 4 AI
+- Save state functionality for if you want to exit the program and
+  come back later
+- Ability to see all the previous moves that have been played, one by
+  one, displayed on the game board.
 - Color-coded output on the game board to easily distinguish 
 friendly pieces from enemy pieces. Includes a green coloring of 
 the most recently played column, grey coloring of unavailable 
@@ -235,6 +241,8 @@ in succession.
 - Minimax algorithm using Alpha-Beta Pruning
 - Dueling AI functionality allows you to challenge this AI with
 your own Tic Tac Toe AI
+- Save state functionality for if you want to exit the program and
+  come back later
 - Color-coded output on the game board to easily distinguish 
 friendly pieces from enemy pieces
 - Output to the terminal will be updated in place instead of 
