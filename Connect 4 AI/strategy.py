@@ -53,7 +53,7 @@ class Strategy(Player):
 			score = -math.inf
 			bestMove = validMoves[0] # default best move
 			for move in validMoves:
-				boardCopy = list(map(list, board)) # copies board
+				boardCopy = copyOfBoard(board)
 				performMove(boardCopy, move, self.AI_COLOR)
 				_, updatedScore = self.minimax(boardCopy, depth + 1, MIN, alpha, beta, localMaxDepth)
 				if updatedScore > score:
@@ -212,3 +212,7 @@ def performMove(board, col, color):
 			break
 		rowOfPlacement += 1
 	board[rowOfPlacement][col] = color
+
+def copyOfBoard(board):
+	"""Returns a copy of the given board"""
+	return list(map(list, board))

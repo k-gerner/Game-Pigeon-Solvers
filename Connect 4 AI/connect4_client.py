@@ -7,7 +7,7 @@ import time
 from importlib import import_module
 from datetime import datetime
 from Player import Player
-from strategy import Strategy, opponentOf, performMove, checkIfGameOver, isValidMove
+from strategy import Strategy, opponentOf, performMove, checkIfGameOver, isValidMove, copyOfBoard
 
 YELLOW_COLOR = "\u001b[38;5;226m"  # yellow
 RED_COLOR = '\033[91m'             # red
@@ -24,6 +24,7 @@ ERASE_LINE = '\033[2K'
 ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
 INFO_SYMBOL = f"{BLUE_COLOR}<!>{NO_COLOR}"
 SAVE_FILENAME = "saved_game.txt"
+BOARD_HISTORY = [] # [board, highlightCoordinates]
 
 EMPTY, RED, YELLOW = '.', 'o', '@'
 gameBoard = [[EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],  # bottom row
@@ -48,6 +49,8 @@ class HumanPlayer(Player):
         while True:
             if col == 'q':
                 endGame()
+            elif col == 'h':
+                col = getBoardHistoryInputFromUser(isAi=False)
             elif col == 's':
                 saveGame(self.color)
                 col = input("Which column would you like to play? (1-7):\t").strip().lower()
@@ -93,6 +96,52 @@ def printBoard(board, recentMove=None):
             print(f"{pieceColor}%s{NO_COLOR} " % spot, end='')
         print(f"{BLUE_COLOR}|{NO_COLOR}")
     print(" " + f"{BLUE_COLOR}%s{NO_COLOR}" % "-" * 17)
+
+
+def printMoveHistory(numMovesPrevious):
+    """Prints the move history of the current game"""
+    while True:
+        printBoard(BOARD_HISTORY[-(numMovesPrevious + 1)][0], BOARD_HISTORY[-(numMovesPrevious + 1)][1])
+        if numMovesPrevious == 0:
+            return
+        print("(%d move%s before current board state)\n" % (numMovesPrevious, "s" if numMovesPrevious != 1 else ""))
+        numMovesPrevious -= 1
+        userInput = input("Press enter for next move, or 'e' to return to game.  ").strip().lower()
+        erasePreviousLines(1)
+        if userInput == 'q':
+            erasePreviousLines(2)
+            endGame()
+        elif userInput == 'e':
+            erasePreviousLines(2)
+            return
+        else:
+            erasePreviousLines(BOARD_OUTPUT_HEIGHT + 2)
+
+
+def getBoardHistoryInputFromUser(isAi):
+    """
+    Prompts the user for input for how far the board history function.
+    Returns the user's input for the next move
+    """
+    nextMovePrompt = "Press enter to continue." if isAi else "Enter a valid move to play:"
+    if len(BOARD_HISTORY) < 2:
+        userInput = input(f"{INFO_SYMBOL} No previous moves to see. {nextMovePrompt}   ").strip().lower()
+        erasePreviousLines(1)
+    else:
+        numMovesPrevious = input(f"How many moves ago do you want to see? (1 to {len(BOARD_HISTORY) - 1})  ").strip()
+        erasePreviousLines(1)
+        if numMovesPrevious.isdigit() and 1 <= int(numMovesPrevious) <= len(BOARD_HISTORY) - 1:
+            erasePreviousLines(BOARD_OUTPUT_HEIGHT + 2)
+            printMoveHistory(int(numMovesPrevious))
+            erasePreviousLines(BOARD_OUTPUT_HEIGHT)
+            printBoard(BOARD_HISTORY[-1][0], BOARD_HISTORY[-1][1])
+            userInput = input(f"{INFO_SYMBOL} You're back in play mode. {nextMovePrompt}   ").strip().lower()
+            erasePreviousLines(1)
+            print("\n") # make this output the same height as the other options
+        else:
+            userInput = input(f"{ERROR_SYMBOL} Invalid input. {nextMovePrompt}   ").strip().lower()
+            erasePreviousLines(1)
+    return userInput
 
 
 def endGame():
@@ -195,7 +244,7 @@ def loadSavedGame():
                 fileDeletedText = "Save file deleted. "
             print(f"{INFO_SYMBOL} {fileDeletedText}Resuming saved game...\n")
             return turn
-        except:
+        except Exception:
             print(f"{ERROR_SYMBOL} There was an issue reading from the save file. Starting a new game...\n")
             return None
 
@@ -221,12 +270,13 @@ def erasePreviousLines(numLines, overrideEraseMode=False):
 
 def getOpposingAiModuleName():
     """Reads the command line arguments to determine the name of module for the opposing AI"""
-    remainingCommandLineArgs = sys.argv[2:]
-    for arg in remainingCommandLineArgs:
-        if "-" not in arg:
-            return arg
-    print(f"{ERROR_SYMBOL} You need to provide the name of your AI strategy module.")
-    exit(0)
+    try:
+        indexOfFlag = sys.argv.index("-d") if "-d" in sys.argv else sys.argv.index("-aiDuel")
+        module = sys.argv[indexOfFlag + 1].split(".py")[0]
+        return module
+    except (IndexError, ValueError):
+        print(f"{ERROR_SYMBOL} You need to provide the name of your AI strategy module.")
+        exit(0)
 
 
 def getDuelingAi():
@@ -240,7 +290,7 @@ def getDuelingAi():
         return DuelingAi
     except ImportError:
         print(f"{ERROR_SYMBOL} Please provide a valid module to import.\n" +
-              f"{INFO_SYMBOL} Pass the name of your Python file as a command line argument, WITHOUT the .py extension.")
+              f"{INFO_SYMBOL} Pass the name of your Python file as a command line argument.")
         exit(0)
     except AttributeError:
         print(f"{ERROR_SYMBOL} Please make sure your AI's class name is 'Strategy'")
@@ -274,6 +324,7 @@ def main():
             turn = turnFromSaveFile
             opponentPiece = opponentOf(userPiece)
             useSavedGame = True
+            BOARD_HISTORY.append([copyOfBoard(gameBoard), None])
     if not useSavedGame:
         userPieceInput = input(
             "Would you like to be RED ('r') or YELLOW ('y')? (yellow goes first!):\t").strip().lower()
@@ -303,6 +354,7 @@ def main():
     gameOver = False
     winningPiece = None
     print("Type 's' at any prompt to save the game.")
+    print("Type 'h' to see previous moves.")
     print("Type 'q' at any prompt to quit.")
     printBoard(gameBoard)
     print()
@@ -312,16 +364,18 @@ def main():
         currentPlayer = players[turn]
         if currentPlayer.isAI:
             userInput = input(f"{nameOfCurrentPlayer}'s turn, press enter for it to play.\t").strip().lower()
-            while userInput in ['q', 's']:
+            erasePreviousLines(1)
+            while userInput in ['q', 's', 'h']:
                 if userInput == 'q':
-                    erasePreviousLines(1)
                     endGame()
-                elif userInput == 's':
-                    erasePreviousLines(1)
+                elif userInput == 'h':
+                    userInput = getBoardHistoryInputFromUser(isAi=True)
+                else:
                     saveGame(currentPlayer.color)
                     userInput = input(f"{nameOfCurrentPlayer}'s turn, press enter for it to play.\t").strip().lower()
-                    erasePreviousLines(1)
-            erasePreviousLines(2)
+                    erasePreviousLines(2)
+
+            erasePreviousLines(1)
         startTime = time.time()
         column = currentPlayer.getMove(gameBoard)
         endTime = time.time()
@@ -329,6 +383,7 @@ def main():
         TIME_TAKEN_PER_PLAYER[turn][1] += totalTimeTakenForMove
         TIME_TAKEN_PER_PLAYER[turn][2] += 1
         performMove(gameBoard, column, turn)
+        BOARD_HISTORY.append([copyOfBoard(gameBoard), column])
         erasePreviousLines(BOARD_OUTPUT_HEIGHT + (0 if firstTurn else 1))
         printBoard(gameBoard, column)
         print(f"{nameOfCurrentPlayer} played in spot {column + 1}\n")
