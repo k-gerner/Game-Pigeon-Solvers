@@ -244,7 +244,7 @@ def loadSavedGame():
                 fileDeletedText = "Save file deleted. "
             print(f"{INFO_SYMBOL} {fileDeletedText}Resuming saved game...\n")
             return turn
-        except:
+        except Exception:
             print(f"{ERROR_SYMBOL} There was an issue reading from the save file. Starting a new game...\n")
             return None
 
