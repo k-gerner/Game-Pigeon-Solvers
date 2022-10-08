@@ -24,6 +24,7 @@ ERASE_LINE = '\033[2K'
 ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
 INFO_SYMBOL = f"{BLUE_COLOR}<!>{NO_COLOR}"
 SAVE_FILENAME = "saved_game.txt"
+BOARD_HISTORY = []
 
 EMPTY, RED, YELLOW = '.', 'o', '@'
 gameBoard = [[EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],  # bottom row
@@ -221,12 +222,13 @@ def erasePreviousLines(numLines, overrideEraseMode=False):
 
 def getOpposingAiModuleName():
     """Reads the command line arguments to determine the name of module for the opposing AI"""
-    remainingCommandLineArgs = sys.argv[2:]
-    for arg in remainingCommandLineArgs:
-        if "-" not in arg:
-            return arg
-    print(f"{ERROR_SYMBOL} You need to provide the name of your AI strategy module.")
-    exit(0)
+    try:
+        indexOfFlag = sys.argv.index("-d") if "-d" in sys.argv else sys.argv.index("-aiDuel")
+        module = sys.argv[indexOfFlag + 1].split(".py")[0]
+        return module
+    except (IndexError, ValueError):
+        print(f"{ERROR_SYMBOL} You need to provide the name of your AI strategy module.")
+        exit(0)
 
 
 def getDuelingAi():
