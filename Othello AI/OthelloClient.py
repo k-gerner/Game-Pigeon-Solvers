@@ -30,7 +30,6 @@ ERASE_LINE = '\033[2K'
 # Miscellaneous
 COLUMN_LABELS = list(map(chr, range(65, 65 + BOARD_DIMENSION)))
 BOARD_OUTLINE_HEIGHT = 4
-SAVE_STATE_OUTPUT_HEIGHT = BOARD_DIMENSION + 6
 ERASE_MODE_ON = True
 ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
 INFO_SYMBOL = f"{BLUE_COLOR}<!>{NO_COLOR}"
@@ -63,7 +62,6 @@ class HumanPlayer(Player):
                 coord = input("It's your turn, which spot would you like to play? (A1 - %s%d):\t" % (
                     COLUMN_LABELS[-1], BOARD_DIMENSION)).strip().upper()
                 erasePreviousLines(2)
-                linesWrittenToConsole = SAVE_STATE_OUTPUT_HEIGHT
             elif coord == 'QS' or coord == 'SQ':
                 saveGame(board, self.color)
                 endGame()
@@ -448,19 +446,19 @@ def main():
             nameOfCurrentPlayer = playerNames[turn]
             currentPlayer = players[turn]
             if currentPlayer.isAI:
-                userInput = input(f"{nameOfCurrentPlayer}'s turn, press enter for it to play.\t").strip().lower()
+                userInput = input(f"{nameOfCurrentPlayer}'s turn, press enter for it to play.\t").strip().upper()
                 erasePreviousLines(1)
-                while userInput in ['q', 's', 'qs', 'sq', 'h']:
-                    if userInput == 'q':
+                while userInput in ['Q', 'S', 'QS', 'SQ', 'H']:
+                    if userInput == 'Q':
                         endGame()
-                    elif userInput == 's':
+                    elif userInput == 'S':
                         saveGame(BOARD, turn)
-                        userInput = input("Press enter to continue. ").strip().lower()
+                        userInput = input("Press enter to continue. ").strip().upper()
                         erasePreviousLines(2)
-                    elif userInput == 'qs' or userInput == 'sq':
+                    elif userInput == 'QS' or userInput == 'SQ':
                         saveGame(BOARD, turn)
                         endGame()
-                    elif userInput == 'h':
+                    elif userInput == 'H':
                         userInput, linesWrittenToConsole = getBoardHistoryInputFromUser(BOARD, turn, True, linesWrittenToConsole)
             startTime = time.time()
             row, col = currentPlayer.getMove(BOARD)
