@@ -10,6 +10,8 @@ from strategy import *
 
 ERASE_MODE_ON = True
 BOARD = [4]*6 + [0] + [4]*6 + [0]
+PLAYER1_ID = 1
+PLAYER2_ID = 2
 
 
 # class for the Human player
@@ -48,19 +50,35 @@ class HumanPlayer(Player):
         return int(spot) - 1
 
 
-
-
-def printBoard(board, turn):
+def printBoard(board, playerId=None, move=None):
     """Prints the game board"""
     print(SIDE_INDENT_STR + " "*5 + f"{RED_COLOR}{board[13]}{NO_COLOR}")  # enemy's bank
     print(SIDE_INDENT_STR + "___________")
+    if move is not None:
+        arrowIndex = move if move < POCKETS_PER_SIDE else getIndexOfOppositeHole(move)
+    else:
+        arrowIndex = -1
     for index in range(6):
-        userSideStr = SIDE_INDENT_STR + " "*2 + f"{GREEN_COLOR}{board[index]}{NO_COLOR}" + (" " if board[index] >= 10 else "  ")
-        oppSideStr = (" " if board[12 - index] >= 10 else "  ") + f"{RED_COLOR}{board[12 - index]}{NO_COLOR}"
+        userSideStrPrefix = SIDE_INDENT_STR  # may change to arrow
+        opponentSideStrSuffix = ""  # may change to arrow
+        if index == arrowIndex:
+            if playerId == PLAYER1_ID:
+                userSideStrPrefix = PLAYER1_ARROW
+            else:
+                opponentSideStrSuffix = PLAYER2_ARROW
+
+
+        userSideStr = userSideStrPrefix + " "*2 + f"{GREEN_COLOR}{board[index]}{NO_COLOR}" + (" " if board[index] >= 10 else "  ")
+        oppSideStr = (" " if board[12 - index] >= 10 else "  ") + f"{RED_COLOR}{board[12 - index]}{NO_COLOR}" + opponentSideStrSuffix
         print(SIDE_INDENT_STR + "     |     ")
         print(userSideStr + "|" + oppSideStr)
         print(SIDE_INDENT_STR + "_____|_____")
     print("\n" + SIDE_INDENT_STR + " "*5 + f"{GREEN_COLOR}{board[6]}{NO_COLOR}")  # user's bank
+
+
+def opponentOf(playerId):
+    """Gets the id opponent of the given id"""
+    return PLAYER1_ID if playerId == PLAYER2_ID else PLAYER2_ID
 
 
 def printAsciiArt():
@@ -104,13 +122,20 @@ def main():
 
     gameOver = False
 
-    players = [HumanPlayer(6), Strategy(13)]  # remove hardcode values later
-    playerNames = ["Human", "AI"]
-    printBoard(BOARD, 123456789)
-    turn = 0
+    players = {                         # remove hardcode values later
+        PLAYER1_ID: HumanPlayer(PLAYER1_BANK_INDEX),
+        PLAYER2_ID: Strategy(PLAYER2_BANK_INDEX)
+    }
+    playerNames = {
+        PLAYER1_ID: "Human",
+        PLAYER2_ID: "AI"
+    }
+    printBoard(BOARD)
+    turn = PLAYER1_ID
+    extraLinesPrinted = 0
     while not gameOver:
         nameOfCurrentPlayer = playerNames[turn]
-        currentPlayer = players[turn % 2]
+        currentPlayer = players[turn]
         if currentPlayer.isAI:
             userInput = input(f"{nameOfCurrentPlayer}'s turn, press enter for it to play.\t").strip().upper()
             erasePreviousLines(1)
@@ -142,13 +167,15 @@ def main():
         timeTakenOutputStr = ""  # edit or remove later
         finalPebbleLocation = performMove(BOARD, chosenMove, currentPlayer.bankIndex)
         # BOARD_HISTORY.append([[[rowPlayed, colPlayed]], copyOfBoard(gameBoard)])
-        erasePreviousLines(BOARD_OUTPUT_HEIGHT)
-        printBoard(BOARD, 123456789)
+        erasePreviousLines(BOARD_OUTPUT_HEIGHT + extraLinesPrinted)
+        printBoard(BOARD, turn, chosenMove)
         print("%s played in spot %d%s\n" % (nameOfCurrentPlayer, chosenMove + 1, timeTakenOutputStr))
+        extraLinesPrinted = 2
         if finalPebbleLocation != currentPlayer.bankIndex:
-            turn = (turn + 1) % 2
+            turn = opponentOf(turn)
         else:
             print("%s's move ended in their bank, so they get another turn.\n" % nameOfCurrentPlayer)
+            extraLinesPrinted += 2
         gameOver = isBoardTerminal(BOARD)
 
     pushAllPebblesToBank(BOARD)
