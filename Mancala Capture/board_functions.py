@@ -7,12 +7,12 @@ def pushAllPebblesToBank(board):
     player1Pebbles = 0
     for index, numPebbles in enumerate(board[:PLAYER1_BANK_INDEX]):
         player1Pebbles += numPebbles
-        board[index] = 0
+        board[PLAYER1_BANK_INDEX - POCKETS_PER_SIDE + index] = 0
     board[PLAYER1_BANK_INDEX] += player1Pebbles
     player2Pebbles = 0
     for index, numPebbles in enumerate(board[PLAYER1_BANK_INDEX + 1 : PLAYER2_BANK_INDEX]):
         player2Pebbles += numPebbles
-        board[index] = 0
+        board[PLAYER2_BANK_INDEX - POCKETS_PER_SIDE + index] = 0
     board[PLAYER2_BANK_INDEX] += player2Pebbles
 
 
