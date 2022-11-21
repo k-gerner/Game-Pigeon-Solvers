@@ -21,8 +21,8 @@ BOARD_SIZE = 14  # total # pockets on each side plus the banks. Must be even
 POCKETS_PER_SIDE = int(BOARD_SIZE/2 - 1)  # excludes bank pockets
 
 # Pebble count
-PEBBLES_PER_POCKET = 4
-TOTAL_PEBBLES = PEBBLES_PER_POCKET * POCKETS_PER_SIDE * 2
+STARTING_PEBBLES_PER_POCKET = 4
+TOTAL_PEBBLES = STARTING_PEBBLES_PER_POCKET * POCKETS_PER_SIDE * 2
 
 # Bank indices
 PLAYER1_BANK_INDEX = int(BOARD_SIZE/2 - 1)  # 6
@@ -32,7 +32,7 @@ PLAYER2_BANK_INDEX = int(BOARD_SIZE - 1)    # 13
 SIDE_INDENT_STR = "          "  # default 10 spaces
 PLAYER1_ARROW   = f"    {YELLOW_COLOR}-->{NO_COLOR}   "
 PLAYER2_ARROW   = f"{YELLOW_COLOR}   <--{NO_COLOR}"
-BOARD_OUTPUT_HEIGHT = (3 * POCKETS_PER_SIDE) + (2 * 2)  # how many lines are printed when printing the board
+BOARD_OUTPUT_HEIGHT = 3 * (POCKETS_PER_SIDE + 2)  # how many lines are printed when printing the board
 
 
 # Default board layout

@@ -52,13 +52,14 @@ class HumanPlayer(Player):
 
 def printBoard(board, playerId=None, move=None):
     """Prints the game board"""
-    print(SIDE_INDENT_STR + " "*5 + f"{RED_COLOR}{board[13]}{NO_COLOR}")  # enemy's bank
+    print()
+    print(SIDE_INDENT_STR + " "*5 + f"{RED_COLOR}{board[PLAYER2_BANK_INDEX]}{NO_COLOR}")  # enemy's bank
     print(SIDE_INDENT_STR + "___________")
     if move is not None:
         arrowIndex = move if move < POCKETS_PER_SIDE else getIndexOfOppositeHole(move)
     else:
         arrowIndex = -1
-    for index in range(6):
+    for index in range(POCKETS_PER_SIDE):
         userSideStrPrefix = SIDE_INDENT_STR  # may change to arrow
         opponentSideStrSuffix = ""  # may change to arrow
         if index == arrowIndex:
@@ -68,12 +69,16 @@ def printBoard(board, playerId=None, move=None):
                 opponentSideStrSuffix = PLAYER2_ARROW
 
 
-        userSideStr = userSideStrPrefix + " "*2 + f"{GREEN_COLOR}{board[index]}{NO_COLOR}" + (" " if board[index] >= 10 else "  ")
-        oppSideStr = (" " if board[12 - index] >= 10 else "  ") + f"{RED_COLOR}{board[12 - index]}{NO_COLOR}" + opponentSideStrSuffix
+        userSideStr = userSideStrPrefix + " "*2 \
+                      + f"{GREEN_COLOR}{board[index]}{NO_COLOR}" \
+                      + (" " if board[index] >= 10 else "  ")
+        oppSideStr = (" " if board[getIndexOfOppositeHole(index)] >= 10 else "  ") \
+                     + f"{RED_COLOR}{board[getIndexOfOppositeHole(index)]}{NO_COLOR}" \
+                     + opponentSideStrSuffix
         print(SIDE_INDENT_STR + "     |     ")
         print(userSideStr + "|" + oppSideStr)
         print(SIDE_INDENT_STR + "_____|_____")
-    print("\n" + SIDE_INDENT_STR + " "*5 + f"{GREEN_COLOR}{board[6]}{NO_COLOR}")  # user's bank
+    print("\n" + SIDE_INDENT_STR + " "*5 + f"{GREEN_COLOR}{board[PLAYER1_BANK_INDEX]}{NO_COLOR}\n")  # user's bank
 
 
 def opponentOf(playerId):
@@ -114,14 +119,6 @@ def main():
     os.system("") # allows colored terminal to work on Windows OS
     printAsciiArt()
 
-    print("Type 'q' to quit.")
-    print("Type 's' to save the game. [NOT YET IMPLEMENTED]")
-    print("Type 'h' to see previous moves. [NOT YET IMPLEMENTED]")
-    print("\n")
-    print("\n")
-
-    gameOver = False
-
     players = {                         # remove hardcode values later
         PLAYER1_ID: HumanPlayer(PLAYER1_BANK_INDEX),
         PLAYER2_ID: Strategy(PLAYER2_BANK_INDEX)
@@ -130,8 +127,24 @@ def main():
         PLAYER1_ID: "Human",
         PLAYER2_ID: "AI"
     }
+
+    userGoFirst = input("Would you like to go first? (y/n):\t").strip().upper()
+    erasePreviousLines(1)
+    if userGoFirst == "Y":
+        turn = PLAYER1_ID
+        print("%s will go first!" % playerNames[turn])
+    else:
+        turn = PLAYER2_ID
+        print("%s will go first!" % playerNames[turn])
+
+    print("Type 'q' to quit.")
+    # print("Type 's' to save the game. [NOT YET IMPLEMENTED]")
+    # print("Type 'h' to see previous moves. [NOT YET IMPLEMENTED]")
+    print("\n")
+    print("\n")
+
+    gameOver = False
     printBoard(BOARD)
-    turn = PLAYER1_ID
     extraLinesPrinted = 0
     while not gameOver:
         nameOfCurrentPlayer = playerNames[turn]
@@ -179,11 +192,13 @@ def main():
         gameOver = isBoardTerminal(BOARD)
 
     pushAllPebblesToBank(BOARD)
-    winner = winningPlayerBankIndex(BOARD)
-    if winner is None:
-        print("It's a tie!")
+    erasePreviousLines(BOARD_OUTPUT_HEIGHT + extraLinesPrinted)
+    printBoard(BOARD)
+    winnerId = PLAYER1_ID if winningPlayerBankIndex(BOARD) == PLAYER1_BANK_INDEX else PLAYER2_ID
+    if winnerId is None:
+        print("It's a tie!\n")
     else:
-        print("Winner has bank index of %d!" % winner)
+        print("%s wins!\n" % playerNames[winnerId])
 
 
 if __name__ == '__main__':
