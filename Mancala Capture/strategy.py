@@ -30,10 +30,16 @@ class Strategy(Player):
     def scoreBoard(self, board):
         """Scores the board"""
         playerBankScore = board[self.bankIndex]
+        opponentBankScore = board[self.opponentBankIndex]
         if playerBankScore > TOTAL_PEBBLES / 2:
             playerBankScore += 1000
-        opponentBankScore = board[self.opponentBankIndex]
-        return playerBankScore - opponentBankScore
+        elif opponentBankScore > TOTAL_PEBBLES / 2:
+            opponentBankScore += 1000
+        playerPockets = board[self.bankIndex - POCKETS_PER_SIDE : self.bankIndex]
+        opponentPockets = board[self.opponentBankIndex - POCKETS_PER_SIDE : self.opponentBankIndex]
+        playerScore = playerBankScore + scorePockets(playerPockets)
+        opponentScore = opponentBankScore + scorePockets(opponentPockets)
+        return playerScore - opponentScore
         # pebblesInPlay = sum(board[bankIndex - 6 : bankIndex])
 
 
@@ -88,7 +94,15 @@ class Strategy(Player):
             return bestMoveForOpponent, score
 
 
-
+def scorePockets(pockets):
+    """Assigns a score for the given pocket layout. Favors pebbles further away from player bank"""
+    score = 0
+    multiplier = 0.3
+    stepDown = (multiplier - 0.1) / POCKETS_PER_SIDE
+    for pebbles in pockets:
+        score += pebbles * multiplier
+        multiplier -= stepDown
+    return score
 
 
 
