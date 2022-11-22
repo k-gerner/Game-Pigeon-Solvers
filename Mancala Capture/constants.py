@@ -17,8 +17,8 @@ ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
 INFO_SYMBOL = f"{BLUE_COLOR}<!>{NO_COLOR}"
 
 # Board size
-BOARD_SIZE = 14  # total # pockets on each side plus the banks. Must be even
-POCKETS_PER_SIDE = int(BOARD_SIZE/2 - 1)  # excludes bank pockets
+POCKETS_PER_SIDE = 6  # excludes bank pockets
+BOARD_SIZE = (POCKETS_PER_SIDE * 2) + 2  # total # pockets on each side plus the banks
 
 # Pebble count
 STARTING_PEBBLES_PER_POCKET = 4

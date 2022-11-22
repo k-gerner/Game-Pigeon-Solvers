@@ -76,7 +76,7 @@ def printBoard(board, playerId=None, move=None):
                      + f"{RED_COLOR}{board[getIndexOfOppositeHole(index)]}{NO_COLOR}" \
                      + opponentSideStrSuffix
         print(SIDE_INDENT_STR + "     |     ")
-        print(userSideStr + "|" + oppSideStr)
+        print(userSideStr + str(index + 1) + oppSideStr)
         print(SIDE_INDENT_STR + "_____|_____")
     print("\n" + SIDE_INDENT_STR + " "*5 + f"{GREEN_COLOR}{board[PLAYER1_BANK_INDEX]}{NO_COLOR}\n")  # user's bank
 
@@ -182,7 +182,8 @@ def main():
         # BOARD_HISTORY.append([[[rowPlayed, colPlayed]], copyOfBoard(gameBoard)])
         erasePreviousLines(BOARD_OUTPUT_HEIGHT + extraLinesPrinted)
         printBoard(BOARD, turn, chosenMove)
-        print("%s played in spot %d%s\n" % (nameOfCurrentPlayer, chosenMove + 1, timeTakenOutputStr))
+        moveFormatted = str(min(BOARD_SIZE - 2 - chosenMove, chosenMove) + 1)
+        print("%s played in spot %s%s\n" % (nameOfCurrentPlayer, moveFormatted, timeTakenOutputStr))
         extraLinesPrinted = 2
         if finalPebbleLocation != currentPlayer.bankIndex:
             turn = opponentOf(turn)
