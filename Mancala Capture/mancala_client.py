@@ -3,6 +3,7 @@
 # Mancala Capture, client facing
 import os
 import sys
+import time
 from constants import *
 from Player import Player
 from board_functions import *
@@ -123,9 +124,15 @@ def main():
         PLAYER1_ID: HumanPlayer(PLAYER1_BANK_INDEX),
         PLAYER2_ID: Strategy(PLAYER2_BANK_INDEX)
     }
+    nameOfPlayer1 = "Human"
+    nameOfPlayer2 = "AI"
     playerNames = {
-        PLAYER1_ID: "Human",
-        PLAYER2_ID: "AI"
+        PLAYER1_ID: nameOfPlayer1,
+        PLAYER2_ID: nameOfPlayer2
+    }
+    timeTakenPerPlayer = {
+        PLAYER1_ID: [nameOfPlayer1, 0, 0],    # [player name, total time, num moves]
+        PLAYER2_ID: [nameOfPlayer2, 0, 0]
     }
 
     userGoFirst = input("Would you like to go first? (y/n):\t").strip().upper()
@@ -168,16 +175,15 @@ def main():
                     userInput = input(f"{ERROR_SYMBOL} Game saving not implemented yet. Please choose a move:\t").strip().upper()
                     erasePreviousLines(1)
 
-        # startTime = time.time()
+        startTime = time.time()
         chosenMove = currentPlayer.getMove(BOARD)
-        # endTime = time.time()
-        # totalTimeTakenForMove = endTime - startTime
-        # TIME_TAKEN_PER_PLAYER[turn][1] += totalTimeTakenForMove
-        # TIME_TAKEN_PER_PLAYER[turn][2] += 1
-        # minutesTaken = int(totalTimeTakenForMove) // 60
-        # secondsTaken = totalTimeTakenForMove % 60
-        # timeTakenOutputStr = ("  (%dm " if minutesTaken > 0 else "  (") + ("%.2fs)" % secondsTaken) if currentPlayer.isAI else ""
-        timeTakenOutputStr = ""  # edit or remove later
+        endTime = time.time()
+        totalTimeTakenForMove = endTime - startTime
+        timeTakenPerPlayer[turn][1] += totalTimeTakenForMove
+        timeTakenPerPlayer[turn][2] += 1
+        minutesTaken = int(totalTimeTakenForMove) // 60
+        secondsTaken = totalTimeTakenForMove % 60
+        timeTakenOutputStr = ("  (%dm " if minutesTaken > 0 else "  (") + ("%.2fs)" % secondsTaken) if currentPlayer.isAI else ""
         finalPebbleLocation = performMove(BOARD, chosenMove, currentPlayer.bankIndex)
         # BOARD_HISTORY.append([[[rowPlayed, colPlayed]], copyOfBoard(gameBoard)])
         erasePreviousLines(BOARD_OUTPUT_HEIGHT + extraLinesPrinted)
