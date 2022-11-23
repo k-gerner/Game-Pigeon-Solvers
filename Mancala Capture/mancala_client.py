@@ -10,6 +10,7 @@ from board_functions import *
 from strategy import *
 
 ERASE_MODE_ON = True
+USE_REVERSED_PRINT_LAYOUT = False
 BOARD = [4]*6 + [0] + [4]*6 + [0]
 PLAYER1_ID = 1
 PLAYER2_ID = 2
@@ -23,12 +24,20 @@ class HumanPlayer(Player):
 
     def getMove(self, board):
         """Takes in the user's input and returns the index on the board for the selected move"""
-        spot = input("It's your turn, which spot would you like to play? (1 - 6):\t").strip().upper()
+        spot = input(f"It's your turn, which spot would you like to play? (1 - {POCKETS_PER_SIDE}):\t").strip().upper()
         erasePreviousLines(1)
         while True:
             if spot == 'Q':
                 print("\nThanks for playing!\n")
                 exit(0)
+            elif spot == 'F':
+                global USE_REVERSED_PRINT_LAYOUT
+                USE_REVERSED_PRINT_LAYOUT = not USE_REVERSED_PRINT_LAYOUT
+                erasePreviousLines(BOARD_OUTPUT_HEIGHT + 2)
+                printBoard(board)
+                print("\n")
+                spot = input(f"Board print layout changed. Which spot would you like to play? (1 - {POCKETS_PER_SIDE}):\t").strip().upper()
+                erasePreviousLines(1)
             elif spot == 'S':
                 print("Save not yet implemented!")
                 exit(0)
@@ -40,7 +49,7 @@ class HumanPlayer(Player):
                 exit(0)
                 # spot = getBoardHistoryInputFromUser(isAi=False)
             elif not spot.isdigit() or int(spot) < 1 or int(spot) > 6:
-                spot = input(f"{ERROR_SYMBOL} Please enter a number 1 - 6:\t").strip().upper()
+                spot = input(f"{ERROR_SYMBOL} Please enter a number 1 - {POCKETS_PER_SIDE}:\t").strip().upper()
                 erasePreviousLines(1)
             elif board[int(spot) - 1] == 0:
                 spot = input(f"{ERROR_SYMBOL} That pocket is empty! Please try again:\t").strip().upper()
@@ -53,38 +62,63 @@ class HumanPlayer(Player):
 
 def printBoard(board, playerId=None, move=None):
     """Prints the game board"""
-    print()
-    print(SIDE_INDENT_STR + " "*5 + f"{RED_COLOR}{board[PLAYER2_BANK_INDEX]}{NO_COLOR}")  # enemy's bank
-    print(SIDE_INDENT_STR + "___________")
-    if move is not None:
-        arrowIndex = move if move < POCKETS_PER_SIDE else getIndexOfOppositeHole(move)
+    # orientation
+    arrowIndex = -1
+    if USE_REVERSED_PRINT_LAYOUT:
+        topBankIndex = PLAYER1_BANK_INDEX
+        bottomBankIndex = PLAYER2_BANK_INDEX
+        leftSidePlayerId = PLAYER2_ID
+        topLeftPocketIndex = POCKETS_PER_SIDE + 1  # which index is printed in the top left corner of the printed board
+        leftSideColor = RED_COLOR
+        rightSideColor = GREEN_COLOR
+        if move is not None:
+            arrowIndex = move if move > POCKETS_PER_SIDE else getIndexOfOppositeHole(move)
     else:
-        arrowIndex = -1
-    for index in range(POCKETS_PER_SIDE):
-        userSideStrPrefix = SIDE_INDENT_STR  # may change to arrow
-        opponentSideStrSuffix = ""  # may change to arrow
+        topBankIndex = PLAYER2_BANK_INDEX
+        bottomBankIndex = PLAYER1_BANK_INDEX
+        leftSidePlayerId = PLAYER1_ID
+        topLeftPocketIndex = 0
+        leftSideColor = GREEN_COLOR
+        rightSideColor = RED_COLOR
+        if move is not None:
+            arrowIndex = move if move < POCKETS_PER_SIDE else getIndexOfOppositeHole(move)
+
+    print()
+    print(SIDE_INDENT_STR + " "*5 + f"{rightSideColor}{board[topBankIndex]}{NO_COLOR}")  # top bank
+    print(SIDE_INDENT_STR + "___________")
+    for index in range(topLeftPocketIndex, topLeftPocketIndex + POCKETS_PER_SIDE):
+        leftSideStrPrefix = SIDE_INDENT_STR  # may change to arrow
+        rightSideStrSuffix = ""  # may change to arrow
         if index == arrowIndex:
-            if playerId == PLAYER1_ID:
-                userSideStrPrefix = PLAYER1_ARROW
+            if playerId == leftSidePlayerId:
+                leftSideStrPrefix = LEFT_SIDE_ARROW
             else:
-                opponentSideStrSuffix = PLAYER2_ARROW
+                rightSideStrSuffix = RIGHT_SIDE_ARROW
 
-
-        userSideStr = userSideStrPrefix + " "*2 \
-                      + f"{GREEN_COLOR}{board[index]}{NO_COLOR}" \
+        leftSideStr = leftSideStrPrefix + " "*2 \
+                      + f"{leftSideColor}{board[index]}{NO_COLOR}" \
                       + (" " if board[index] >= 10 else "  ")
-        oppSideStr = (" " if board[getIndexOfOppositeHole(index)] >= 10 else "  ") \
-                     + f"{RED_COLOR}{board[getIndexOfOppositeHole(index)]}{NO_COLOR}" \
-                     + opponentSideStrSuffix
+        rightSideStr = (" " if board[getIndexOfOppositeHole(index)] >= 10 else "  ") \
+                     + f"{rightSideColor}{board[getIndexOfOppositeHole(index)]}{NO_COLOR}" \
+                     + rightSideStrSuffix
         print(SIDE_INDENT_STR + "     |     ")
-        print(userSideStr + str(index + 1) + oppSideStr)
+        print(leftSideStr + str(min(index, getIndexOfOppositeHole(index)) + 1) + rightSideStr)
         print(SIDE_INDENT_STR + "_____|_____")
-    print("\n" + SIDE_INDENT_STR + " "*5 + f"{GREEN_COLOR}{board[PLAYER1_BANK_INDEX]}{NO_COLOR}\n")  # user's bank
+    print("\n" + SIDE_INDENT_STR + " "*5 + f"{leftSideColor}{board[bottomBankIndex]}{NO_COLOR}\n")  # bottom bank
 
 
 def opponentOf(playerId):
     """Gets the id opponent of the given id"""
     return PLAYER1_ID if playerId == PLAYER2_ID else PLAYER2_ID
+
+
+def printAverageTimeTakenByPlayers(timeTakenPerPlayer):
+    """Prints out the average time taken per move for each player"""
+    userTimeTaken = round(timeTakenPerPlayer[PLAYER1_ID][1]/max(1, timeTakenPerPlayer[PLAYER1_ID][2]), 2)
+    aiTimeTaken = round(timeTakenPerPlayer[PLAYER2_ID][1]/max(1, timeTakenPerPlayer[PLAYER2_ID][2]), 2)
+    print("Average time taken per move:")
+    print(f"{GREEN_COLOR}{timeTakenPerPlayer[PLAYER1_ID][0]}{NO_COLOR}: {userTimeTaken}s")
+    print(f"{RED_COLOR}{timeTakenPerPlayer[PLAYER2_ID][0]}{NO_COLOR}: {aiTimeTaken}s")
 
 
 def printAsciiArt():
@@ -145,28 +179,36 @@ def main():
         print("%s will go first!" % playerNames[turn])
 
     print("Type 'q' to quit.")
+    print("Type 'f' to flip the board orientation 180 degrees.")
     # print("Type 's' to save the game. [NOT YET IMPLEMENTED]")
     # print("Type 'h' to see previous moves. [NOT YET IMPLEMENTED]")
-    print("\n")
-    print("\n")
 
     gameOver = False
     printBoard(BOARD)
-    extraLinesPrinted = 0
+    print("\n")
+    extraLinesPrinted = 2
     while not gameOver:
         nameOfCurrentPlayer = playerNames[turn]
         currentPlayer = players[turn]
         if currentPlayer.isAI:
             userInput = input(f"{nameOfCurrentPlayer}'s turn, press enter for it to play.\t").strip().upper()
             erasePreviousLines(1)
-            while userInput in ['Q', 'S', 'H']:
+            while userInput in ['Q', 'H', 'F', 'S']:
                 if userInput == 'Q':
                     # printAverageTimeTakenByPlayers()
                     print("\nThanks for playing!\n")
                     exit(0)
                 elif userInput == 'H':
                     # userInput = getBoardHistoryInputFromUser(isAi=True)
-                    userInput = input(f"{ERROR_SYMBOL} Board history not implemented yet. Please choose a move:\t").strip().upper()
+                    userInput = input(f"{ERROR_SYMBOL} Board history not implemented yet. Press enter to continue:\t").strip().upper()
+                    erasePreviousLines(1)
+                elif userInput == 'F':
+                    global USE_REVERSED_PRINT_LAYOUT
+                    USE_REVERSED_PRINT_LAYOUT = not USE_REVERSED_PRINT_LAYOUT
+                    erasePreviousLines(BOARD_OUTPUT_HEIGHT + 2)
+                    printBoard(BOARD)
+                    print("\n")
+                    userInput = input(f"Board print layout changed. Press enter to continue:\t").strip().upper()
                     erasePreviousLines(1)
                 else:
                     # saveGame(gameBoard, turn)
@@ -189,13 +231,13 @@ def main():
         erasePreviousLines(BOARD_OUTPUT_HEIGHT + extraLinesPrinted)
         printBoard(BOARD, turn, chosenMove)
         moveFormatted = str(min(BOARD_SIZE - 2 - chosenMove, chosenMove) + 1)
-        print("%s played in spot %s%s\n" % (nameOfCurrentPlayer, moveFormatted, timeTakenOutputStr))
-        extraLinesPrinted = 2
+        print("%s played in spot %s%s. " % (nameOfCurrentPlayer, moveFormatted, timeTakenOutputStr), end='')
         if finalPebbleLocation != currentPlayer.bankIndex:
+            print("\n")
             turn = opponentOf(turn)
         else:
             print("%s's move ended in their bank, so they get another turn.\n" % nameOfCurrentPlayer)
-            extraLinesPrinted += 2
+        extraLinesPrinted = 2
         gameOver = isBoardTerminal(BOARD)
 
     pushAllPebblesToBank(BOARD)
@@ -206,6 +248,7 @@ def main():
         print("It's a tie!\n")
     else:
         print("%s wins!\n" % playerNames[winnerId])
+    printAverageTimeTakenByPlayers(timeTakenPerPlayer)
 
 
 if __name__ == '__main__':
