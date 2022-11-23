@@ -30,8 +30,8 @@ PLAYER2_BANK_INDEX = int(BOARD_SIZE - 1)    # 13
 
 # Board printing
 SIDE_INDENT_STR = "          "  # default 10 spaces
-PLAYER1_ARROW   = f"    {YELLOW_COLOR}-->{NO_COLOR}   "
-PLAYER2_ARROW   = f"{YELLOW_COLOR}   <--{NO_COLOR}"
+LEFT_SIDE_ARROW   = f"    {YELLOW_COLOR}-->{NO_COLOR}   "
+RIGHT_SIDE_ARROW   = f"{YELLOW_COLOR}   <--{NO_COLOR}"
 BOARD_OUTPUT_HEIGHT = 3 * (POCKETS_PER_SIDE + 2)  # how many lines are printed when printing the board
 
 
