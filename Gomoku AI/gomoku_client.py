@@ -388,7 +388,7 @@ def main():
 		TIME_TAKEN_PER_PLAYER[turn][2] += 1
 		minutesTaken = int(totalTimeTakenForMove) // 60
 		secondsTaken = totalTimeTakenForMove % 60
-		timeTakenOutputStr = ("  (%dm " if minutesTaken > 0 else "  (") + ("%.2fs)" % secondsTaken) if currentPlayer.isAI else ""
+		timeTakenOutputStr = ("  (%dm " % minutesTaken if minutesTaken > 0 else "  (") + ("%.2fs)" % secondsTaken) if currentPlayer.isAI else ""
 		performMove(gameBoard, rowPlayed, colPlayed, turn)
 		BOARD_HISTORY.append([[[rowPlayed, colPlayed]], copyOfBoard(gameBoard)])
 		erasePreviousLines(BOARD_OUTPUT_HEIGHT)
