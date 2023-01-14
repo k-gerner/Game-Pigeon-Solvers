@@ -41,7 +41,7 @@ up in this repository! ☺
 
 ---
 
-## Overview 
+## Overview
 ## 🎮 Gomoku
 The objective of Gomoku is to get 5 of your pieces to line up in 
 succession. You can think of it like a much more advanced version 
@@ -56,7 +56,7 @@ search-space-selection
 your own Gomoku AI
 - Color-coded output on the game board to easily distinguish friendly 
 pieces from enemy pieces, including highlighting the most recently 
-played move
+played move. <sub>Note: may not work on all CLIs </sub>
 - Save state functionality for if you want to exit the program and 
 come back later 
 - Ability to see all the previous moves that have been played, one by
@@ -82,7 +82,7 @@ two friendly pieces.
 - Dueling AI functionality allows you to challenge this AI with
 your own Othello AI
 - Color-coded output on the game board to easily distinguish friendly 
-pieces from enemy pieces
+pieces from enemy pieces. <sub>Note: may not work on all CLIs </sub>
 - Valid moves will be highlighted for you before each turn
 - Optional colorblind mode will use a blue/orange color scheme instead 
 of green/red
@@ -111,7 +111,7 @@ likely to contain ships.
 ### 🧠 AI Features
 - Color-coded output on the game board to easily distinguish misses, 
 hits, and sinks. Also used to show which locations are ideal for 
-your next guess
+your next guess. <sub>Note: may not work on all CLIs </sub>
 - A super beautiful colorful output of scores for each coordinate 
 on the board, making use of a color gradient to distinguish the 
 levels of certainty that a coordinate contains a ship (seriously, 
@@ -144,7 +144,7 @@ your own Connect 4 AI
 friendly pieces from enemy pieces. Includes a green coloring of 
 the most recently played column, grey coloring of unavailable 
 columns, and a blue border to match the classic look of the 
-physical game rig
+physical game rig. <sub>Note: may not work on all CLIs </sub>
 - Output to the terminal will be updated in place instead of 
 printing lines and lines of output across turns. This can be 
 disabled if you would like to have all output to the terminal 
@@ -246,7 +246,8 @@ your own Tic Tac Toe AI
 - Ability to see all the previous moves that have been played, one by
   one, displayed on the game board.
 - Color-coded output on the game board to easily distinguish 
-friendly pieces from enemy pieces
+friendly pieces from enemy pieces. <sub>Note: may not work 
+on all CLIs </sub>
 - Output to the terminal will be updated in place instead of 
 printing lines and lines of output across turns. This can be 
 disabled if you would like to have all output to the terminal 
