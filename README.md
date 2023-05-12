@@ -284,13 +284,13 @@ preserved
 
 [Overview section]: https://github.com/k-gerner/Game-Pigeon-Solvers#overview
 [GamePigeon Wikipedia]: https://en.wikipedia.org/wiki/GamePigeon
-[Anagrams Directory]: https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Anagrams%20Tool
-[Mancala Avalanche Directory]: https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Mancala%20Avalanche
-[Word Hunt Directory]: https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Word%20Hunt%20Tool
-[Word Bites Directory]: https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Word%20Bites%20Tool
-[Connect 4 Directory]: https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Connect%204%20AI
-[Gomoku Directory]: https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI
-[Tic Tac Toe Directory]: https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Tic%20Tac%20Toe%20AI
+[Anagrams Directory]: https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/anagrams
+[Mancala Avalanche Directory]: https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/mancalaavalanche
+[Word Hunt Directory]: https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/wordhunt
+[Word Bites Directory]: https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/wordbites
+[Connect 4 Directory]: https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/connect4
+[Gomoku Directory]: https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/gomoku
+[Tic Tac Toe Directory]: https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/tictactoe
 [Sea Battle Directory]: https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/seabattle
-[Othello Directory]: https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Othello%20AI
-[Mancala Capture Directory]: https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Mancala%20Capture
+[Othello Directory]: https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/othello
+[Mancala Capture Directory]: https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/mancalacapture
