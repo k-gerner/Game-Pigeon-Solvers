@@ -39,6 +39,8 @@ will be displayed on the left side in green, with your bank at the bottom.
 You will then be prompted to either enter your move, or press `enter` for the
 A.I. to play.
 
+<img src="/Images/Mancala%20Capture/mancalaCaptureBoardOutput.png" alt = "Mancala board output" width="40%" align = "left">
+
 ### How it works
 The A.I. works by using a move selection algorithm known as [Minimax][Minimax Wikipedia], 
 and uses a pruning technique known as [Alpha-Beta Pruning][AB Pruning Wikipedia]. 
