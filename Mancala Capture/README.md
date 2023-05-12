@@ -83,7 +83,7 @@ In order for your AI to be eligible, it must meet a few requirements:
 * AI must be a subclass of `Player`, found in `Player.py`
 * AI must have a function named `getMove` that accepts a game board
   as a parameter, and returns the chosen move coordinates in the form of
-  a tuple in the format `(rowNumber, columnNumber)`
+  the index of the corresponding pocket on the board.
 
 ### Optional Command Line Arguments
 
