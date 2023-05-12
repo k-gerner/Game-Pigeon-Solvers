@@ -33,6 +33,9 @@ def winningPlayerBankIndex(board):
 
 def performMove(board, move, bankIndex):
     """Performs a given move on the board. Returns the index of the final pebble placed"""
+    if bankIndex < move:
+        print(f"{ERROR_SYMBOL} Chosen move is on the wrong side of the board!")
+        exit(0)
     numPebbles = board[move]
     board[move] = 0
     currIndex = move
