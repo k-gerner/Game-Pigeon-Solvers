@@ -20,6 +20,10 @@ INFO_SYMBOL = f"{BLUE_COLOR}<!>{NO_COLOR}"
 POCKETS_PER_SIDE = 6  # excludes bank pockets
 BOARD_SIZE = (POCKETS_PER_SIDE * 2) + 2  # total # pockets on each side plus the banks
 
+# Pebble count
+STARTING_PEBBLES_PER_POCKET = 4
+TOTAL_PEBBLES = STARTING_PEBBLES_PER_POCKET * POCKETS_PER_SIDE * 2
+
 # Bank indices
 PLAYER1_BANK_INDEX = int(BOARD_SIZE/2 - 1)  # 6
 PLAYER2_BANK_INDEX = int(BOARD_SIZE - 1)    # 13

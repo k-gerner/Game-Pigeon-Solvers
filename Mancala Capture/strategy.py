@@ -14,12 +14,10 @@ class Strategy(Player):
     def __init__(self, bankIndex=13):
         super().__init__(bankIndex)
         self.opponentBankIndex = (bankIndex + POCKETS_PER_SIDE + 1) % BOARD_SIZE
-        self.totalPebbles = -1
 
 
     def getMove(self, board):
         """Calculates the best move for the AI for the given board"""
-        self.totalPebbles = sum(board)
         move, score = -123, -123 # placeholders
         for i in range(1, MAX_DEPTH + 1): # iterative deepening
             # this will prioritize game winning move sequences that finish in less moves
