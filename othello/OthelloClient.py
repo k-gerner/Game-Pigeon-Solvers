@@ -6,33 +6,25 @@ import sys
 import time
 from importlib import import_module
 from datetime import datetime
+from util.terminaloutput.colors import NO_COLOR, YELLOW_COLOR, GREEN_COLOR, BLUE_COLOR, RED_COLOR, ORANGE_COLOR, \
+    DARK_GREY_BACKGROUND as HIGHLIGHT
+from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL
+from util.terminaloutput.erasing import erasePreviousLines
 
-from strategy import OthelloStrategy, copyOfBoard, BOARD_DIMENSION, getValidMoves, opponentOf, playMove, \
+from othello.strategy import OthelloStrategy, copyOfBoard, BOARD_DIMENSION, getValidMoves, opponentOf, playMove, \
     currentScore, checkGameOver, numberOfPieceOnBoard, pieceAt, hasValidMoves, isMoveValid, isMoveInRange
-from Player import Player
+from othello.Player import Player
 
 BLACK = "0"
 WHITE = "O"
 EMPTY = "."
 
 # Escape sequences for terminal color output
-GREEN_COLOR = '\033[92m'
-RED_COLOR = '\033[91m'
-BLUE_COLOR = '\033[38;5;39m'
-YELLOW_COLOR = '\033[38;5;226m'
-ORANGE_COLOR = '\033[38;5;208m'
-NO_COLOR = '\033[0m'
-HIGHLIGHT = '\033[48;5;238m'
-
-CURSOR_UP_ONE = '\033[1A'
-ERASE_LINE = '\033[2K'
 
 # Miscellaneous
 COLUMN_LABELS = list(map(chr, range(65, 65 + BOARD_DIMENSION)))
 BOARD_OUTLINE_HEIGHT = 4
 ERASE_MODE_ON = True
-ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
-INFO_SYMBOL = f"{BLUE_COLOR}<!>{NO_COLOR}"
 SAVE_FILENAME = "saved_game.txt"
 TIME_TAKEN_PER_PLAYER = {}
 
@@ -226,13 +218,6 @@ def saveGame(board, turn):
         saveFile.write("Opponent piece: " + OPPONENT_PIECE  +"\n")
         saveFile.write("Turn: " + turn)
     print(f"{INFO_SYMBOL} The game has been saved!")
-
-
-def erasePreviousLines(numLines, overrideEraseMode=False):
-    """Erases the specified previous number of lines from the terminal"""
-    eraseMode = ERASE_MODE_ON if not overrideEraseMode else (not ERASE_MODE_ON)
-    if eraseMode:
-        print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(numLines, 0), end='')
 
 
 def printGameRules():

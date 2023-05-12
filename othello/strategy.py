@@ -2,7 +2,7 @@
 # Started 7.15.22
 # Contains AI strategy and board manipulation methods
 import math
-from Player import Player
+from othello.Player import Player
 from functools import cmp_to_key
 from collections import defaultdict
 
