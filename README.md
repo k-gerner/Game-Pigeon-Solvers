@@ -34,7 +34,9 @@ friend and I started playing Sea Battle (a Battleship spin-off), so
 naturally, I had to quickly write a [Sea Battle A.I.](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Sea%20Battle) 
 to gain the upper hand. Then, in July 2022, we started playing Othello. 
 As you can probably guess, I made an [Othello A.I.](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Othello%20AI) 
-too.  
+too. In late 2022, we started playing Mancala (Capture mode). I of course 
+had to write a [Mancala Capture A.I.](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Mancala%20Capture).
+
 
 Whenever we start competing in a new game, you'll see a new A.I. pop 
 up in this repository! ☺
@@ -194,6 +196,31 @@ disabled if you would like to have all output to the terminal
 preserved  
 
 [Check it out!](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Word%20Bites%20Tool)
+
+---
+
+## 🎮 Mancala Capture
+The classic version of Mancala. Players earn points by moving pebbles 
+around the board and dropping them in their bank. You can capture your 
+opponent's pebbles by landing on an empty pocket on your side of the 
+board.
+### 🧠 AI Features
+- Minimax algorithm using Alpha-Beta Pruning
+- Dueling AI functionality allows you to challenge this AI with
+your own Mancala Capture AI
+- Save state functionality for if you want to exit the program and
+  come back later
+- Ability to see all the previous moves that have been played, one by
+  one, displayed on the game board.
+- Color-coded output on the game board to easily distinguish 
+friendly pockets from enemy pockets. <sub>Note: may not work 
+on all CLIs </sub>
+- Output to the terminal will be updated in place instead of 
+printing lines and lines of output across turns. This can be 
+disabled if you would like to have all output to the terminal 
+preserved  
+
+[Check it out!](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Mancala%20Capture)
 
 ---
 
