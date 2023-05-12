@@ -3,6 +3,8 @@
 # Anagrams Game Pigeon tool
 
 from functools import cmp_to_key
+from util.terminaloutput.symbols import ERROR_SYMBOL
+from util.terminaloutput.erasing import erasePreviousLines
 import os
 import sys
 
@@ -10,13 +12,8 @@ englishWords = set()
 wordStarts = set()
 foundWords = set()
 
-INPUT_FILENAME = "letters7.txt"
+INPUT_FILENAME = "anagrams/letters7.txt"
 
-RED_COLOR = '\033[91m'
-NO_COLOR = '\033[0m'
-ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
-CURSOR_UP_ONE = '\033[1A'
-ERASE_LINE = '\033[2K'
 ERASE_MODE_ON = True
 
 def findWords(remainingLetters, currStr=""):
@@ -84,12 +81,6 @@ def populateWordSets(numLetters):
 	except FileNotFoundError:
 		print(f"\n{ERROR_SYMBOL} Could not open the file. Please make sure %s is in the current directory, and run this file from inside the current directory.\n" % INPUT_FILENAME)
 		exit(0)
-
-def erasePreviousLines(numLines, overrideEraseMode=False):
-	"""Erases the specified previous number of lines from the terminal"""
-	eraseMode = ERASE_MODE_ON if not overrideEraseMode else (not ERASE_MODE_ON)
-	if eraseMode:
-		print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(numLines, 0), end='')
 
 def main():
 	# initial setup
