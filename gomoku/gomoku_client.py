@@ -3,6 +3,10 @@
 # Gomoku solver, client facing
 from importlib import import_module
 from datetime import datetime
+from util.terminaloutput.colors import GREEN_COLOR, RED_COLOR, NO_COLOR, \
+	DARK_GREY_BACKGROUND as MOST_RECENT_HIGHLIGHT_COLOR
+from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL
+from util.terminaloutput.erasing import erasePreviousLines
 
 from gomoku.strategy import GomokuStrategy, opponentOf, performMove, copyOfBoard
 import time
@@ -13,11 +17,6 @@ from gomoku.Player import Player
 EMPTY, BLACK, WHITE = '.', 'X', 'O'
 gameBoard = [] # created later
 userPiece = None
-GREEN_COLOR = '\033[92m'	 # green
-RED_COLOR = '\033[91m'		 # red
-NO_COLOR = '\033[0m' 		 # white
-BLUE_COLOR = '\033[38;5;39m' # blue
-MOST_RECENT_HIGHLIGHT_COLOR = '\u001b[48;5;238m' # dark grey; to make lighter, increase 238 to anything 255 or below
 
 ERASE_MODE_ON = True
 BOARD_OUTPUT_HEIGHT = -1
@@ -27,10 +26,6 @@ COLUMN_LABELS = "<Will be filled later>"
 SAVE_FILENAME = "saved_game.txt"
 BOARD_HISTORY = [] # [highlightCoordinates, board]
 
-CURSOR_UP_ONE = '\033[1A'
-ERASE_LINE = '\033[2K'
-ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
-INFO_SYMBOL = f"{BLUE_COLOR}<!>{NO_COLOR}"
 
 # class for the Human player
 class HumanPlayer(Player):
@@ -152,11 +147,6 @@ def printAsciiTitleArt():
 	print('| |_| | (_) | | | | | | (_) |   <| |_| |  / ___ \\ | |')
 	print(' \\____|\\___/|_| |_| |_|\\___/|_|\\\\_\\__,_| /_/   \\_\\___|\n')
 
-def erasePreviousLines(numLines, overrideEraseMode=False):
-	"""Erases the specified previous number of lines from the terminal"""
-	eraseMode = ERASE_MODE_ON if not overrideEraseMode else (not ERASE_MODE_ON)
-	if eraseMode:
-		print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(numLines, 0), end='')
 
 def printAverageTimeTakenByPlayers():
 	"""Prints out the average time taken per move for each player"""
