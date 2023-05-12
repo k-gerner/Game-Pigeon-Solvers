@@ -356,9 +356,3 @@ def main():
 	else:
 		highlightColor = GREEN_COLOR if winner == USER_PIECE else RED_COLOR
 		print(f"{highlightColor}{winner}{NO_COLOR} player wins!\n")
-
-
-if __name__ == "__main__":
-	main()
-
-
