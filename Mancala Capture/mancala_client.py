@@ -16,6 +16,7 @@ BOARD = [4] * 6 + [0] + [4] * 6 + [0]
 PLAYER1_ID = 1
 PLAYER2_ID = 2
 SAVE_FILENAME = "saved_game.txt"
+BOARD_HISTORY = []  # [highlightPocketIndex, playerId, board]
 
 
 # class for the Human player
@@ -46,9 +47,7 @@ class HumanPlayer(Player):
 				spot = input("Enter a coordinates for a move, or press 'q' to quit:\t").strip().upper()
 				erasePreviousLines(2)
 			elif spot == 'H':
-				print("History not yet implemented!")
-				exit(0)
-			# spot = getBoardHistoryInputFromUser(isAi=False)
+				spot = getBoardHistoryInputFromUser(isAi=False)
 			elif not spot.isdigit() or int(spot) < 1 or int(spot) > 6:
 				spot = input(f"{ERROR_SYMBOL} Please enter a number 1 - {POCKETS_PER_SIDE}:\t").strip().upper()
 				erasePreviousLines(1)
@@ -173,11 +172,11 @@ def saveGame(board, turn):
 		timeOfSave = datetime.now().strftime("%m/%d/%Y at %I:%M:%S %p")
 		saveFile.write(timeOfSave + "\n\n")
 		saveFile.write("SAVE STATE:\n")
-		saveFile.write(f"   {board[-1]}\n")  # opponent bank
+		saveFile.write(f"   {board[PLAYER2_BANK_INDEX]}\n")  # opponent bank
 		for row in range(len(board) // 2 - 1):  # playable caves; default 1 - 6
 			saveFile.write(
 				str(board[row]) + (" | " if board[row] >= 10 else "  | ") + str(board[-1 * (row + 2)]) + "\n")
-		saveFile.write(f"   {str(board[len(board) // 2])}\n")  # player bank
+		saveFile.write(f"   {str(board[PLAYER1_BANK_INDEX])}\n")  # player bank
 		saveFile.write(f"Turn: {turn}")
 	print(f"{INFO_SYMBOL} The game has been saved!")
 
@@ -191,8 +190,8 @@ def validateLoadedSaveState(board, turn):
 		print(f"{ERROR_SYMBOL} Please ensure each player has a bank and the same number of pockets!")
 		return False
 	num_rows = len(board) // 2 - 1
-	if not 3 < num_rows < 100:
-		print(f"{ERROR_SYMBOL} # Rows must be in range 3 - 99! Was {num_rows}")
+	if num_rows != POCKETS_PER_SIDE:
+		print(f"{ERROR_SYMBOL} # Rows must be {POCKETS_PER_SIDE}! Was {num_rows}")
 		return False
 	for spot in board:
 		if spot < 0:
@@ -258,6 +257,56 @@ def loadSavedGame():
 			return None
 
 
+def printMoveHistory(numMovesPrevious):
+	"""Prints the move history of the current game"""
+	while True:
+		erasePreviousLines(2)
+		printBoard(BOARD_HISTORY[-(numMovesPrevious + 1)][2], BOARD_HISTORY[-(numMovesPrevious + 1)][1],
+				   BOARD_HISTORY[-(numMovesPrevious + 1)][0])
+		if numMovesPrevious == 0:
+			return
+		print("(%d move%s before current board state)\n" % (numMovesPrevious, "s" if numMovesPrevious != 1 else ""))
+		numMovesPrevious -= 1
+		userInput = input("Press enter for next move, or 'e' to return to game.  ").strip().lower()
+		erasePreviousLines(1)
+		if userInput == 'q':
+			erasePreviousLines(2)
+			printAverageTimeTakenByPlayers()
+			print("\nThanks for playing!\n")
+			exit(0)
+		elif userInput == 'e':
+			erasePreviousLines(2)
+			return
+		else:
+			erasePreviousLines(BOARD_OUTPUT_HEIGHT)
+
+
+def getBoardHistoryInputFromUser(isAi):
+	"""
+    Prompts the user for input for how far the board history function.
+    Returns the user's input for the next move
+    """
+	nextMovePrompt = "Press enter to continue." if isAi else "Enter a valid move to play:"
+	if len(BOARD_HISTORY) < 2:
+		userInput = input(f"{INFO_SYMBOL} No previous moves to see. {nextMovePrompt}   ").strip().upper()
+		erasePreviousLines(1)
+	else:
+		numMovesPrevious = input(f"How many moves ago do you want to see? (1 to {len(BOARD_HISTORY) - 1})  ").strip()
+		erasePreviousLines(1)
+		if numMovesPrevious.isdigit() and 1 <= int(numMovesPrevious) <= len(BOARD_HISTORY) - 1:
+			erasePreviousLines(BOARD_OUTPUT_HEIGHT)
+			printMoveHistory(int(numMovesPrevious))
+			erasePreviousLines(BOARD_OUTPUT_HEIGHT)
+			printBoard(BOARD_HISTORY[-1][2], BOARD_HISTORY[-1][1], BOARD_HISTORY[-1][0])
+			userInput = input(f"{INFO_SYMBOL} You're back in play mode. {nextMovePrompt}   ").strip().upper()
+			erasePreviousLines(1)
+			print("\n")  # make this output the same height as the other options
+		else:
+			userInput = input(f"{ERROR_SYMBOL} Invalid input. {nextMovePrompt}   ").strip().upper()
+			erasePreviousLines(1)
+	return userInput
+
+
 def main():
 	if "-e" in sys.argv or "-eraseModeOff" in sys.argv:
 		global ERASE_MODE_ON
@@ -287,8 +336,7 @@ def main():
 		if turnFromSaveFile is not None:
 			turn = turnFromSaveFile
 			useSavedGame = True
-			# TODO: board history
-			# BOARD_HISTORY.append([[], copyOfBoard(BOARD)])
+			BOARD_HISTORY.append([-1, turn, BOARD.copy()])
 
 	if not useSavedGame:
 		userGoFirst = input("Would you like to go first? (y/n):\t").strip().upper()
@@ -302,8 +350,8 @@ def main():
 
 	print("Type 'q' to quit.")
 	print("Type 'f' to flip the board orientation 180 degrees.")
-	# print("Type 's' to save the game. [NOT YET IMPLEMENTED]")
-	# print("Type 'h' to see previous moves. [NOT YET IMPLEMENTED]")
+	print("Type 's' to save the game.")
+	print("Type 'h' to see previous moves.")
 
 	gameOver = False
 	printBoard(BOARD)
@@ -317,14 +365,11 @@ def main():
 			erasePreviousLines(1)
 			while userInput in ['Q', 'H', 'F', 'S']:
 				if userInput == 'Q':
-					# printAverageTimeTakenByPlayers()
+					printAverageTimeTakenByPlayers(timeTakenPerPlayer)
 					print("\nThanks for playing!\n")
 					exit(0)
 				elif userInput == 'H':
-					# userInput = getBoardHistoryInputFromUser(isAi=True)
-					userInput = input(
-						f"{ERROR_SYMBOL} Board history not implemented yet. Press enter to continue:\t").strip().upper()
-					erasePreviousLines(1)
+					userInput = getBoardHistoryInputFromUser(isAi=True)
 				elif userInput == 'F':
 					global USE_REVERSED_PRINT_LAYOUT
 					USE_REVERSED_PRINT_LAYOUT = not USE_REVERSED_PRINT_LAYOUT
@@ -350,7 +395,7 @@ def main():
 		timeTakenOutputStr = ("  (%dm " if minutesTaken > 0 else "  (") + (
 				"%.2fs)" % secondsTaken) if currentPlayer.isAI else ""
 		finalPebbleLocation = performMove(BOARD, chosenMove, currentPlayer.bankIndex)
-		# BOARD_HISTORY.append([[[rowPlayed, colPlayed]], copyOfBoard(gameBoard)])
+		BOARD_HISTORY.append([chosenMove, turn, BOARD.copy()])
 		erasePreviousLines(BOARD_OUTPUT_HEIGHT + extraLinesPrinted)
 		printBoard(BOARD, turn, chosenMove)
 		moveFormatted = str(min(BOARD_SIZE - 2 - chosenMove, chosenMove) + 1)
