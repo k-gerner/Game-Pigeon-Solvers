@@ -2,10 +2,10 @@
 
 # Text colors
 GREEN_COLOR = '\033[92m'	      # green
-YELLOW_COLOR = "\u001b[38;5;226m" # yellow
+YELLOW_COLOR = '\033[93m'		  # yellow
 RED_COLOR = '\033[91m'		      # red
 NO_COLOR = '\033[0m' 		      # white
-BLUE_COLOR = '\033[38;5;39m'      # blue
+BLUE_COLOR = '\033[36m'		      # blue
 
 # Terminal text erase functionality
 ERASE_MODE_ON = True
