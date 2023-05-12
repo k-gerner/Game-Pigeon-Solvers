@@ -1,20 +1,8 @@
+from util.terminaloutput.colors import YELLOW_COLOR, NO_COLOR
 # Constant values to be used across multiple files
-
-# Text colors
-GREEN_COLOR = '\033[92m'	      # green
-YELLOW_COLOR = '\033[93m'		  # yellow
-RED_COLOR = '\033[91m'		      # red
-NO_COLOR = '\033[0m' 		      # white
-BLUE_COLOR = '\033[36m'		      # blue
 
 # Terminal text erase functionality
 ERASE_MODE_ON = True
-CURSOR_UP_ONE = '\033[1A'
-ERASE_LINE = '\033[2K'
-
-# Symbols
-ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
-INFO_SYMBOL = f"{BLUE_COLOR}<!>{NO_COLOR}"
 
 # Board size
 POCKETS_PER_SIDE = 6  # excludes bank pockets

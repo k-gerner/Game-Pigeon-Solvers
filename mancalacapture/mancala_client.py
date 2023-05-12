@@ -6,10 +6,15 @@ import sys
 import time
 from datetime import datetime
 from importlib import import_module
-from constants import *
-from Player import Player
-from board_functions import *
-from strategy import *
+from util.terminaloutput.colors import RED_COLOR, GREEN_COLOR, NO_COLOR, YELLOW_COLOR
+from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL
+from util.terminaloutput.erasing import erasePreviousLines
+from mancalacapture.Player import Player
+from mancalacapture.board_functions import getIndexOfOppositeHole, pushAllPebblesToBank, winningPlayerBankIndex, \
+	isBoardTerminal, performMove
+from mancalacapture.constants import POCKETS_PER_SIDE, BOARD_OUTPUT_HEIGHT, PLAYER1_BANK_INDEX, PLAYER2_BANK_INDEX, \
+	SIDE_INDENT_STR, LEFT_SIDE_ARROW, RIGHT_SIDE_ARROW, BOARD_SIZE
+from mancalacapture.strategy import MancalaStrategy
 
 ERASE_MODE_ON = True
 USE_REVERSED_PRINT_LAYOUT = False
@@ -139,13 +144,6 @@ def printAsciiArt():
              | |                       
              |_|  
     """)
-
-
-def erasePreviousLines(numLines, overrideEraseMode=False):
-	"""Erases the specified previous number of lines from the terminal"""
-	eraseMode = ERASE_MODE_ON if not overrideEraseMode else (not ERASE_MODE_ON)
-	if eraseMode:
-		print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(int(numLines), 0), end='')
 
 
 def saveGame(board, turn):
@@ -322,7 +320,7 @@ def getDuelingAi():
 	"""Returns the imported AI Strategy class if the import is valid"""
 	duelAiModuleName = getOpposingAiModuleName()
 	try:
-		DuelingAi  = getattr(import_module(duelAiModuleName), 'Strategy')
+		DuelingAi  = getattr(import_module(duelAiModuleName), 'MancalaStrategy')
 		if not issubclass(DuelingAi, Player):
 			print(f"{ERROR_SYMBOL} Please make sure your AI is a subclass of 'Player'")
 			exit(0)
@@ -332,7 +330,7 @@ def getDuelingAi():
 			  f"{INFO_SYMBOL} Pass the name of your Python file as a command line argument.")
 		exit(0)
 	except AttributeError:
-		print(f"{ERROR_SYMBOL} Please make sure your AI's class name is 'Strategy'")
+		print(f"{ERROR_SYMBOL} Please make sure your AI's class name is 'MancalaStrategy'")
 		exit(0)
 
 
@@ -352,7 +350,7 @@ def main():
 
 	players = {  # remove hardcode values later
 		PLAYER1_ID: UserPlayerClass(PLAYER1_BANK_INDEX),
-		PLAYER2_ID: Strategy(PLAYER2_BANK_INDEX)
+		PLAYER2_ID: MancalaStrategy(PLAYER2_BANK_INDEX)
 	}
 	nameOfPlayer1 = "Your AI" if AI_DUEL_MODE else "Human"
 	nameOfPlayer2 = "My AI" if AI_DUEL_MODE else "AI"

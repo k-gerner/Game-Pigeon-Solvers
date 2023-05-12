@@ -1,5 +1,6 @@
 # Contains board manipulation methods
-from constants import *
+from mancalacapture.constants import PLAYER1_BANK_INDEX, PLAYER2_BANK_INDEX, POCKETS_PER_SIDE, BOARD_SIZE
+from util.terminaloutput.symbols import ERROR_SYMBOL
 
 
 def pushAllPebblesToBank(board):

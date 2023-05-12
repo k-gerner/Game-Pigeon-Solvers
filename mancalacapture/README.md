@@ -79,7 +79,7 @@ your AI was located in `myAiFile.py`, you would run:
 ```
 
 In order for your AI to be eligible, it must meet a few requirements:
-* AI logic must be contained in a class named `Strategy`
+* AI logic must be contained in a class named `MancalaStrategy`
 * AI must be a subclass of `Player`, found in `Player.py`
 * AI must have a function named `getMove` that accepts a game board
   as a parameter, and returns the chosen move coordinates in the form of

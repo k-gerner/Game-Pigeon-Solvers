@@ -1,16 +1,17 @@
 # Contains AI strategy
 import math  # for infinities
 import random  # for randomizing valid moves list in minimax
-from constants import *
-from board_functions import *
-from Player import Player  # super class
+from mancalacapture.board_functions import getValidMoves, performMove, isBoardTerminal, pushAllPebblesToBank, \
+	winningPlayerBankIndex
+from mancalacapture.constants import TOTAL_PEBBLES, POCKETS_PER_SIDE, BOARD_SIZE
+from mancalacapture.Player import Player  # super class
 
 MAX_DEPTH = 10  # max number of moves ahead to calculate
 MAX, MIN = True, False  # to be used in minimax
 
 
 # class for the A.I.
-class Strategy(Player):
+class MancalaStrategy(Player):
 
 	def __init__(self, bankIndex=13):
 		super().__init__(bankIndex)
@@ -39,7 +40,6 @@ class Strategy(Player):
 		playerScore = playerBankScore + scorePockets(playerPockets)
 		opponentScore = opponentBankScore + scorePockets(opponentPockets)
 		return playerScore - opponentScore
-		# pebblesInPlay = sum(board[bankIndex - 6 : bankIndex])
 
 	def minimax(self, board, depth, maxOrMin, alpha, beta, localMaxDepth):
 		"""
