@@ -383,7 +383,3 @@ def main():
     else:
         print(f"{YELLOW_COLOR}YELLOW{NO_COLOR} wins!\n")
     endGame()
-
-
-if __name__ == "__main__":
-    main()

@@ -406,8 +406,3 @@ def main():
 		print(f"{highlightColor}{winnerColorName}{NO_COLOR} wins!\n")
 	printAverageTimeTakenByPlayers()
 	print("\nThanks for playing!\n")
-
-
-
-if __name__ == "__main__":
-	main()

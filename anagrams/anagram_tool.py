@@ -115,7 +115,3 @@ def main():
 	else:
 		printFoundWords(validWords)
 	print("Thanks for using my Anagrams Solver Tool!\n")
-
-
-if __name__ == '__main__':
-	main()
