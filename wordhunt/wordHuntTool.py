@@ -2,7 +2,9 @@
 # 2.24.2021
 # Tool for Game Pigeon's 'Word Hunt' puzzle game
 
-from classes import Board, Letter
+from wordhunt.classes import Board, Letter
+from util.terminaloutput.symbols import ERROR_SYMBOL
+from util.terminaloutput.erasing import erasePreviousLines
 from functools import cmp_to_key
 import os
 import sys
@@ -23,7 +25,7 @@ LIST = 0
 DIAGRAM = 1
 ##################
 
-WORDS_LIST_FILENAME = "letters10.txt"
+WORDS_LIST_FILENAME = "wordhunt/letters10.txt"
 MORE_INFO_OUTPUT_HEIGHT = 26
 DIAGRAM_OUTPUT_HEIGHT = 6
 
@@ -34,11 +36,6 @@ MAX_LENGTH = 10 # max length of the words to find; can be changed by user input
 positionsList = [] # used to keep the lists of positions in diagram mode, since nested lists cannot be hashed
 wordStarts = set() # set that holds every valid part of every word from beginning to some point in the middle
 
-RED_COLOR = '\033[91m'
-NO_COLOR = '\033[0m'
-ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
-CURSOR_UP_ONE = '\033[1A'
-ERASE_LINE = '\033[2K'
 ERASE_MODE_ON = True
 
 # read in the user's input for the board letters
@@ -221,11 +218,6 @@ def printOutput(validWords, mode):
 			place += 1
 	print("No more words, thanks for using my Word Hunt Tool!\n")
 
-def erasePreviousLines(numLines, overrideEraseMode=False):
-	"""Erases the specified previous number of lines from the terminal"""
-	eraseMode = ERASE_MODE_ON if not overrideEraseMode else (not ERASE_MODE_ON)
-	if eraseMode:
-		print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(numLines, 0), end='')
 
 # main method
 def main():
@@ -298,7 +290,3 @@ def main():
 		print(f"{ERROR_SYMBOL} There were no valid words for the board.")
 		exit(0)
 	printOutput(validWords, outputMode)
-
-
-if __name__ == '__main__':
-	main()

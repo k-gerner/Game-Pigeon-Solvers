@@ -342,7 +342,3 @@ def main():
 		print(f"{ERROR_SYMBOL} There were no valid words for the board.")
 		exit(0)
 	printOutput(validWords)
-
-
-if __name__ == '__main__':
-	main()
