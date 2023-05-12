@@ -1,20 +1,20 @@
 # Contains AI strategy and board manipulation methods
 
-import math # for infinities
-import random # for randomizing valid moves list in minimax
-import sys # for better progress bar formatting
-from Player import Player # super class
+import math  # for infinities
+import random  # for randomizing valid moves list in minimax
+import sys  # for better progress bar formatting
+from gomoku.Player import Player  # super class
 
 #### DO NOT MODIFY ####
 EMPTY, BLACK, WHITE = '.', 'X', 'O'
 BLACK_HASH_ROW_NUM, WHITE_HASH_ROW_NUM = 0, 1
-MAX, MIN = True, False # to be used in minimax
-WIN_SCORE = 1000000000 # large enough to always be the preferred outcome
+MAX, MIN = True, False  # to be used in minimax
+WIN_SCORE = 1000000000  # large enough to always be the preferred outcome
 #######################
 ####### MODIFY ########
-MAX_NEIGHBOR_DIST = 2 # max distance from an already played piece that we want to check if open
-MAX_NUM_MOVES_TO_EVALUATE = 15 # most moves we want to evaluate at once for any given board
-MAX_DEPTH = 6 # max number of moves ahead to calculate
+MAX_NEIGHBOR_DIST = 2  # max distance from an already played piece that we want to check if open
+MAX_NUM_MOVES_TO_EVALUATE = 15  # most moves we want to evaluate at once for any given board
+MAX_DEPTH = 6  # max number of moves ahead to calculate
 #######################
 
 # class for the A.I.
