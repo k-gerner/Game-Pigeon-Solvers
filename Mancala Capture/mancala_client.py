@@ -4,6 +4,7 @@
 import os
 import sys
 import time
+from datetime import datetime
 from constants import *
 from Player import Player
 from board_functions import *
@@ -14,6 +15,7 @@ USE_REVERSED_PRINT_LAYOUT = False
 BOARD = [4] * 6 + [0] + [4] * 6 + [0]
 PLAYER1_ID = 1
 PLAYER2_ID = 2
+SAVE_FILENAME = "saved_game.txt"
 
 
 # class for the Human player
@@ -40,11 +42,9 @@ class HumanPlayer(Player):
 					f"Board print layout changed. Which spot would you like to play? (1 - {POCKETS_PER_SIDE}):\t").strip().upper()
 				erasePreviousLines(1)
 			elif spot == 'S':
-				print("Save not yet implemented!")
-				exit(0)
-			# saveGame(board, self.color)
-			# spot = input("Enter a coordinates for a move, or press 'q' to quit:\t").strip().upper()
-			# erasePreviousLines(2)
+				saveGame(board, PLAYER1_ID)
+				spot = input("Enter a coordinates for a move, or press 'q' to quit:\t").strip().upper()
+				erasePreviousLines(2)
 			elif spot == 'H':
 				print("History not yet implemented!")
 				exit(0)
@@ -148,6 +148,116 @@ def erasePreviousLines(numLines, overrideEraseMode=False):
 		print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(int(numLines), 0), end='')
 
 
+def saveGame(board, turn):
+	"""Saves the given board state to a save file"""
+	if os.path.exists(SAVE_FILENAME):
+		with open(SAVE_FILENAME, 'r') as saveFile:
+			try:
+				timeOfPreviousSave = saveFile.readlines()[3].strip()
+				overwrite = input(
+					f"{INFO_SYMBOL} A save state already exists from {timeOfPreviousSave}.\nIs it okay to overwrite it? (y/n)\t").strip().lower()
+				erasePreviousLines(1)
+				while overwrite not in ['y', 'n']:
+					erasePreviousLines(1)
+					overwrite = input(
+						f"{ERROR_SYMBOL} Invalid input. Is it okay to overwrite the existing save state? (y/n)\t").strip().lower()
+				erasePreviousLines(1)
+				if overwrite == 'n':
+					print(f"{INFO_SYMBOL} The current game state will not be saved.")
+					return
+			except IndexError:
+				pass
+	with open(SAVE_FILENAME, 'w') as saveFile:
+		saveFile.write("This file contains the save state of a previously played game.\n")
+		saveFile.write("Modifying this file may cause issues with loading the save state.\n\n")
+		timeOfSave = datetime.now().strftime("%m/%d/%Y at %I:%M:%S %p")
+		saveFile.write(timeOfSave + "\n\n")
+		saveFile.write("SAVE STATE:\n")
+		saveFile.write(f"   {board[-1]}\n")  # opponent bank
+		for row in range(len(board) // 2 - 1):  # playable caves; default 1 - 6
+			saveFile.write(
+				str(board[row]) + (" | " if board[row] >= 10 else "  | ") + str(board[-1 * (row + 2)]) + "\n")
+		saveFile.write(f"   {str(board[len(board) // 2])}\n")  # player bank
+		saveFile.write(f"Turn: {turn}")
+	print(f"{INFO_SYMBOL} The game has been saved!")
+
+
+def validateLoadedSaveState(board, turn):
+	"""Make sure the state loaded from the save file is valid. Returns a boolean"""
+	if turn not in [PLAYER1_ID, PLAYER2_ID]:
+		print(f"{ERROR_SYMBOL} Invalid player turn!")
+		return False
+	if len(board) % 2 != 0:
+		print(f"{ERROR_SYMBOL} Please ensure each player has a bank and the same number of pockets!")
+		return False
+	num_rows = len(board) // 2 - 1
+	if not 3 < num_rows < 100:
+		print(f"{ERROR_SYMBOL} # Rows must be in range 3 - 99! Was {num_rows}")
+		return False
+	for spot in board:
+		if spot < 0:
+			print(f"{ERROR_SYMBOL} Pockets cannot have a negative amount of pebbles!")
+			return False
+	return True
+
+
+def loadSavedGame():
+	"""Try to load the saved game data"""
+	global BOARD
+	with open(SAVE_FILENAME, 'r') as saveFile:
+		try:
+			linesFromSaveFile = saveFile.readlines()
+			timeOfPreviousSave = linesFromSaveFile[3].strip()
+			useExistingSave = input(
+				f"{INFO_SYMBOL} Would you like to load the saved game from {timeOfPreviousSave}? (y/n)\t").strip().lower()
+			erasePreviousLines(1)
+			if useExistingSave != 'y':
+				print(f"{INFO_SYMBOL} Starting a new game...")
+				return
+			lineNum = 0
+			currentLine = linesFromSaveFile[lineNum].strip()
+			while currentLine != "SAVE STATE:":
+				lineNum += 1
+				currentLine = linesFromSaveFile[lineNum].strip()
+			lineNum += 1
+			currentLine = linesFromSaveFile[lineNum].strip()
+
+			opponent_bank = [int(currentLine.strip())]
+			lineNum += 1
+			currentLine = linesFromSaveFile[lineNum].strip()
+
+			user_pockets = []
+			opponent_pockets = []
+			while "|" in currentLine:
+				user_pockets.append(int(currentLine.split("|")[0].strip()))
+				opponent_pockets.append(int(currentLine.split("|")[1].strip()))
+				lineNum += 1
+				currentLine = linesFromSaveFile[lineNum].strip()
+			user_bank = [int(currentLine.strip())]
+			board = user_pockets + user_bank + opponent_pockets + opponent_bank
+
+			while not currentLine.startswith("Turn:"):
+				lineNum += 1
+				currentLine = linesFromSaveFile[lineNum].strip()
+			turn = int(currentLine.split()[1])
+
+			if not validateLoadedSaveState(board, turn):
+				raise ValueError
+			BOARD = board
+			deleteSaveFile = input(
+				f"{INFO_SYMBOL} Saved game was successfully loaded! Delete the save file? (y/n)\t").strip().lower()
+			erasePreviousLines(1)
+			fileDeletedText = ""
+			if deleteSaveFile == 'y':
+				os.remove(SAVE_FILENAME)
+				fileDeletedText = "Save file deleted."
+			print(f"{INFO_SYMBOL} {fileDeletedText} Resuming saved game...")
+			return turn
+		except:
+			print(f"{ERROR_SYMBOL} There was an issue reading from the save file. Starting a new game...")
+			return None
+
+
 def main():
 	if "-e" in sys.argv or "-eraseModeOff" in sys.argv:
 		global ERASE_MODE_ON
@@ -170,14 +280,25 @@ def main():
 		PLAYER2_ID: [nameOfPlayer2, 0, 0]
 	}
 
-	userGoFirst = input("Would you like to go first? (y/n):\t").strip().upper()
-	erasePreviousLines(1)
-	if userGoFirst == "Y":
-		turn = PLAYER1_ID
-		print("%s will go first!" % playerNames[turn])
-	else:
-		turn = PLAYER2_ID
-		print("%s will go first!" % playerNames[turn])
+	turn = PLAYER1_ID
+	useSavedGame = False
+	if os.path.exists(SAVE_FILENAME):
+		turnFromSaveFile = loadSavedGame()
+		if turnFromSaveFile is not None:
+			turn = turnFromSaveFile
+			useSavedGame = True
+			# TODO: board history
+			# BOARD_HISTORY.append([[], copyOfBoard(BOARD)])
+
+	if not useSavedGame:
+		userGoFirst = input("Would you like to go first? (y/n):\t").strip().upper()
+		erasePreviousLines(1)
+		if userGoFirst == "Y":
+			turn = PLAYER1_ID
+			print("%s will go first!" % playerNames[turn])
+		else:
+			turn = PLAYER2_ID
+			print("%s will go first!" % playerNames[turn])
 
 	print("Type 'q' to quit.")
 	print("Type 'f' to flip the board orientation 180 degrees.")
@@ -213,12 +334,10 @@ def main():
 					userInput = input(f"Board print layout changed. Press enter to continue:\t").strip().upper()
 					erasePreviousLines(1)
 				else:
-					# saveGame(gameBoard, turn)
-					# userInput = input(f"Press enter for {nameOfCurrentPlayer} to play, or press 'q' to quit:\t").strip().upper()
-					# erasePreviousLines(2)
+					saveGame(BOARD, turn)
 					userInput = input(
-						f"{ERROR_SYMBOL} Game saving not implemented yet. Please choose a move:\t").strip().upper()
-					erasePreviousLines(1)
+						f"Press enter for {nameOfCurrentPlayer} to play, or press 'q' to quit:\t").strip().upper()
+					erasePreviousLines(2)
 
 		startTime = time.time()
 		chosenMove = currentPlayer.getMove(BOARD)
