@@ -4,27 +4,19 @@
 import os
 import sys
 import time
+from util.terminaloutput.colors import YELLOW_COLOR, RED_COLOR, BLUE_COLOR, GREEN_COLOR, NO_COLOR, GREY_COLOR
+from util.terminaloutput.erasing import erasePreviousLines
+from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL
 from importlib import import_module
 from datetime import datetime
-from Player import Player
-from strategy import Strategy, opponentOf, performMove, checkIfGameOver, isValidMove, copyOfBoard
-
-YELLOW_COLOR = "\u001b[38;5;226m"  # yellow
-RED_COLOR = '\033[91m'             # red
-BLUE_COLOR = "\u001b[38;5;39m"     # blue
-GREEN_COLOR = "\x1B[38;5;47m"      # green
-GREY_COLOR = "\x1B[38;5;247m"      # grey
-NO_COLOR = '\033[0m'               # white
+from connect4.Player import Player
+from connect4.strategy import Strategy, opponentOf, performMove, checkIfGameOver, isValidMove, copyOfBoard
 
 ERASE_MODE_ON = True
 BOARD_OUTPUT_HEIGHT = 9
 
-CURSOR_UP_ONE = '\033[1A'
-ERASE_LINE = '\033[2K'
-ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
-INFO_SYMBOL = f"{BLUE_COLOR}<!>{NO_COLOR}"
 SAVE_FILENAME = "saved_game.txt"
-BOARD_HISTORY = [] # [board, highlightCoordinates]
+BOARD_HISTORY = []  # [board, highlightCoordinates]
 
 EMPTY, RED, YELLOW = '.', 'o', '@'
 gameBoard = [[EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],  # bottom row
@@ -259,13 +251,6 @@ def printAsciiTitleArt():
  | |___| (_) | | | | | | |  __/ (__| |_     | |  
   \_____\___/|_| |_|_| |_|\___|\___|\__|    |_|      
     """)
-
-
-def erasePreviousLines(numLines, overrideEraseMode=False):
-    """Erases the specified previous number of lines from the terminal"""
-    eraseMode = ERASE_MODE_ON if not overrideEraseMode else (not ERASE_MODE_ON)
-    if eraseMode:
-        print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(numLines, 0), end='')
 
 
 def getOpposingAiModuleName():

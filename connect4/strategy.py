@@ -2,9 +2,9 @@
 # Kyle Gerner 3.18.21
 # Contains AI strategy and board manipulation methods
 
-import math # for infinities
-import random # for randomizing valid moves list in minimax
-from Player import Player # super class
+import math  # for infinities
+import random  # for randomizing valid moves list in minimax
+from connect4.Player import Player  # super class
 
 EMPTY, RED, YELLOW = '.', 'o', '@'
 NUM_ROWS, NUM_COLS = 6, 7
