@@ -674,8 +674,3 @@ def main():
 	erasePreviousLines(BOARD_OUTPUT_HEIGHT + 2)
 	print_board(most_recent_move)
 	print("\nGood job, you won!\n")
-
-
-if __name__ == "__main__":
-	main()
-

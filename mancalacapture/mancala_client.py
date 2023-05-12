@@ -451,7 +451,3 @@ def main():
 	else:
 		print("%s wins!\n" % playerNames[winnerId])
 	printAverageTimeTakenByPlayers(timeTakenPerPlayer)
-
-
-if __name__ == '__main__':
-	main()

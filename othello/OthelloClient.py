@@ -488,6 +488,3 @@ def main():
         gameOver, winner = checkGameOver(BOARD)
         turn = opponentOf(turn)
     endGame(winner)
-
-if __name__ == '__main__':
-    main()
