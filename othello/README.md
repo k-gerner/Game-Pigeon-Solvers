@@ -152,4 +152,4 @@ displayed for each player.
 \
 \
 If you made it this far, you should check out my other A.I.s and 
-solvers! I'm especially proud of my [Gomoku A.I.](/Gomoku%20AI)!
+solvers! I'm especially proud of my [Gomoku A.I.](/gomoku)!
