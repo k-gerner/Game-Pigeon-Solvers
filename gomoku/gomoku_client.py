@@ -4,11 +4,11 @@
 from importlib import import_module
 from datetime import datetime
 
-from strategy import Strategy, opponentOf, performMove, copyOfBoard
+from gomoku.strategy import GomokuStrategy, opponentOf, performMove, copyOfBoard
 import time
 import os
 import sys
-from Player import Player
+from gomoku.Player import Player
 
 EMPTY, BLACK, WHITE = '.', 'X', 'O'
 gameBoard = [] # created later
@@ -275,7 +275,7 @@ def getDuelingAi():
 	"""Returns the imported AI Strategy class if the import is valid"""
 	duelAiModuleName = getOpposingAiModuleName()
 	try:
-		DuelingAi  = getattr(import_module(duelAiModuleName), 'Strategy')
+		DuelingAi  = getattr(import_module(duelAiModuleName), 'GomokuStrategy')
 		if not issubclass(DuelingAi, Player):
 			print(f"{ERROR_SYMBOL} Please make sure your AI is a subclass of 'Player'")
 			exit(0)
@@ -352,7 +352,7 @@ def main():
 	BOARD_DIMENSION = boardDimension
 	BOARD_OUTPUT_HEIGHT = boardDimension + 5
 	playerNames = {userPiece: userPlayerName, opponentPiece: aiPlayerName}
-	players = {opponentPiece: Strategy(opponentPiece, boardDimension), userPiece: UserPlayerClass(userPiece)}
+	players = {opponentPiece: GomokuStrategy(opponentPiece, boardDimension), userPiece: UserPlayerClass(userPiece)}
 
 	print(f"\n{userPlayerName}: {GREEN_COLOR}{userPiece}{NO_COLOR}\t{aiPlayerName}: {RED_COLOR}{opponentPiece}{NO_COLOR}")
 	print("Type 'q' to quit.")

@@ -18,7 +18,7 @@ MAX_DEPTH = 6 # max number of moves ahead to calculate
 #######################
 
 # class for the A.I.
-class Strategy(Player):
+class GomokuStrategy(Player):
 
 	def __init__(self, color, boardDimension=13):
 		"""Initializes the board attributes"""
