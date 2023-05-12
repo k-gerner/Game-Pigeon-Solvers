@@ -13,7 +13,7 @@ MAX, MIN = True, False # to be used in minimax
 WIN_SCORE = 1000000 # large enough to always be the preferred outcome
 
 # class for the A.I.
-class Strategy(Player):
+class Connect4Strategy(Player):
 
 	def __init__(self, color):
 		super().__init__(color)

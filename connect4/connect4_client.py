@@ -10,7 +10,7 @@ from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL
 from importlib import import_module
 from datetime import datetime
 from connect4.Player import Player
-from connect4.strategy import Strategy, opponentOf, performMove, checkIfGameOver, isValidMove, copyOfBoard
+from connect4.strategy import Connect4Strategy, opponentOf, performMove, checkIfGameOver, isValidMove, copyOfBoard
 
 ERASE_MODE_ON = True
 BOARD_OUTPUT_HEIGHT = 9
@@ -268,7 +268,7 @@ def getDuelingAi():
     """Returns the imported AI Strategy class if the import is valid"""
     duelAiModuleName = getOpposingAiModuleName()
     try:
-        DuelingAi  = getattr(import_module(duelAiModuleName), 'Strategy')
+        DuelingAi  = getattr(import_module(duelAiModuleName), 'Connect4Strategy')
         if not issubclass(DuelingAi, Player):
             print(f"{ERROR_SYMBOL} Please make sure your AI is a subclass of 'Player'")
             exit(0)
@@ -335,7 +335,7 @@ def main():
     opponentHighlightColor = getHighlightColorForPiece(opponentPiece)
     print(f"{userPlayerName}: {userHighlightColor}{userPiece}{NO_COLOR}\t{aiPlayerName}: {opponentHighlightColor}{opponentPiece}{NO_COLOR}")
     playerNames = {opponentPiece: aiPlayerName, userPiece: userPlayerName}
-    players = {opponentPiece: Strategy(opponentPiece), userPiece: UserPlayerClass(userPiece)}
+    players = {opponentPiece: Connect4Strategy(opponentPiece), userPiece: UserPlayerClass(userPiece)}
     gameOver = False
     winningPiece = None
     print("Type 's' at any prompt to save the game.")
