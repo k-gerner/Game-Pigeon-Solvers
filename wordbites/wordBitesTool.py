@@ -3,6 +3,9 @@
 # Tool for Game Pigeon's 'Word Bites' puzzle game
 
 from functools import cmp_to_key
+from util.terminaloutput.colors import NO_COLOR, BLUE_COLOR, YELLOW_COLOR
+from util.terminaloutput.symbols import ERROR_SYMBOL
+from util.terminaloutput.erasing import erasePreviousLines
 import sys
 import os
 
@@ -15,29 +18,22 @@ LIST = 0
 DIAGRAM = 1
 
 # globals
-MAX_LENGTHS = {HORIZONTAL: 8, VERTICAL: 9} # max length of the words in each direction
-DISPLAY_MODE = DIAGRAM # default display mode
-horizPieces = [] # list of horizontal letter groupings
-vertPieces = []  # list of vertical letter groupings
-singleLetterPieces = [] # list of letter groupings made up of a single letter
-englishWords = set() # LARGE set that will contain every possible word. Using set for O(1) lookup
-wordStarts = set() # set that holds every starting character sequence of every valid word
-validWordsOnly = set() # set of only the valid word strings (no tuple pairing)
-validsWithDetails = set() # contains the words and direction, as well as index of list of pieces from piecesList if in DIAGRAM mode
-piecesList = [] # used to keep the list of pieces for a valid word (in DIAGRAM mode), since lists cannot be hashed in the set
+MAX_LENGTHS = {HORIZONTAL: 8, VERTICAL: 9}  # max length of the words in each direction
+DISPLAY_MODE = DIAGRAM  # default display mode
+horizPieces = []  # list of horizontal letter groupings
+vertPieces = []   # list of vertical letter groupings
+singleLetterPieces = []  # list of letter groupings made up of a single letter
+englishWords = set()  # LARGE set that will contain every possible word. Using set for O(1) lookup
+wordStarts = set()  # set that holds every starting character sequence of every valid word
+validWordsOnly = set()  # set of only the valid word strings (no tuple pairing)
+validsWithDetails = set()  # contains the words and direction, as well as index of list of pieces from piecesList if in DIAGRAM mode
+piecesList = []  # used to keep the list of pieces for a valid word (in DIAGRAM mode), since lists cannot be hashed in the set
 
-RED_COLOR = '\033[91m'
-NO_COLOR = '\033[0m'
-BLUE_COLOR = "\u001b[38;5;39m"
-YELLOW_COLOR = "\u001b[38;5;226m"
 LIST_MODE_DIRECTION_COLORS = {HORIZONTAL: BLUE_COLOR, VERTICAL: YELLOW_COLOR}
-ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
-CURSOR_UP_ONE = '\033[1A'
-ERASE_LINE = '\033[2K'
 ERASE_MODE_ON = True
 MORE_INFO_OUTPUT_HEIGHT = 30
 
-WORD_LIST_FILENAME = 'letters9.txt'
+WORD_LIST_FILENAME = 'wordbites/letters9.txt'
 
 # read in the user's input for the board pieces
 def readInBoard():
@@ -299,11 +295,6 @@ def printModeInfo():
 	print("\t  a l\n\t  t\n\to h\n\t  e\t\t1:   athetised\n\t  t\n\t  i n\n\t  s\n\t  e\n\t  d\n")
 	print("Press enter for next word.")
 
-def erasePreviousLines(numLines, overrideEraseMode=False):
-	"""Erases the specified previous number of lines from the terminal"""
-	eraseMode = ERASE_MODE_ON if not overrideEraseMode else (not ERASE_MODE_ON)
-	if eraseMode:
-		print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(numLines, 0), end='')
 
 # main method - fills english words sets and calls other functions
 def main():
