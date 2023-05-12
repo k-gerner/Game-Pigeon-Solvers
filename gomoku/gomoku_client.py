@@ -285,7 +285,7 @@ def getDuelingAi():
 			  f"{INFO_SYMBOL} Pass the name of your Python file as a command line argument.")
 		exit(0)
 	except AttributeError:
-		print(f"{ERROR_SYMBOL} Please make sure your AI's class name is 'Strategy'")
+		print(f"{ERROR_SYMBOL} Please make sure your AI's class name is 'GomokuStrategy'")
 		exit(0)
 
 def main():
