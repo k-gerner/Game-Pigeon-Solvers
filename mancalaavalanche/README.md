@@ -19,11 +19,11 @@ over). For further explanation, see [this website](https://allthings.how/how-to-
 *Note*: This code is likely not as optimized as it could be, as I 
 wrote it as an exercise to refamiliarize myself with Python.
 #### How to use
-First, go into the [Python Version](/Mancala%20Avalanche/Python%20Version) 
-directory and download the `MancalaAvalanche.py` and `Classes.py` 
+First, go into the [Python Version](/mancalaavalanche/python) 
+directory and download the `mancala_avalanche.py` and `classes.py` 
 files. Then, run the following command:  
 ```
-> python3 MancalaAvalanche.py
+> python3 mancala_avalanche.py
 ```  
 You will be prompted for which mode you would like to use (have the 
 moves presented all at once, or one at a time). Next, you will be 
@@ -43,7 +43,7 @@ to quit the program.
 
 ### Java Version  
 #### How to use
-First, go into the [Java Version](/Mancala%20Avalanche/Java%20Version) 
+First, go into the [Java Version](/mancalaavalanche/java) 
 directory and download the `MancalaAvalanche.java` and 
 `MancalaBoard.java` files. Then, run the following command:  
 ```

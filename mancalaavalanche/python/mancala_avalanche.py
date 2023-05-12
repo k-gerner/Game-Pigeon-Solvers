@@ -1,19 +1,15 @@
 # Kyle Gerner    7.9.2020
 # The class that contains the main method that runs the solver. Also contains
 from mancalaavalanche.python.classes import AvalancheBoard, Player, AvalancheSolver
+from util.terminaloutput.colors import GREEN_COLOR, RED_COLOR, NO_COLOR
+from util.terminaloutput.symbols import ERROR_SYMBOL
+from util.terminaloutput.erasing import erasePreviousLines
 import os
 import sys
 
 ONE_BY_ONE = 1
 ALL_AT_ONCE = 2
 
-GREEN_COLOR = '\033[92m'
-RED_COLOR = '\033[91m'
-NO_COLOR = '\033[0m'
-ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
-
-CURSOR_UP_ONE = '\033[1A'
-ERASE_LINE = '\033[2K'
 ERASE_MODE_ON = True
 
 # reads in the input for the board from the user
@@ -96,13 +92,9 @@ def printBestMovesOneByOne(pointsGained, bestMoves):
 def printSequence(mode, solver, pointsGained, bestMoves):
     if mode == ONE_BY_ONE:
         printBestMovesOneByOne(pointsGained, bestMoves)
-    else: printBestMoveStatus(pointsGained, bestMoves)
+    else:
+        printBestMoveStatus(pointsGained, bestMoves)
 
-def erasePreviousLines(numLines, overrideEraseMode=False):
-    """Erases the specified previous number of lines from the terminal"""
-    eraseMode = ERASE_MODE_ON if not overrideEraseMode else (not ERASE_MODE_ON)
-    if eraseMode:
-        print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(numLines, 0), end='')
 
 # main method
 def main():
@@ -150,7 +142,3 @@ def main():
         solver.board.p1.score = oldPlayerPoints
         solver.board.p2.score = oldEnemyPoints
         firstIteration = False
-
-
-if __name__ == '__main__':
-    main()
