@@ -1,16 +1,16 @@
 # Contains AI strategy and board manipulation methods
 # Kyle G 6.6.2021
 
-from Player import Player
-import math # for infinities
-import random # for randomizing valid moves list in minimax
+from tictactoe.Player import Player
+import math  # for infinities
+import random  # for randomizing valid moves list in minimax
 
 EMPTY, X_PIECE, O_PIECE = ' ', 'X', 'O'
 MAX, MIN = True, False # to be used in minimax
 WIN_SCORE = 1000000000 # large enough to always be the preferred outcome
 
 # class for the A.I.
-class Strategy(Player):
+class TicTacToeStrategy(Player):
 
 	def __init__(self, aiColor):
 		"""Initializes the board attributes"""

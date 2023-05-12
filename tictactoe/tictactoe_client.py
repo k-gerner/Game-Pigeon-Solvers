@@ -1,8 +1,11 @@
 # Tic Tac Toe AI client facing
 # Kyle G 6.6.2021
 
-from Player import Player
-from strategy import Strategy, opponentOf, isTerminal, performMove, copyOfBoard
+from tictactoe.Player import Player
+from tictactoe.strategy import TicTacToeStrategy, opponentOf, isTerminal, performMove, copyOfBoard
+from util.terminaloutput.colors import GREEN_COLOR, RED_COLOR, NO_COLOR
+from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL
+from util.terminaloutput.erasing import erasePreviousLines
 from importlib import import_module
 from datetime import datetime
 import os
@@ -15,18 +18,9 @@ gameBoard = [[EMPTY, EMPTY, EMPTY],
 			 [EMPTY, EMPTY, EMPTY]]
 USER_PIECE = X_PIECE
 
-GREEN_COLOR = '\033[92m'  	 # green
-RED_COLOR = '\033[91m'	  	 # red
-BLUE_COLOR = '\033[38;5;39m' # blue
-NO_COLOR = '\033[0m' 	  	 # white
-
 ERASE_MODE_ON = True
 BOARD_OUTPUT_HEIGHT = 7
 
-CURSOR_UP_ONE = '\033[1A'
-ERASE_LINE = '\033[2K'
-ERROR_SYMBOL = f"{RED_COLOR}<!>{NO_COLOR}"
-INFO_SYMBOL = f"{BLUE_COLOR}<!>{NO_COLOR}"
 SAVE_FILENAME = "saved_game.txt"
 BOARD_HISTORY = []
 
@@ -131,13 +125,6 @@ def getBoardHistoryInputFromUser(isAi):
 			userInput = input(f"{ERROR_SYMBOL} Invalid input. {nextMovePrompt}   ").strip().upper()
 			erasePreviousLines(1)
 	return userInput
-
-
-def erasePreviousLines(numLines, overrideEraseMode=False):
-	"""Erases the specified previous number of lines from the terminal"""
-	eraseMode = ERASE_MODE_ON if not overrideEraseMode else (not ERASE_MODE_ON)
-	if eraseMode:
-		print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(numLines, 0), end='')
 
 
 def saveGame(turn):
@@ -257,7 +244,7 @@ def getDuelingAi():
 	"""Returns the imported AI Strategy class if the import is valid"""
 	duelAiModuleName = getOpposingAiModuleName()
 	try:
-		DuelingAi  = getattr(import_module(duelAiModuleName), 'Strategy')
+		DuelingAi  = getattr(import_module(duelAiModuleName), 'TicTacToeStrategy')
 		if not issubclass(DuelingAi, Player):
 			print(f"{ERROR_SYMBOL} Please make sure your AI is a subclass of 'Player'")
 			exit(0)
@@ -267,7 +254,7 @@ def getDuelingAi():
 			  f"{INFO_SYMBOL} Pass the name of your Python file as a command line argument.")
 		exit(0)
 	except AttributeError:
-		print(f"{ERROR_SYMBOL} Please make sure your AI's class name is 'Strategy'")
+		print(f"{ERROR_SYMBOL} Please make sure your AI's class name is 'TicTacToeStrategy'")
 		exit(0)
 
 
@@ -327,7 +314,7 @@ def main():
 	print(f"{'Your AI' if AI_DUEL_MODE else 'Human'}: {GREEN_COLOR}{USER_PIECE}{NO_COLOR}")
 	print(f"{'My AI' if AI_DUEL_MODE else 'AI'}: {RED_COLOR}{opponentPiece}{NO_COLOR}")
 
-	players[opponentPiece] = Strategy(opponentPiece)
+	players[opponentPiece] = TicTacToeStrategy(opponentPiece)
 	players[USER_PIECE] = UserPlayerClass(USER_PIECE)
 
 	printGameBoard()

@@ -2,8 +2,8 @@
 <img src="/Images/Tic%20Tac%20Toe/sampleBoardOutput.png" alt = "sample board" width="30%" align = "right">  
 
 (This is not a Game Pigeon game, but it is similar enough to my 
-other AI's ([Connect 4](/Connect%204%20AI), [Othello](/Othello%20AI),
-and [Gomoku](/Gomoku%20AI)) in terms of implementation, so I decided 
+other AI's ([Connect 4](/connect4), [Othello](/othello),
+and [Gomoku](/gomoku)) in terms of implementation, so I decided 
 to knock out an AI for it)  
 
 ### The Basics  
@@ -49,7 +49,7 @@ your AI was located in `myAiFile.py`, you would run:
 ```
 
 In order for your AI to be eligible, it must meet a few requirements:
-* AI logic must be contained in a class named `Strategy`
+* AI logic must be contained in a class named `TicTacToeStrategy`
 * AI must be a subclass of `Player`, found in `Player.py`
 * AI must have a function named `getMove` that accepts a game board 
 as a parameter, and returns the chosen move coordinates in the form of 
