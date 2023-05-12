@@ -5,6 +5,7 @@ import os
 import sys
 import time
 from datetime import datetime
+from importlib import import_module
 from constants import *
 from Player import Player
 from board_functions import *
@@ -307,19 +308,54 @@ def getBoardHistoryInputFromUser(isAi):
 	return userInput
 
 
+def getOpposingAiModuleName():
+	"""Reads the command line arguments to determine the name of module for the opposing AI"""
+	try:
+		indexOfFlag = sys.argv.index("-d") if "-d" in sys.argv else sys.argv.index("-aiDuel")
+		module = sys.argv[indexOfFlag + 1].split(".py")[0]
+		return module
+	except (IndexError, ValueError):
+		print(f"{ERROR_SYMBOL} You need to provide the name of your AI strategy module.")
+		exit(0)
+
+def getDuelingAi():
+	"""Returns the imported AI Strategy class if the import is valid"""
+	duelAiModuleName = getOpposingAiModuleName()
+	try:
+		DuelingAi  = getattr(import_module(duelAiModuleName), 'Strategy')
+		if not issubclass(DuelingAi, Player):
+			print(f"{ERROR_SYMBOL} Please make sure your AI is a subclass of 'Player'")
+			exit(0)
+		return DuelingAi
+	except ImportError:
+		print(f"{ERROR_SYMBOL} Please provide a valid module to import.\n" +
+			  f"{INFO_SYMBOL} Pass the name of your Python file as a command line argument.")
+		exit(0)
+	except AttributeError:
+		print(f"{ERROR_SYMBOL} Please make sure your AI's class name is 'Strategy'")
+		exit(0)
+
+
 def main():
 	if "-e" in sys.argv or "-eraseModeOff" in sys.argv:
 		global ERASE_MODE_ON
 		ERASE_MODE_ON = False
+	if "-d" in sys.argv or "-aiDuel" in sys.argv:
+		UserPlayerClass = getDuelingAi()
+		print(f"\n{INFO_SYMBOL} You are in AI Duel Mode!")
+		AI_DUEL_MODE = True
+	else:
+		UserPlayerClass = HumanPlayer
+		AI_DUEL_MODE = False
 	os.system("")  # allows colored terminal to work on Windows OS
 	printAsciiArt()
 
 	players = {  # remove hardcode values later
-		PLAYER1_ID: HumanPlayer(PLAYER1_BANK_INDEX),
+		PLAYER1_ID: UserPlayerClass(PLAYER1_BANK_INDEX),
 		PLAYER2_ID: Strategy(PLAYER2_BANK_INDEX)
 	}
-	nameOfPlayer1 = "Human"
-	nameOfPlayer2 = "AI"
+	nameOfPlayer1 = "Your AI" if AI_DUEL_MODE else "Human"
+	nameOfPlayer2 = "My AI" if AI_DUEL_MODE else "AI"
 	playerNames = {
 		PLAYER1_ID: nameOfPlayer1,
 		PLAYER2_ID: nameOfPlayer2
