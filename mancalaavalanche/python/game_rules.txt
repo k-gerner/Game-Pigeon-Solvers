@@ -1,4 +1,4 @@
-2 players will play on a standard Mancala board.
+2 players will play on a standard Mancala board. 
 
 One player will choose a stack of pebbles in one of his holes to play. The player will pick up all the pebbles from
 that hole and place one in each hole moving forward around the board until the player runs out of pebbles in their hand.
