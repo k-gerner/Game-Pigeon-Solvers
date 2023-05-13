@@ -7,6 +7,7 @@ from util.terminaloutput.colors import GREEN_COLOR, RED_COLOR, NO_COLOR, \
 	DARK_GREY_BACKGROUND as MOST_RECENT_HIGHLIGHT_COLOR
 from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL
 from util.terminaloutput.erasing import erasePreviousLines
+from util.save.saving import file_location
 
 from gomoku.strategy import GomokuStrategy, opponentOf, performMove, copyOfBoard
 import time
@@ -23,7 +24,7 @@ BOARD_OUTPUT_HEIGHT = -1
 BOARD_DIMENSION = 10
 TIME_TAKEN_PER_PLAYER = {}
 COLUMN_LABELS = "<Will be filled later>"
-SAVE_FILENAME = "saved_game.txt"
+SAVE_FILENAME = file_location("gomoku_save.txt")
 BOARD_HISTORY = [] # [highlightCoordinates, board]
 
 

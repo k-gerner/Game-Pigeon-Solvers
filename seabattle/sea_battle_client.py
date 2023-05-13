@@ -8,6 +8,9 @@ from util.terminaloutput.colors import GREEN_COLOR as DESTROY_COLOR, \
 	DARK_GREY_BACKGROUND as MOST_RECENT_HIGHLIGHT_COLOR, \
 	DARK_PURPLE_COLOR as OPTIMAL_COLOR, \
 	NO_COLOR
+from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL
+from util.terminaloutput.erasing import erasePreviousLines
+from util.save.saving import file_location
 import math
 import os
 import sys
@@ -19,26 +22,22 @@ HIT = "H"
 MISS = "^"
 
 # Globals that can be changed throughout execution
-DENSITY_PYRAMID = [] # created later; level 'i' has i integers that represent the score for a location if there are i spaces open in a row/column
-game_board = [] # created later
-REMAINING_SHIPS = { # ship_length: num_remaining
+DENSITY_PYRAMID = []  # created later; level 'i' has i integers that represent the score for a location if there are i spaces open in a row/column
+game_board = []  # created later
+REMAINING_SHIPS = {  # ship_length: num_remaining
 	1: 4,
 	2: 3,
 	3: 2,
 	4: 1
 }
-SIZE = 10 # size of board
-COLUMN_LABELS = [] # Letters that correspond to the columns; Gets set when board is created
+SIZE = 10  # size of board
+COLUMN_LABELS = []  # Letters that correspond to the columns; Gets set when board is created
 
 ERASE_MODE_ON = True
-CURSOR_UP_ONE = '\033[1A'
-ERASE_LINE = '\033[2K'
-ERROR_SYMBOL = f"{MISS_COLOR}<!>{NO_COLOR}"
-INFO_SYMBOL = f"{OPTIMAL_COLOR}<!>{NO_COLOR}"
-SAVE_FILENAME = "saved_game.txt"
+SAVE_FILENAME = file_location("sea_battle_save.txt")
 
-BOARD_OUTPUT_HEIGHT = -1 # Height of the output from printing the board; Gets set when board is created
-SPACE_DENSITY_TABLE_OUTPUT_HEIGHT = -1 # Height of the output from printing the space density table; Gets set when board is created
+BOARD_OUTPUT_HEIGHT = -1  # Height of the output from printing the board; Gets set when board is created
+SPACE_DENSITY_TABLE_OUTPUT_HEIGHT = -1  # Height of the output from printing the space density table; Gets set when board is created
 
 
 def create_game_board(dimension):
@@ -115,9 +114,9 @@ def print_space_densities(color_mode=True):
 		Get the color that corresponds to the given value
 		"""
 		if value == max_val:
-			return OPTIMAL_COLOR # blue
+			return OPTIMAL_COLOR  # blue
 		elif value == 0:
-			return MISS_COLOR # red
+			return MISS_COLOR  # red
 		total_range = max(max_val - min_val, 1)
 		percentage = 100 * ((value - min_val) / total_range)
 		if percentage > 75:
@@ -125,7 +124,7 @@ def print_space_densities(color_mode=True):
 		elif percentage > 40:
 			return HIT_COLOR # yellow
 		else:
-			return "\u001b[38;5;208m" # orange
+			return "\u001b[38;5;208m"  # orange
 
 	space_densities = generate_space_densities()
 	max_score, min_score = -1, 100000
@@ -154,13 +153,6 @@ def print_space_densities(color_mode=True):
 				print(f"{COLOR}%s{NO_COLOR}" % (str(int(value)) + (4-int(math.log10(value)))*" "), end='')
 		print("|")
 	print("   %s\n" % ("-"*55))
-
-
-def erasePreviousLines(numLines, overrideEraseMode=False):
-	"""Erases the specified previous number of lines from the terminal"""
-	eraseMode = ERASE_MODE_ON if not overrideEraseMode else (not ERASE_MODE_ON)
-	if eraseMode:
-		print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(numLines, 0), end='')
 
 
 def game_over():
@@ -373,7 +365,6 @@ def generate_space_densities():
 			while next_open_spot < SIZE and row[next_open_spot] in [MISS, DESTROY]:
 				next_open_spot += 1
 			if next_open_spot == SIZE:
-				evaluating_row = False
 				break
 			while next_unavailable_index < SIZE and row[next_unavailable_index] in [EMPTY, HIT]:
 				next_unavailable_index += 1
@@ -393,7 +384,6 @@ def generate_space_densities():
 			while next_open_spot < SIZE and col[next_open_spot] in [MISS, DESTROY]:
 				next_open_spot += 1
 			if next_open_spot == SIZE:
-				evaluating_col = False
 				break
 			while next_unavailable_index < SIZE and col[next_unavailable_index] in [EMPTY, HIT]:
 				next_unavailable_index += 1

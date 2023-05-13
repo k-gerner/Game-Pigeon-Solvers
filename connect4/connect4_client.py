@@ -7,6 +7,7 @@ import time
 from util.terminaloutput.colors import YELLOW_COLOR, RED_COLOR, BLUE_COLOR, GREEN_COLOR, NO_COLOR, GREY_COLOR
 from util.terminaloutput.erasing import erasePreviousLines
 from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL
+from util.save.saving import file_location
 from importlib import import_module
 from datetime import datetime
 from connect4.Player import Player
@@ -15,7 +16,7 @@ from connect4.strategy import Connect4Strategy, opponentOf, performMove, checkIf
 ERASE_MODE_ON = True
 BOARD_OUTPUT_HEIGHT = 9
 
-SAVE_FILENAME = "saved_game.txt"
+SAVE_FILENAME = file_location("connect4_save.txt")
 BOARD_HISTORY = []  # [board, highlightCoordinates]
 
 EMPTY, RED, YELLOW = '.', 'o', '@'

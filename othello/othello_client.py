@@ -10,6 +10,7 @@ from util.terminaloutput.colors import NO_COLOR, YELLOW_COLOR, GREEN_COLOR, BLUE
     DARK_GREY_BACKGROUND as HIGHLIGHT
 from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL
 from util.terminaloutput.erasing import erasePreviousLines
+from util.save.saving import file_location
 
 from othello.strategy import OthelloStrategy, copyOfBoard, BOARD_DIMENSION, getValidMoves, opponentOf, playMove, \
     currentScore, checkGameOver, numberOfPieceOnBoard, pieceAt, hasValidMoves, isMoveValid, isMoveInRange
@@ -25,7 +26,7 @@ EMPTY = "."
 COLUMN_LABELS = list(map(chr, range(65, 65 + BOARD_DIMENSION)))
 BOARD_OUTLINE_HEIGHT = 4
 ERASE_MODE_ON = True
-SAVE_FILENAME = "saved_game.txt"
+SAVE_FILENAME = file_location("othello_save.txt")
 TIME_TAKEN_PER_PLAYER = {}
 
 # Relevant to game state
