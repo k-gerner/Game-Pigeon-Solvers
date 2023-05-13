@@ -25,7 +25,7 @@ LIST = 0
 DIAGRAM = 1
 ##################
 
-WORDS_LIST_FILENAME = "wordhunt/letters10.txt"
+WORDS_LIST_FILEPATH = "wordhunt/letters10.txt"
 MORE_INFO_OUTPUT_HEIGHT = 26
 DIAGRAM_OUTPUT_HEIGHT = 6
 
@@ -248,7 +248,7 @@ def run():
 		print(f"{ERROR_SYMBOL} Using default max word length (10).")
 	# filename = input("What word list file would you like as input?\t")
 	try :
-		inputFile = open(WORDS_LIST_FILENAME, 'r')
+		inputFile = open(WORDS_LIST_FILEPATH, 'r')
 		for word in inputFile:
 			strippedWord = word.strip() # removes newline char
 			if len(strippedWord) > MAX_LENGTH:
@@ -259,7 +259,7 @@ def run():
 				wordStarts.add(strippedWord[:i])
 		inputFile.close()
 	except FileNotFoundError:
-		print(f"\n{ERROR_SYMBOL} Could not open the file. Please make sure {WORDS_LIST_FILENAME} is in the current directory.\n")
+		print(f"\n{ERROR_SYMBOL} Could not open the file. Please make sure {WORDS_LIST_FILEPATH.split('/')[-1]} is in the Word Hunt directory.\n")
 		exit(0)
 
 	# display mode select
