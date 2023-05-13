@@ -12,7 +12,7 @@ from mancalacapture import mancala_client
 from othello import othello_client
 from tictactoe import tictactoe_client
 from wordbites import word_bites_client
-from wordhunt import wordHuntTool
+from wordhunt import word_hunt_client
 
 clients = OrderedDict([
 	("anagrams", anagram_tool),
@@ -24,7 +24,7 @@ clients = OrderedDict([
 	("seabattle", sea_battle_tool),
 	("tictactoe", tictactoe_client),
 	("wordbites", word_bites_client),
-	("wordhunt", wordHuntTool),
+	("wordhunt", word_hunt_client),
 ])
 
 mode_select_str = """

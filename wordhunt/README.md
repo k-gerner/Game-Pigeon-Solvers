@@ -8,11 +8,11 @@ In order to earn points, players must connect adjacent tiles on the
 board to form English words. The longer the word, the more points 
 the player earns. Whoever scores more points in 80 seconds wins.
 ### How to use
-First, download the `wordHuntTool.py`, `classes.py`, and `letters10.txt` 
+First, download the `word_hunt_client.py`, `classes.py`, and `letters10.txt` 
 files and place them all in the same directory. You can invoke the 
 tool by running  
 ```
-> python3 wordHuntTool.py
+> python3 word_hunt_client.py
 ```
 Once you do this, you will be prompted about the maximum word length. 
 The default length is 10, which means the tool will look for words 
