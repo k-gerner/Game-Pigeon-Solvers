@@ -1,5 +1,5 @@
 # Gomoku
-<img src="/Images/Gomoku/sampleGomokuBoard.jpg" alt = "sample board" width="30%" align = "right">  
+<img src="/images/Gomoku/sampleGomokuBoard.jpg" alt = "sample board" width="30%" align = "right">  
 
 ### Table of contents
 1. [The Basics](#the-basics)  
@@ -22,13 +22,12 @@ played on a much bigger board, and you need 5 pieces in a row to
 win instead of 3.
 
 ### How to use 
-First, download the `gomoku_client.py` and `gomoku_strategy.py` files and 
-place them both in the same directory. If you would like to challenge
+First, download this project. If you would like to challenge
 my AI with your own, see the [Dueling AIs Mode](#dueling-ais-mode)
 section. If you would like to challenge the AI yourself, you can 
 invoke the tool by running  
 ```
-> python3 gomoku_client.py
+> python3 ai_runner --game=gomoku
 ```
 Once you do this, you will be asked how big you want the board to 
 be. This number should be an odd number. By default, the board is 
@@ -74,8 +73,8 @@ long each search takes on my 2015 Macbook Pro at depths 4, 5, and 6:
     - `MAX_DEPTH = 5` &#8594; `8s`  
     - `MAX_DEPTH = 6` &#8594; `30s`  
 
-<img src="/Images/Gomoku/gomokuStartingPrompts.png" alt = "starting prompts" width="40%" align = left>  
-<img src="/Images/Gomoku/gomokuBoardOutput.png" alt = "sample board output" width="20%">  
+<img src="/images/Gomoku/gomokuStartingPrompts.png" alt = "starting prompts" width="40%" align = left>  
+<img src="/images/Gomoku/gomokuBoardOutput.png" alt = "sample board output" width="20%">  
   
 ### Features 
 - As mentioned above, you can change several parameters to fine-tune the A.I. yourself. 
@@ -105,7 +104,7 @@ depth of the search. This will display how far along the A.I. is
 with calculating the best move by giving a percentage as well as 
 a fraction. It will also show you which depth it is currently 
 searching.
-<img src="https://github.com/k-gerner/Game-Pigeon-Solvers/blob/master/Images/Gomoku/gomokuProgressBar.png" alt = "progress bar" width="50%">
+<img src="/images/Gomoku/gomokuProgressBar.png" alt = "progress bar" width="50%">
 
 ### How it works  
 #### Minimax and Alpha-Beta Pruning
@@ -247,7 +246,7 @@ board an evaluation score. This was a costly operation, so the fewer
 boards I have to evaluate, the better.  
 
 One helpful tool I used to determine which sections of my code needed 
-to be improved was a profiler. By running `python3 -m cProfile -s time gomoku_client.py`, 
+to be improved was a profiler. By running `python3 -m cProfile -s time ai_runner.py --game=gomoku`, 
 I could see which methods were taking up the most time, and how many 
 times they were called.  
 
@@ -259,7 +258,7 @@ directory, and include a command line argument `-d` or `-aiDuel`
 followed by the name of your Python file. For example, if
 your AI was located in `external/aiduel/myAiFile.py`, you would run:
 ```
-> python3 gomoku_client.py -d myAiFile
+> python3 ai_runner --game=gomoku -d myAiFile
 ```
 
 In order for your AI to be eligible, it must meet a few requirements:
