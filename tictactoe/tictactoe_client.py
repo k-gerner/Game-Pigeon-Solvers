@@ -258,7 +258,7 @@ def getDuelingAi():
 		exit(0)
 
 
-def main():
+def run():
 	"""main method that prompts the user for input"""
 	global gameBoard, USER_PIECE
 	players = {}

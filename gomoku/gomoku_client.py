@@ -278,7 +278,7 @@ def getDuelingAi():
 		print(f"{ERROR_SYMBOL} Please make sure your AI's class name is 'GomokuStrategy'")
 		exit(0)
 
-def main():
+def run():
 	"""main method that prompts the user for input"""
 	global gameBoard, userPiece, BOARD_OUTPUT_HEIGHT, COLUMN_LABELS, TIME_TAKEN_PER_PLAYER, BOARD_DIMENSION
 	os.system("") # allows colored terminal to work on Windows OS

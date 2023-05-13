@@ -334,7 +334,7 @@ def getDuelingAi():
 		exit(0)
 
 
-def main():
+def run():
 	if "-e" in sys.argv or "-eraseModeOff" in sys.argv:
 		global ERASE_MODE_ON
 		ERASE_MODE_ON = False

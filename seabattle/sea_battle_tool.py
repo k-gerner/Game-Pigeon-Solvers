@@ -594,9 +594,9 @@ def get_player_move():
 	return [row, col]
 
 
-def main():
+def run():
 	"""
-	Main method
+	Main method that prompts the user for input
 	"""
 	global SIZE, BOARD_OUTPUT_HEIGHT, SPACE_DENSITY_TABLE_OUTPUT_HEIGHT, COLUMN_LABELS
 	os.system("") # allows colored terminal to work on Windows OS

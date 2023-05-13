@@ -16,6 +16,7 @@ INPUT_FILENAME = "anagrams/letters7.txt"
 
 ERASE_MODE_ON = True
 
+
 def findWords(remainingLetters, currStr=""):
 	"""Finds all the words that can be made with the given letters. Populates the foundWords set"""
 	if len(currStr) >= 3 and currStr not in wordStarts:
@@ -27,6 +28,7 @@ def findWords(remainingLetters, currStr=""):
 	for i in range(len(remainingLetters)):
 		findWords(remainingLetters[:i] + remainingLetters[i+1:], currStr + remainingLetters[i])
 
+
 def wordCompare(a, b):
 	"""The comparison function used for sorting words. Sorts by length, then alphabetically"""
 	if len(a) < len(b):
@@ -34,6 +36,7 @@ def wordCompare(a, b):
 	elif len(a) == len(b):
 		return -1 if a < b else 1
 	return -1
+
 
 def printFoundWords(words):
 	"""Prints the valid words that were found, according to user input"""
@@ -65,6 +68,7 @@ def printFoundWords(words):
 		cmd = input("Press enter for %s, or 'q' to quit, or 'a' for all remaining words:\t" % grammar).strip().lower()
 		erasePreviousLines(11)
 
+
 def populateWordSets(numLetters):
 	"""Fills the sets that will contain words we can search for"""
 	try :
@@ -82,7 +86,8 @@ def populateWordSets(numLetters):
 		print(f"\n{ERROR_SYMBOL} Could not open the file. Please make sure %s is in the current directory, and run this file from inside the current directory.\n" % INPUT_FILENAME)
 		exit(0)
 
-def main():
+
+def run():
 	# initial setup
 	os.system("")  # allows output text coloring for Windows OS
 	if len(sys.argv) == 2 and sys.argv[1] in ["-e", "-eraseModeOff"]:

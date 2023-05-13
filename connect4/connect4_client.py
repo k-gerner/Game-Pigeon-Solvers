@@ -282,7 +282,7 @@ def getDuelingAi():
         exit(0)
 
 
-def main():
+def run():
     """main method that prompts the user for input"""
     global userPiece, TIME_TAKEN_PER_PLAYER
     os.system("")  # allows colored terminal to work on Windows OS

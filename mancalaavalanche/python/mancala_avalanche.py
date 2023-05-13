@@ -97,8 +97,8 @@ def printSequence(mode, solver, pointsGained, bestMoves):
 
 
 # main method
-def main():
-    os.system("") # allows output text coloring for Windows OS
+def run():
+    os.system("")  # allows output text coloring for Windows OS
     if len(sys.argv) == 2 and sys.argv[1] in ["-e", "-eraseModeOff"]:
         global ERASE_MODE_ON
         ERASE_MODE_ON = False

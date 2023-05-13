@@ -35,8 +35,9 @@ MORE_INFO_OUTPUT_HEIGHT = 30
 
 WORD_LIST_FILENAME = 'wordbites/letters9.txt'
 
-# read in the user's input for the board pieces
+
 def readInBoard():
+	"""Read in the user's input for the board pieces"""
 	versions = [('Single Letter', singleLetterPieces), 
 				('Horizontal', horizPieces), 
 				('Vertical', vertPieces)]
@@ -71,13 +72,15 @@ def readInBoard():
 			pieceListOutput = ", ".join(pair[1])
 			print(f"{pair[0]} pieces: {pieceListOutput}")
 
-# calls the recursive findWordsInDirection method for each direction (H and V)
+
 def findWords():
+	"""Calls the recursive findWordsInDirection method for each direction (H and V)"""
 	findWordsInDirection(singleLetterPieces, horizPieces, vertPieces, "", HORIZONTAL, [])
 	findWordsInDirection(singleLetterPieces, horizPieces, vertPieces, "", VERTICAL, [])
 
-# find all the valid words for a board in a certain direction
+
 def findWordsInDirection(singles, horiz, vert, currStr, direction, currTuples):
+	"""Find all the valid words for a board in a certain direction"""
 	if len(currStr) > MAX_LENGTHS[direction]:
 		# word too long
 		return
@@ -125,8 +128,9 @@ def findWordsInDirection(singles, horiz, vert, currStr, direction, currTuples):
 		else:
 			findWordsInDirection(singles, horiz, vert[:k] + vert[k+1:], currStr + vert[k], direction, copyTuples)
 
-# for custom sorting of valid words; sorts longest to shortest, and alphabetically
+
 def word_compare(a, b):
+	"""For custom sorting of valid words; sorts longest to shortest, and alphabetically"""
 	if len(a[0]) < len(b[0]):
 		return 1
 	elif len(a[0]) == len(b[0]):
@@ -137,8 +141,9 @@ def word_compare(a, b):
 		return 0
 	return -1
 
-# print the valid words in whichever mode the user selected
+
 def printOutput(words):
+	"""Print the valid words in whichever mode the user selected"""
 	count = 1
 	print("\n%d word%s found.\n" % (len(words), '' if len(words) == 1 else 's'))
 	if DISPLAY_MODE == LIST:
@@ -269,8 +274,9 @@ def printOutput(words):
 				linesToEraseFromPreviousOutput += len(verticalOutputs)
 			wordNum += 1
 
-# takes in 3 strings and 'rotates' them so that they print vertically
+
 def rotateStringsToVertical(leftStr, middleStr, rightStr):
+	"""Takes in 3 strings and 'rotates' them so that they print vertically"""
 	horizStrings = []
 	for i in range(len(leftStr)):
 		horizStr = "\t%s %s %s" % (leftStr[i], middleStr[i], rightStr[i])
@@ -278,8 +284,8 @@ def rotateStringsToVertical(leftStr, middleStr, rightStr):
 	return horizStrings
 
 
-# show the user further information about the different modes available for printing word list
 def printModeInfo():
+	"""Show the user further information about the different modes available for printing word list"""
 	print("------------------------------------------------------------\n" + 
 		  "------------------------------------------------------------")
 	print("There are two available display modes:\n")
@@ -296,8 +302,8 @@ def printModeInfo():
 	print("Press enter for next word.")
 
 
-# main method - fills english words sets and calls other functions
-def main():
+def run():
+	"""main method - fills english words sets and calls other functions"""
 	global DISPLAY_MODE
 	# initial setup
 	os.system("")  # allows colored terminal to work on Windows OS

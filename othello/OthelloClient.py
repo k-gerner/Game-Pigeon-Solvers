@@ -376,7 +376,7 @@ def createNewBoard():
     return board
 
 
-def main():
+def run():
     global BOARD, USER_PIECE, OPPONENT_PIECE, TIME_TAKEN_PER_PLAYER
     os.system("") # allows colored terminal to work on Windows OS
     if "-e" in sys.argv or "-eraseModeOff" in sys.argv:

@@ -38,8 +38,9 @@ wordStarts = set() # set that holds every valid part of every word from beginnin
 
 ERASE_MODE_ON = True
 
-# read in the user's input for the board letters
+
 def readInBoard():
+	"""Read in the user's input for the board letters"""
 	print("Please enter each row of letters (one row at a time) in the format \"a b c d\"")
 	inputLetters = []
 	for i in range(4):
@@ -65,8 +66,9 @@ def readInBoard():
 	board = Board(letterObjs)
 	return board
 
-# prints the letter board in a user-readable format
+
 def printBoard(board):
+	"""Prints the letter board in a user-readable format"""
 	ind = 0
 	for letter in board.lb:
 		print("%c " % letter.char, end='')
@@ -76,8 +78,9 @@ def printBoard(board):
 		ind += 1
 	print("")
 
-# show the user further information about the different modes available for printing word list
+
 def printModeInfo():
+	"""Show the user further information about the different modes available for printing word list"""
 	print(("-" * 60 + "\n")*2 + "There are two available display modes:\n")
 	# list mode
 	print("List Mode is one large list, where each word has its own row:\n")
@@ -100,8 +103,9 @@ def printModeInfo():
 	print("|____|____|____|__1_|")
 	print("Press enter for next word.")
 
-# for custom sorting of valid words
+
 def word_compare(a, b):
+	"""For custom sorting of valid words"""
 	if len(a[1]) < len(b[1]):
 		return -1
 	elif len(a[1]) == len(b[1]):
@@ -112,8 +116,9 @@ def word_compare(a, b):
 		return 0
 	return 1
 
-# populate 'valid' set
+
 def findValidWords(board, mode):
+	"""Populate 'valid' set"""
 	for letter in board.lb:
 		letter.markVisited()
 		if mode == LIST:
@@ -122,8 +127,9 @@ def findValidWords(board, mode):
 			findValidFrom(board, letter.char, letter, 1, [], DIAGRAM)
 		letter.visited = False # so later iterations don't have it marked already
 
-# find all the valid words from this letter
+
 def findValidFrom(board, word, letter, length, pos, mode):
+	"""Find all the valid words from this letter"""
 	# pos = position of starting letter (in list mode), or list of positions (in diagram mode)
 	global positionsList
 	if mode == DIAGRAM: 
@@ -152,8 +158,9 @@ def findValidFrom(board, word, letter, length, pos, mode):
 			posArg = pos.copy() if mode == DIAGRAM else pos
 			findValidFrom(copyBoard, word + neighborLetter.char, neighborLetter, length + 1, posArg, mode)
 
-# print the output in the format chosen by the user
+
 def printOutput(validWords, mode):
+	"""Print the output in the format chosen by the user"""
 	print("%d words were found." % len(validWords))
 	if mode == LIST:
 		# list mode
@@ -219,8 +226,7 @@ def printOutput(validWords, mode):
 	print("No more words, thanks for using my Word Hunt Tool!\n")
 
 
-# main method
-def main():
+def run():
 	# initial setup
 	global MAX_LENGTH
 	os.system("")  # allows output text coloring for Windows OS

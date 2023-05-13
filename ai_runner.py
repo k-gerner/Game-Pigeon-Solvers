@@ -98,7 +98,7 @@ def main():
 		client = get_client_from_user()
 		erase(ascii_art)  # clear ascii art
 	create_saves_directory()
-	client.main()
+	client.run()
 
 
 if __name__ == '__main__':
