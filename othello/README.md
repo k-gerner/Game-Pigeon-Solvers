@@ -20,8 +20,9 @@ First, download the files in this folder. The contents of each file
 are as follows:  
 * `othello_client.py`: Contains the logic for the UI and user input, as 
 well as the game runner
-* `strategy.py`: Contains the A.I. strategy logic, as well as some 
+* `othello_strategy.py`: Contains the A.I. strategy logic, as well as some 
 functions for manipulating a game board
+* `othello_player.py`: Contains the base class for Othello Player objects
 * `README.md`: You're reading it right now!  
 
 You can invoke the tool by running 
@@ -87,7 +88,7 @@ Inputting `q` will quit the game.
 
 ### Modifiable Parameters
 If you would like to tweak the parameters of the AI, you can modify 
-some of them inside of `strategy.py`:
+some of them inside of `othello_strategy.py`:
 * `MAX_DEPTH`: The maximum moves ahead the AI will look to
   determine its move. Recommended: 5-8
 * `MAX_VALID_MOVES_TO_EVALUATE`: The maximum moves that the AI
