@@ -4,13 +4,13 @@
 import os
 import sys
 import time
-from importlib import import_module
 from datetime import datetime
 from util.terminaloutput.colors import NO_COLOR, YELLOW_COLOR, GREEN_COLOR, BLUE_COLOR, RED_COLOR, ORANGE_COLOR, \
     DARK_GREY_BACKGROUND as HIGHLIGHT
 from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL
 from util.terminaloutput.erasing import erasePreviousLines
 from util.save.saving import path_to_save_file, allow_save
+from util.aiduel.dueling import get_dueling_ai_class
 
 from othello.othello_strategy import OthelloStrategy, copyOfBoard, BOARD_DIMENSION, getValidMoves, opponentOf, \
     playMove, currentScore, checkGameOver, numberOfPieceOnBoard, pieceAt, hasValidMoves, isMoveValid, isMoveInRange
@@ -28,6 +28,8 @@ BOARD_OUTLINE_HEIGHT = 4
 ERASE_MODE_ON = True
 SAVE_FILENAME = path_to_save_file("othello_save.txt")
 TIME_TAKEN_PER_PLAYER = {}
+USER_COLOR = GREEN_COLOR
+AI_COLOR = RED_COLOR
 
 # Relevant to game state
 BOARD = []
@@ -107,7 +109,7 @@ def printBoard(highlightedCoordinates=None, board=None):
         print()
     userScore, aiScore = currentScore(USER_PIECE, board)
     additionalIndent = " " * ((2 + (2 * (BOARD_DIMENSION // 2 - 1))) - (1 if userScore >= 10 else 0))
-    print(f"\t{additionalIndent}{GREEN_COLOR}{userScore}{NO_COLOR} to {RED_COLOR}{aiScore}{NO_COLOR}\n")
+    print(f"\t{additionalIndent}{USER_COLOR}{userScore}{NO_COLOR} to {AI_COLOR}{aiScore}{NO_COLOR}\n")
 
 
 def printMoveHistory(numMovesPrevious):
@@ -156,9 +158,9 @@ def getBoardHistoryInputFromUser(board, turn, isAi, linesWrittenToConsole):
 def textColorOf(piece):
     """Gets the text color of the given piece, or an empty string if no piece given"""
     if piece == USER_PIECE:
-        return GREEN_COLOR
+        return USER_COLOR
     elif piece == OPPONENT_PIECE:
-        return RED_COLOR
+        return AI_COLOR
     else:
         return ""
 
@@ -184,8 +186,8 @@ def endGame(winner=None):
     userTimeTaken = round(TIME_TAKEN_PER_PLAYER[USER_PIECE][1]/max(1, TIME_TAKEN_PER_PLAYER[USER_PIECE][2]), 2)
     aiTimeTaken = round(TIME_TAKEN_PER_PLAYER[OPPONENT_PIECE][1]/max(1, TIME_TAKEN_PER_PLAYER[OPPONENT_PIECE][2]), 2)
     print("Average time taken per move:")
-    print(f"{GREEN_COLOR}{TIME_TAKEN_PER_PLAYER[USER_PIECE][0]}{NO_COLOR}: {userTimeTaken}s")
-    print(f"{RED_COLOR}{TIME_TAKEN_PER_PLAYER[OPPONENT_PIECE][0]}{NO_COLOR}: {aiTimeTaken}s")
+    print(f"{USER_COLOR}{TIME_TAKEN_PER_PLAYER[USER_PIECE][0]}{NO_COLOR}: {userTimeTaken}s")
+    print(f"{AI_COLOR}{TIME_TAKEN_PER_PLAYER[OPPONENT_PIECE][0]}{NO_COLOR}: {aiTimeTaken}s")
     print("\nThanks for playing!")
     exit(0)
 
@@ -243,35 +245,6 @@ def printAsciiTitleArt():
 | |__| | |_| | | |  __/ | | (_) |  / ____ \\ _| |_
 \\_____/ \\__|_| |_|\\___|_|_|\\___/  /_/    \\_\\_____|
     """)
-
-
-def getOpposingAiModuleName():
-    """Reads the command line arguments to determine the name of module for the opposing AI"""
-    try:
-        indexOfFlag = sys.argv.index("-d") if "-d" in sys.argv else sys.argv.index("-aiDuel")
-        module = sys.argv[indexOfFlag + 1].split(".py")[0]
-        return module
-    except (IndexError, ValueError):
-        print(f"{ERROR_SYMBOL} You need to provide the name of your AI strategy module.")
-        exit(0)
-
-
-def getDuelingAi():
-    """Returns the imported AI Strategy class if the import is valid"""
-    duelAiModuleName = getOpposingAiModuleName()
-    try:
-        DuelingAi  = getattr(import_module(duelAiModuleName), 'OthelloStrategy')
-        if not issubclass(DuelingAi, OthelloPlayer):
-            print(f"{ERROR_SYMBOL} Please make sure your AI is a subclass of 'OthelloPlayer'")
-            exit(0)
-        return DuelingAi
-    except ImportError:
-        print(f"{ERROR_SYMBOL} Please provide a valid module to import.\n" +
-              f"{INFO_SYMBOL} Pass the name of your Python file as a command line argument.")
-        exit(0)
-    except AttributeError:
-        print(f"{ERROR_SYMBOL} Please make sure your AI's class name is 'OthelloStrategy'")
-        exit(0)
 
 
 def loadSavedGame():
@@ -344,13 +317,13 @@ def getUserPieceColorInput():
     erasePreviousLines(1)
     color = BLACK if color_input == 'b' else WHITE
     if color == BLACK:
-        print(f"You will be BLACK {GREEN_COLOR}{BLACK}{NO_COLOR}!")
+        print(f"You will be BLACK {USER_COLOR}{BLACK}{NO_COLOR}!")
     else:
-        print(f"You will be WHITE {GREEN_COLOR}{WHITE}{NO_COLOR}!")
-    print(f"Your pieces are shown in {GREEN_COLOR}%s{NO_COLOR}!" % (
-        "blue" if GREEN_COLOR == BLUE_COLOR else "green"))
-    print(f"Enemy pieces are shown in {RED_COLOR}%s{NO_COLOR}!" % (
-        "orange" if RED_COLOR == ORANGE_COLOR else "red"))
+        print(f"You will be WHITE {USER_COLOR}{WHITE}{NO_COLOR}!")
+    print(f"Your pieces are shown in {USER_COLOR}%s{NO_COLOR}!" % (
+        "blue" if USER_COLOR == BLUE_COLOR else "green"))
+    print(f"Enemy pieces are shown in {AI_COLOR}%s{NO_COLOR}!" % (
+        "orange" if AI_COLOR == ORANGE_COLOR else "red"))
     return color
 
 
@@ -371,11 +344,11 @@ def run():
         global ERASE_MODE_ON
         ERASE_MODE_ON = False
     if "-cb" in sys.argv or "-colorblindMode" in sys.argv:
-        global RED_COLOR, GREEN_COLOR
-        RED_COLOR = ORANGE_COLOR
-        GREEN_COLOR = BLUE_COLOR
+        global AI_COLOR, USER_COLOR
+        AI_COLOR = ORANGE_COLOR
+        USER_COLOR = BLUE_COLOR
     if "-d" in sys.argv or "-aiDuel" in sys.argv:
-        UserPlayerClass = getDuelingAi()
+        UserPlayerClass = get_dueling_ai_class(OthelloPlayer, "OthelloStrategy")
         print(f"\n{INFO_SYMBOL} You are in AI Duel Mode!")
         AI_DUEL_MODE = True
     else:

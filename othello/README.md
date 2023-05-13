@@ -99,9 +99,10 @@ some of them inside of `othello_strategy.py`:
 ### Dueling AIs Mode
 Do you have your own Othello AI? Challenge mine! This program
 includes the ability for you to challenge it with a rival AI. To
-use this functionality, include a command line argument `-d` or
-`-aiDuel` followed by the name of your Python file. For example, if
-your AI was located in `myAiFile.py`, you would run:
+use this functionality, copy your AI strategy file to the `external/aiduel` 
+directory, and include a command line argument `-d` or `-aiDuel` 
+followed by the name of your Python file. For example, if
+your AI was located in `external/aiduel/myAiFile.py`, you would run:
 ```
 > python3 othello_client.py -d myAiFile
 ```
