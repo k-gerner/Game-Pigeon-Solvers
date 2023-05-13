@@ -1,4 +1,5 @@
 import sys
+import os
 from collections import OrderedDict
 from util.terminaloutput.symbols import ERROR_SYMBOL
 from util.terminaloutput.erasing import erase, erasePreviousLines
@@ -84,12 +85,19 @@ def get_client_from_user():
 	return list(clients.values())[int(mode) - 1]
 
 
+def create_saves_directory():
+	"""Creates the game saves directory if it doesn't exist"""
+	if not os.path.isdir("saved_games"):
+		os.makedirs("saved_games")
+
+
 def main():
 	client = gamemode_specified()
 	if client is None:
 		print(ascii_art)
 		client = get_client_from_user()
 		erase(ascii_art)  # clear ascii art
+	create_saves_directory()
 	client.main()
 
 
