@@ -1,5 +1,5 @@
 # Mancala (Capture)
-<img src="/Images/Mancala%20Capture/sampleMancalaBoard.jpeg" alt = "Mancala game board in Game Pigeon's UI" width="40%" align = "right">  
+<img src="/images/Mancala%20Capture/sampleMancalaBoard.jpeg" alt = "Mancala game board in Game Pigeon's UI" width="40%" align = "right">  
 
 ### The Basics
 Mancala Capture is a version of Mancala. Players each have 6 pits 
@@ -16,7 +16,7 @@ and send them all to your bank. If you end in a non-empty pit, your turn
 is over. For further explanation, see [this website][How to play Mancala GP].  
 
 ### How to use
-First, download the files in this folder. The contents of each file 
+First, download this project. The contents of the files for mancala capture
 are as follows:
 * `board_functions.py`: Contains basic functions for evaluating the 
 state of the board
@@ -24,13 +24,13 @@ state of the board
 You can modify some of these values.
 * `mancala_cap_client.py`: Contains the logic for the UI and user input, as 
 well as the game runner
-* `Player.py`: Super class that players must implement. If you choose to
+* `mancala_player.py`: Super class that players must implement. If you choose to
 use your own A.I., you must inherit from this class
 * `mancala_cap_strategy.py`: Contains the A.I. strategy logic
 
 You can invoke the tool by running
 ```
-> python3 mancala_cap_client.py
+> python3 ai_runner --game=mancala-capture
 ```
 Once you do this, you will see some info about how to interact with the 
 tool, further explained in the [Gameplay Features](#gameplay-features) section. 
@@ -39,7 +39,7 @@ will be displayed on the left side in green, with your bank at the bottom.
 You will then be prompted to either enter your move, or press `enter` for the
 A.I. to play.
 
-<img src="/Images/Mancala%20Capture/mancalaCaptureBoardOutput.png" alt = "Mancala board output" width="40%">
+<img src="/images/Mancala%20Capture/mancalaCaptureBoardOutput.png" alt = "Mancala board output" width="40%">
 
 ### How it works
 The A.I. works by using a move selection algorithm known as [Minimax][Minimax Wikipedia], 
@@ -76,7 +76,7 @@ directory, and include a command line argument `-d` or `-aiDuel`
 followed by the name of your Python file. For example, if
 your AI was located in `external/aiduel/myAiFile.py`, you would run:
 ```
-> python3 mancala_cap_client.py -d myAiFile
+> python3 ai_runner --game=mancala-capture -d myAiFile
 ```
 
 In order for your AI to be eligible, it must meet a few requirements:
