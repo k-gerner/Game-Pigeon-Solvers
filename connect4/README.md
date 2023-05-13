@@ -13,7 +13,7 @@ my AI with your own, see the [Dueling AIs Mode](#dueling-ais-mode)
 section. If you would like to challenge the AI yourself, you can 
 invoke the tool by running
 ```
-> python3 ai_runner --game=connect4
+> python3 ai_runner.py --game=connect4
 ```
 Once you do this, you will be asked which color you want to be, RED 
 (`o`) or YELLOW (`@`). Whoever is YELLOW will go first. Each empty 
@@ -47,7 +47,7 @@ directory, and include a command line argument `-d` or `-aiDuel`
 followed by the name of your Python file. For example, if
 your AI was located in `external/aiduel/myAiFile.py`, you would run:
 ```
-> python3 ai_runner --game=connect4 -d myAiFile
+> python3 ai_runner.py --game=connect4 -d myAiFile
 ```
 
 In order for your AI to be eligible, it must meet a few requirements:

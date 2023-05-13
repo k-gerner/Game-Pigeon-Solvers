@@ -9,7 +9,7 @@ English words.
 ### How to use  
 First, download this project. You can invoke the tool by running  
 ```
-> python3 ai_runner --game=anagrams
+> python3 ai_runner.py --game=anagrams
 ```  
 Once you do this, you will be asked how many letters are given (either 
 6 or 7). Next, you will be prompted for the letters on the board. 

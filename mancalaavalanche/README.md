@@ -21,7 +21,7 @@ wrote it as an exercise to refamiliarize myself with Python.
 #### How to use
 First, download this project. Then, run the following command:  
 ```
-> python3 ai_runner --game=mancala-avalanche
+> python3 ai_runner.py --game=mancala-avalanche
 ```  
 You will be prompted for which mode you would like to use (have the 
 moves presented all at once, or one at a time). Next, you will be 

@@ -30,7 +30,7 @@ use your own A.I., you must inherit from this class
 
 You can invoke the tool by running
 ```
-> python3 ai_runner --game=mancala-capture
+> python3 ai_runner.py --game=mancala-capture
 ```
 Once you do this, you will see some info about how to interact with the 
 tool, further explained in the [Gameplay Features](#gameplay-features) section. 
@@ -76,7 +76,7 @@ directory, and include a command line argument `-d` or `-aiDuel`
 followed by the name of your Python file. For example, if
 your AI was located in `external/aiduel/myAiFile.py`, you would run:
 ```
-> python3 ai_runner --game=mancala-capture -d myAiFile
+> python3 ai_runner.py --game=mancala-capture -d myAiFile
 ```
 
 In order for your AI to be eligible, it must meet a few requirements:
