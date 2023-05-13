@@ -5,12 +5,13 @@ from util.terminaloutput.erasing import erasePreviousLines
 
 SAVE_DIR_PATH = "saved_games/"
 
+
 def path_to_save_file(filename):
 	"""Returns the path to the corresponding save file"""
 	return f"{SAVE_DIR_PATH}{filename}"
 
 
-def allow_save(filepath:str):
+def allow_save(filepath: str):
 	"""Returns whether we can save at the specified location"""
 	if not filepath.startswith(SAVE_DIR_PATH):
 		print(f"{ERROR_SYMBOL} Save file must be in {SAVE_DIR_PATH}")
