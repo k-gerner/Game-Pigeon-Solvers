@@ -1,5 +1,5 @@
 # Tic-Tac-Toe  
-<img src="/Images/Tic%20Tac%20Toe/sampleBoardOutput.png" alt = "sample board" width="30%" align = "right">  
+<img src="/images/Tic%20Tac%20Toe/sampleBoardOutput.png" alt = "sample board" width="30%" align = "right">  
 
 (This is not a Game Pigeon game, but it is similar enough to my 
 other AI's ([Connect 4](/connect4), [Othello](/othello),
@@ -10,13 +10,12 @@ to knock out an AI for it)
 In Tic-Tac-Toe, the objective is to get 3 of your pieces in a 
 row on the board, in any direction.  
 ### How to use  
-First, download `tictactoe_client.py` and `tictactoe_strategy.py` files and 
-place them both in the same directory. If you would like to challenge 
+First, download this project. If you would like to challenge 
 my AI with your own, see the [Dueling AIs Mode](#dueling-ais-mode) 
 section. If you would like to challenge the AI yourself, you can 
 invoke the tool by running  
 ```
-> python3 tictactoe_client.py
+> python3 ai_runner.py --game=tictactoe
 ```
 Once you do this, you will be asked whether you want to play as `X` 
 or `O`. 
@@ -50,7 +49,7 @@ directory, and include a command line argument `-d` or `-aiDuel`
 followed by the name of your Python file. For example, if
 your AI was located in `external/aiduel/myAiFile.py`, you would run:
 ```
-> python3 tictactoe_client.py -d myAiFile
+> python3 ai_runner.py --game=tictactoe -d myAiFile
 ```
 
 In order for your AI to be eligible, it must meet a few requirements:
