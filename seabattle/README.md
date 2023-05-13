@@ -10,10 +10,10 @@ their turn is over, but if they hit a ship, they keep going until
 they miss. The game is over once one player destroys all the other 
 player's ships.  
 ### How to use
-First, download the `sea_battle_tool.py` file. You can invoke the 
+First, download the `sea_battle_client.py` file. You can invoke the 
 tool by running  
 ```
-> python3 sea_battle_tool.py
+> python3 sea_battle_client.py
 ```
 You will be presented with the intro screen with some instructions:  
 

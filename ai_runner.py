@@ -3,7 +3,7 @@ import os
 from collections import OrderedDict
 from util.terminaloutput.symbols import ERROR_SYMBOL
 from util.terminaloutput.erasing import erase, erasePreviousLines
-from seabattle import sea_battle_tool
+from seabattle import sea_battle_client
 from anagrams import anagrams_client
 from connect4 import connect4_client
 from gomoku import gomoku_client
@@ -21,7 +21,7 @@ clients = OrderedDict([
 	("mancala-avalanche", mancala_avalanche),
 	("mancala-capture", mancala_client),
 	("othello", othello_client),
-	("seabattle", sea_battle_tool),
+	("seabattle", sea_battle_client),
 	("tictactoe", tictactoe_client),
 	("wordbites", word_bites_client),
 	("wordhunt", word_hunt_client),
