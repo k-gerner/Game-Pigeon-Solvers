@@ -8,9 +8,10 @@ from connect4.Player import Player  # super class
 
 EMPTY, RED, YELLOW = '.', 'o', '@'
 NUM_ROWS, NUM_COLS = 6, 7
-MAX_DEPTH = 6 # max number of moves ahead to calculate
-MAX, MIN = True, False # to be used in minimax
-WIN_SCORE = 1000000 # large enough to always be the preferred outcome
+MAX_DEPTH = 6  # max number of moves ahead to calculate
+MAX, MIN = True, False  # to be used in minimax
+WIN_SCORE = 1000000  # large enough to always be the preferred outcome
+
 
 # class for the A.I.
 class Connect4Strategy(Player):
@@ -22,8 +23,8 @@ class Connect4Strategy(Player):
 
 	def getMove(self, board):
 		"""Calculates the best move for the AI for the given board"""
-		move, score = -123, -123 # placeholders
-		for i in range(1, MAX_DEPTH + 1): # iterative deepening
+		move, score = -123, -123  # placeholders
+		for i in range(1, MAX_DEPTH + 1):  # iterative deepening
 			# this will prioritize game winning move sequences that finish in less moves
 			move, score = self.minimax(board, 0, MAX, -math.inf, math.inf, i)
 			if score == WIN_SCORE:
@@ -51,7 +52,7 @@ class Connect4Strategy(Player):
 		if maxOrMin == MAX:
 			# want to maximize this move
 			score = -math.inf
-			bestMove = validMoves[0] # default best move
+			bestMove = validMoves[0]  # default best move
 			for move in validMoves:
 				boardCopy = copyOfBoard(board)
 				performMove(boardCopy, move, self.AI_COLOR)
@@ -63,7 +64,7 @@ class Connect4Strategy(Player):
 				# if depth == 0:
 				# 	print("Score for slot %d = %d. Max depth = %d" % (move, updatedScore, localMaxDepth))
 				if alpha >= beta:
-					break # pruning
+					break  # pruning
 			return bestMove, score
 		else:
 			# want to minimize this move
@@ -78,7 +79,7 @@ class Connect4Strategy(Player):
 					bestMoveForHuman = move
 				beta = min(beta, score)
 				if beta <= alpha:
-					break # pruning
+					break  # pruning
 			return bestMoveForHuman, score
 
 
@@ -88,33 +89,32 @@ def scoreBoard(board, color):
 
 	# Give a slight bonus to pieces in the center column
 	for r in range(NUM_ROWS):
-		if board[r][NUM_COLS//2] == color:
+		if board[r][NUM_COLS // 2] == color:
 			score += 2
 
 	# Check horizontal
-	for c in range(NUM_COLS-3):
+	for c in range(NUM_COLS - 3):
 		for r in range(NUM_ROWS):
 			score += scoreSection(board[r][c:c + 4], color)
 
-
 	# Check vertical
 	for c in range(NUM_COLS):
-		for r in range(NUM_ROWS-3):
+		for r in range(NUM_ROWS - 3):
 			section = []
 			for i in range(4):
 				section.append(board[r + i][c])
 			score += scoreSection(section, color)
 
 	# Check diagonal from bottom left to top right
-	for c in range(NUM_COLS-3):
-		for r in range(NUM_ROWS-3):
+	for c in range(NUM_COLS - 3):
+		for r in range(NUM_ROWS - 3):
 			section = []
 			for i in range(4):
 				section.append(board[r + i][c + i])
 			score += scoreSection(section, color)
 
 	# Check diagonal from bottom right to top left
-	for c in range(NUM_COLS-3):
+	for c in range(NUM_COLS - 3):
 		for r in range(3, NUM_ROWS):
 			section = []
 			for i in range(4):
@@ -122,6 +122,7 @@ def scoreBoard(board, color):
 			score += scoreSection(section, color)
 
 	return score
+
 
 def scoreSection(section, color):
 	"""Looks at the given length 4 section and scores it"""
@@ -143,40 +144,43 @@ def scoreSection(section, color):
 	else:
 		return 0
 
+
 def findWinner(board):
 	"""
     Checks if there is a winner
     returns the color of the winner if there is one, otherwise None
     """
 	# Check horizontal
-	for c in range(NUM_COLS-3):
+	for c in range(NUM_COLS - 3):
 		for r in range(NUM_ROWS):
-			if board[r][c] == board[r][c+1] == board[r][c+2] == board[r][c+3] != EMPTY:
+			if board[r][c] == board[r][c + 1] == board[r][c + 2] == board[r][c + 3] != EMPTY:
 				return board[r][c]
 
 	# Check vertical
 	for c in range(NUM_COLS):
-		for r in range(NUM_ROWS-3):
-			if board[r][c] == board[r+1][c] == board[r+2][c] == board[r+3][c] != EMPTY:
+		for r in range(NUM_ROWS - 3):
+			if board[r][c] == board[r + 1][c] == board[r + 2][c] == board[r + 3][c] != EMPTY:
 				return board[r][c]
 
 	# Check diagonal from bottom left to top right
-	for c in range(NUM_COLS-3):
-		for r in range(NUM_ROWS-3):
-			if board[r][c] == board[r+1][c+1] == board[r+2][c+2] == board[r+3][c+3] != EMPTY:
+	for c in range(NUM_COLS - 3):
+		for r in range(NUM_ROWS - 3):
+			if board[r][c] == board[r + 1][c + 1] == board[r + 2][c + 2] == board[r + 3][c + 3] != EMPTY:
 				return board[r][c]
 
 	# Check diagonal from bottom right to top left
-	for c in range(NUM_COLS-3):
+	for c in range(NUM_COLS - 3):
 		for r in range(3, NUM_ROWS):
-			if board[r][c] == board[r-1][c+1] == board[r-2][c+2] == board[r-3][c+3] != EMPTY:
+			if board[r][c] == board[r - 1][c + 1] == board[r - 2][c + 2] == board[r - 3][c + 3] != EMPTY:
 				return board[r][c]
 
 	return None
 
+
 def isValidMove(board, col):
 	"""Checks if the column is full"""
 	return board[NUM_ROWS - 1][col] == EMPTY
+
 
 def getValidMoves(board):
 	"""Returns a list of valid moves"""
@@ -185,6 +189,7 @@ def getValidMoves(board):
 		if isValidMove(board, c):
 			validCols.append(c)
 	return validCols
+
 
 def checkIfGameOver(board):
 	"""
@@ -200,9 +205,11 @@ def checkIfGameOver(board):
 	else:
 		return False, None
 
+
 def opponentOf(color):
 	"""Get the opposing color"""
 	return RED if color == YELLOW else YELLOW
+
 
 def performMove(board, col, color):
 	"""Performs a given move on the board"""
@@ -212,6 +219,7 @@ def performMove(board, col, color):
 			break
 		rowOfPlacement += 1
 	board[rowOfPlacement][col] = color
+
 
 def copyOfBoard(board):
 	"""Returns a copy of the given board"""

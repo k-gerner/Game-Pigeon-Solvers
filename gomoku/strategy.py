@@ -17,6 +17,7 @@ MAX_NUM_MOVES_TO_EVALUATE = 15  # most moves we want to evaluate at once for any
 MAX_DEPTH = 6  # max number of moves ahead to calculate
 #######################
 
+
 # class for the A.I.
 class GomokuStrategy(Player):
 
@@ -815,15 +816,15 @@ class GomokuStrategy(Player):
 		return evaluatorScore, enemyScore
 
 
-
-
 def opponentOf(color):
 	"""Get the opposing color"""
 	return WHITE if color == BLACK else BLACK
 
+
 def performMove(board, row, col, color):
 	"""Performs a given move on the board"""
 	board[row][col] = color
+
 
 def copyOfBoard(board):
 	"""Returns a copy of the given board"""

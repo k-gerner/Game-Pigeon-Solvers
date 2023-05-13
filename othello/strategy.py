@@ -136,6 +136,7 @@ def copyOfBoard(board):
     """Returns a copy of the given board"""
     return list(map(list, board))  # use numpy if this becomes bottleneck
 
+
 def evaluatePosition(row, col):
     """Gets the score of a position on the board"""
     move = row, col
@@ -151,6 +152,7 @@ def evaluatePosition(row, col):
         return -7
     else:
         return 0
+
 
 def evaluateBoardByFilledRows(board, color):
     """
@@ -205,6 +207,7 @@ def evaluateBoardByFilledRows(board, color):
 
     return score
 
+
 def validMovesComparator(move1, move2):
     """
     Defines a way to sort two possible moves.
@@ -220,9 +223,11 @@ def validMovesComparator(move1, move2):
     else:
         return 0
 
+
 def pieceAt(row, col, board):
     """Gets the piece at the given coordinate"""
     return board[row][col]
+
 
 def opponentOf(piece):
     """Gets the string representation of the opposing piece"""
@@ -233,12 +238,14 @@ def opponentOf(piece):
     else:
         raise ValueError(f"Invalid value passed to opponentOf({piece})")
 
+
 def numberOfPieceOnBoard(piece, board):
     """Gets the number of the given piece that are on the board"""
     count = 0
     for row in board:
         count += row.count(piece)
     return count
+
 
 def currentScore(userPiece, board):
     """Gets the score of the game, returning {userPiece}'s score in [0] and opposing score in [1]"""
@@ -278,6 +285,7 @@ def isMoveValid(piece, row, col, board, confirmedInRange=False):
                 return True
     return False
 
+
 def hasValidMoves(piece, board):
     """Checks if the given color has any available moves"""
     for row in range(BOARD_DIMENSION):
@@ -285,6 +293,7 @@ def hasValidMoves(piece, board):
             if isMoveValid(piece, row, col, board, confirmedInRange=True):
                 return True
     return False
+
 
 def getValidMoves(piece, board):
     """Gets a list of coordinates [row ,col] of valid moves for the given color"""
@@ -294,6 +303,7 @@ def getValidMoves(piece, board):
             if isMoveValid(piece, row, col, board, confirmedInRange=True):
                 validMoves.append([row, col])
     return validMoves
+
 
 def playMove(piece, row, col, board):
     """Adds a piece to the board and flips all the captured pieces"""
@@ -344,6 +354,7 @@ def checkGameOver(board):
         return True, WHITE
     else:
         return True, None
+
 
 # sets the sorting key for valid move comparisons
 validMoveSortKey = cmp_to_key(validMovesComparator)

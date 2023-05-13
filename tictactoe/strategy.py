@@ -105,15 +105,15 @@ class TicTacToeStrategy(Player):
 			return bestMoveForHuman[0], bestMoveForHuman[1], score
 
 
-
-
 def opponentOf(piece):
 	"""Get the opposing piece"""
 	return X_PIECE if piece == O_PIECE else O_PIECE
 
+
 def performMove(board, row, col, piece):
 	"""Performs a given move on the board"""
 	board[row][col] = piece
+
 
 def findWinner(board):
 	"""
@@ -140,6 +140,7 @@ def findWinner(board):
 
 	return None
 
+
 def isTerminal(board):
 	"""
     Checks if the current board state is Game Over
@@ -157,6 +158,7 @@ def isTerminal(board):
 
 	return True, None
 
+
 def getValidMoves(board):
 	"""Returns a list of valid moves (moves in the center area or near other pieces)"""
 	validLocations = []
@@ -165,6 +167,7 @@ def getValidMoves(board):
 			if board[rowNum][colNum] == EMPTY:
 				validLocations.append([rowNum, colNum])
 	return validLocations
+
 
 def copyOfBoard(board):
 	"""Returns a copy of the given board"""
