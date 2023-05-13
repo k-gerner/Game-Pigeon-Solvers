@@ -19,11 +19,9 @@ over). For further explanation, see [this website][How to play Mancala GP].
 *Note*: This code is likely not as optimized as it could be, as I 
 wrote it as an exercise to refamiliarize myself with Python.
 #### How to use
-First, go into the [Python Version](/mancalaavalanche/python) 
-directory and download the `mancala_ava_client.py` and `classes.py` 
-files. Then, run the following command:  
+First, download this project. Then, run the following command:  
 ```
-> python3 mancala_ava_client.py
+> python3 ai_runner --game=mancala-avalanche
 ```  
 You will be prompted for which mode you would like to use (have the 
 moves presented all at once, or one at a time). Next, you will be 
