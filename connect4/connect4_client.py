@@ -29,8 +29,9 @@ gameBoard = [[EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],  # bottom row
 userPiece = YELLOW
 TIME_TAKEN_PER_PLAYER = {}
 
+
 # class for the Human player
-class HumanPlayer(Player):
+class HumanPlayer(Connect4Player):
 
     def __init__(self, color):
         super().__init__(color, isAI=False)
