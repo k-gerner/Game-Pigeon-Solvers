@@ -2,7 +2,8 @@
 
 from typing import List, Tuple
 
-class Player:
+
+class OthelloPlayer:
 
     def __init__(self, color:str, isAI:bool=True):
         """Sets the color for this player, and indicates whether it is an AI"""

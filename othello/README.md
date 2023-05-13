@@ -38,8 +38,8 @@ either enter your move, or press `enter` for the A.I. to play.
 <img src="/Images/Othello/othelloGameBoard.png" alt = "sample board output" width="40%">  
 
 ### How it works
-The A.I. works by using a move selection algorithm known as [Minimax](https://en.wikipedia.org/wiki/Minimax), 
-and uses a pruning technique known as [Alpha-Beta Pruning](https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning). 
+The A.I. works by using a move selection algorithm known as [Minimax][Minimax Wikipedia], 
+and uses a pruning technique known as [Alpha-Beta Pruning][AB Pruning Wikipedia]. 
 Minimax works by assuming that the opponent will make the best 
 possible move at each turn. By doing this, the A.I. can look several 
 moves ahead. Then, it can pick the best possible outcome.
@@ -47,7 +47,7 @@ moves ahead. Then, it can pick the best possible outcome.
 Alpha-Beta pruning works by keeping track of the best already explored 
 option along the path to the root for the maximizer (alpha), and the 
 best already explored option along the path to the root for the 
-minimizer (beta). A good explanatory video can be found [here](https://www.youtube.com/watch?v=xBXHtz4Gbdo&ab_channel=CS188Spring2013).  
+minimizer (beta). A good explanatory video can be found [here][AB Pruning Youtube].  
 
 The A.I. evaluates board states by looking at the positions of pieces 
 on the board. Spaces in the corners and edges are weighted positively 
@@ -74,7 +74,7 @@ save some time when evaluating board states.
 At the input prompt, you can enter one of several commands.
 #### Save the game: `s`
 Save the game by typing `s`. This will create a save file named
-`saved_game.txt` which contains save data for the current game state.
+`othello_save.txt` which contains save data for the current game state.
 When you start a new game, if a save state is detected, you will be
 asked if you would like to resume that game. 
 #### See previous moves: `h`
@@ -107,7 +107,7 @@ your AI was located in `myAiFile.py`, you would run:
 
 In order for your AI to be eligible, it must meet a few requirements:
 * AI logic must be contained in a class named `OthelloStrategy`
-* AI must be a subclass of `Player`, found in `Player.py`
+* AI must be a subclass of `OthelloPlayer`, found in `othello_player.py`
 * AI must have a function named `getMove` that accepts a game board
   as a parameter, and returns the chosen move coordinates in the form of
   a tuple in the format `(rowNumber, columnNumber)`
@@ -153,3 +153,7 @@ displayed for each player.
 \
 If you made it this far, you should check out my other A.I.s and 
 solvers! I'm especially proud of my [Gomoku A.I.](/gomoku)!
+
+[Minimax Wikipedia]: https://en.wikipedia.org/wiki/Minimax
+[AB Pruning Wikipedia]: https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning
+[AB Pruning Youtube]: https://www.youtube.com/watch?v=xBXHtz4Gbdo&ab_channel=CS188Spring2013

@@ -14,7 +14,7 @@ from util.save.saving import path_to_save_file, allow_save
 
 from othello.strategy import OthelloStrategy, copyOfBoard, BOARD_DIMENSION, getValidMoves, opponentOf, playMove, \
     currentScore, checkGameOver, numberOfPieceOnBoard, pieceAt, hasValidMoves, isMoveValid, isMoveInRange
-from othello.Player import Player
+from othello.othello_player import OthelloPlayer
 
 BLACK = "0"
 WHITE = "O"
@@ -261,8 +261,8 @@ def getDuelingAi():
     duelAiModuleName = getOpposingAiModuleName()
     try:
         DuelingAi  = getattr(import_module(duelAiModuleName), 'OthelloStrategy')
-        if not issubclass(DuelingAi, Player):
-            print(f"{ERROR_SYMBOL} Please make sure your AI is a subclass of 'Player'")
+        if not issubclass(DuelingAi, OthelloPlayer):
+            print(f"{ERROR_SYMBOL} Please make sure your AI is a subclass of 'OthelloPlayer'")
             exit(0)
         return DuelingAi
     except ImportError:
