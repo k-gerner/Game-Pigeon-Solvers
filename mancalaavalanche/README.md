@@ -13,17 +13,17 @@ in your bank, but not your opponent's. If your last piece from that
 turn ends in your bank, you get another turn. If the last piece ends 
 in another pit, you pick up every piece from that pit, and repeat 
 the process (unless the pit was empty, in which case your turn is 
-over). For further explanation, see [this website](https://allthings.how/how-to-play-mancala-on-imessage/).  
+over). For further explanation, see [this website][How to play Mancala GP].  
 
 ### Python Version  
 *Note*: This code is likely not as optimized as it could be, as I 
 wrote it as an exercise to refamiliarize myself with Python.
 #### How to use
 First, go into the [Python Version](/mancalaavalanche/python) 
-directory and download the `mancala_avalanche.py` and `classes.py` 
+directory and download the `mancala_ava_client.py` and `classes.py` 
 files. Then, run the following command:  
 ```
-> python3 mancala_avalanche.py
+> python3 mancala_ava_client.py
 ```  
 You will be prompted for which mode you would like to use (have the 
 moves presented all at once, or one at a time). Next, you will be 
@@ -62,3 +62,5 @@ by the opponent's side of the board. Make sure your input is a comma
 separated list with exactly 6 numbers. You will be presented with a 
 visualization of the board as you have inputted it. Pressing enter 
 will calculate the best possible move set for that given board.
+
+[How to play Mancala GP]: https://allthings.how/how-to-play-mancala-on-imessage/
