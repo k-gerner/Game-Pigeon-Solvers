@@ -10,7 +10,7 @@ from util.terminaloutput.colors import GREEN_COLOR as DESTROY_COLOR, \
 	NO_COLOR
 from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL
 from util.terminaloutput.erasing import erasePreviousLines
-from util.save.saving import path_to_save_file
+from util.save.saving import path_to_save_file, allow_save
 import math
 import os
 import sys
@@ -169,21 +169,8 @@ def game_over():
 
 def save_game():
 	"""Saves the given board state to a save file"""
-	if os.path.exists(SAVE_FILENAME):
-		with open(SAVE_FILENAME, 'r') as saveFile:
-			try:
-				timeOfPreviousSave = saveFile.readlines()[3].strip()
-				overwrite = input(f"{INFO_SYMBOL} A save state already exists from {timeOfPreviousSave}.\nIs it okay to overwrite it? (y/n)\t").strip().lower()
-				erasePreviousLines(1)
-				while overwrite not in ['y', 'n']:
-					erasePreviousLines(1)
-					overwrite = input(f"{ERROR_SYMBOL} Invalid input. Is it okay to overwrite the existing save state? (y/n)\t").strip().lower()
-				erasePreviousLines(1)
-				if overwrite == 'n':
-					print(f"{INFO_SYMBOL} The current game state will not be saved.")
-					return
-			except IndexError:
-				pass
+	if not allow_save(SAVE_FILENAME):
+		return
 	with open(SAVE_FILENAME, 'w') as saveFile:
 		saveFile.write("This file contains the save state of a previously played game.\n")
 		saveFile.write("Modifying this file may cause issues with loading the save state.\n\n")
