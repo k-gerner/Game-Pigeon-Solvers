@@ -8,7 +8,7 @@ from util.terminaloutput.colors import YELLOW_COLOR, RED_COLOR, BLUE_COLOR, GREE
 from util.terminaloutput.erasing import erasePreviousLines
 from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL
 from util.save.saving import path_to_save_file, allow_save
-from importlib import import_module
+from util.aiduel.dueling import get_dueling_ai_class
 from datetime import datetime
 from connect4.connect4_player import Connect4Player
 from connect4.connect4_strategy import Connect4Strategy, opponentOf, performMove, checkIfGameOver, isValidMove, \
@@ -243,35 +243,6 @@ def printAsciiTitleArt():
     """)
 
 
-def getOpposingAiModuleName():
-    """Reads the command line arguments to determine the name of module for the opposing AI"""
-    try:
-        indexOfFlag = sys.argv.index("-d") if "-d" in sys.argv else sys.argv.index("-aiDuel")
-        module = sys.argv[indexOfFlag + 1].split(".py")[0]
-        return module
-    except (IndexError, ValueError):
-        print(f"{ERROR_SYMBOL} You need to provide the name of your AI strategy module.")
-        exit(0)
-
-
-def getDuelingAi():
-    """Returns the imported AI Strategy class if the import is valid"""
-    duelAiModuleName = getOpposingAiModuleName()
-    try:
-        DuelingAi  = getattr(import_module(duelAiModuleName), 'Connect4Strategy')
-        if not issubclass(DuelingAi, Connect4Player):
-            print(f"{ERROR_SYMBOL} Please make sure your AI is a subclass of 'Connect4Player'")
-            exit(0)
-        return DuelingAi
-    except ImportError:
-        print(f"{ERROR_SYMBOL} Please provide a valid module to import.\n" +
-              f"{INFO_SYMBOL} Pass the name of your Python file as a command line argument.")
-        exit(0)
-    except AttributeError:
-        print(f"{ERROR_SYMBOL} Please make sure your AI's class name is 'Connect4Strategy'")
-        exit(0)
-
-
 def run():
     """main method that prompts the user for input"""
     global userPiece, TIME_TAKEN_PER_PLAYER
@@ -280,7 +251,7 @@ def run():
         global ERASE_MODE_ON
         ERASE_MODE_ON = False
     if "-d" in sys.argv or "-aiDuel" in sys.argv:
-        UserPlayerClass = getDuelingAi()
+        UserPlayerClass = get_dueling_ai_class(Connect4Player, "Connect4Strategy")
         print(f"\n{INFO_SYMBOL} You are in AI Duel Mode!")
         AI_DUEL_MODE = True
     else:
