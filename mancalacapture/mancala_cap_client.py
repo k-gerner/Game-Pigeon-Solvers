@@ -5,11 +5,11 @@ import os
 import sys
 import time
 from datetime import datetime
-from importlib import import_module
-from util.terminaloutput.colors import RED_COLOR, GREEN_COLOR, NO_COLOR, YELLOW_COLOR
+from util.terminaloutput.colors import RED_COLOR, GREEN_COLOR, NO_COLOR
 from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL
 from util.terminaloutput.erasing import erasePreviousLines
 from util.save.saving import path_to_save_file, allow_save
+from util.aiduel.dueling import get_dueling_ai_class
 from mancalacapture.mancala_player import MancalaPlayer
 from mancalacapture.board_functions import getIndexOfOppositeHole, pushAllPebblesToBank, winningPlayerBankIndex, \
 	isBoardTerminal, performMove
@@ -292,41 +292,12 @@ def getBoardHistoryInputFromUser(isAi):
 	return userInput
 
 
-def getOpposingAiModuleName():
-	"""Reads the command line arguments to determine the name of module for the opposing AI"""
-	try:
-		indexOfFlag = sys.argv.index("-d") if "-d" in sys.argv else sys.argv.index("-aiDuel")
-		module = sys.argv[indexOfFlag + 1].split(".py")[0]
-		return module
-	except (IndexError, ValueError):
-		print(f"{ERROR_SYMBOL} You need to provide the name of your AI strategy module.")
-		exit(0)
-
-
-def getDuelingAi():
-	"""Returns the imported AI Strategy class if the import is valid"""
-	duelAiModuleName = getOpposingAiModuleName()
-	try:
-		DuelingAi  = getattr(import_module(duelAiModuleName), 'MancalaStrategy')
-		if not issubclass(DuelingAi, MancalaPlayer):
-			print(f"{ERROR_SYMBOL} Please make sure your AI is a subclass of 'MancalaPlayer'")
-			exit(0)
-		return DuelingAi
-	except ImportError:
-		print(f"{ERROR_SYMBOL} Please provide a valid module to import.\n" +
-			  f"{INFO_SYMBOL} Pass the name of your Python file as a command line argument.")
-		exit(0)
-	except AttributeError:
-		print(f"{ERROR_SYMBOL} Please make sure your AI's class name is 'MancalaStrategy'")
-		exit(0)
-
-
 def run():
 	if "-e" in sys.argv or "-eraseModeOff" in sys.argv:
 		global ERASE_MODE_ON
 		ERASE_MODE_ON = False
 	if "-d" in sys.argv or "-aiDuel" in sys.argv:
-		UserPlayerClass = getDuelingAi()
+		UserPlayerClass = get_dueling_ai_class(MancalaPlayer, "MancalaStrategy")
 		print(f"\n{INFO_SYMBOL} You are in AI Duel Mode!")
 		AI_DUEL_MODE = True
 	else:
