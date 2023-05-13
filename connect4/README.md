@@ -1,5 +1,5 @@
 # Connect 4 (Four in a Row)  
-<img src="/Images/Connect%204/sampleConnect4Board.jpeg" alt = "sample board" width="40%" align = "right">  
+<img src="/images/Connect%204/sampleConnect4Board.jpeg" alt = "sample board" width="40%" align = "right">  
 
 ### The Basics  
 Four in a Row is another name for Connect 4. In Connect 4, the 
@@ -8,13 +8,12 @@ succession (hence the name). The player can choose one of seven
 columns to play their piece, which is placed in the column and lands 
 at the lowest open slot.
 ### How to use
-First, download the `connect4_client.py` and `connect4_strategy.py` files and 
-place them both in the same directory. If you would like to challenge
+First, download this project. If you would like to challenge
 my AI with your own, see the [Dueling AIs Mode](#dueling-ais-mode)
 section. If you would like to challenge the AI yourself, you can 
 invoke the tool by running
 ```
-> python3 connect4_client.py
+> python3 ai_runner --game=connect4
 ```
 Once you do this, you will be asked which color you want to be, RED 
 (`o`) or YELLOW (`@`). Whoever is YELLOW will go first. Each empty 
@@ -26,7 +25,7 @@ have the A.I. play its best move.
 If you want to use this to beat someone else in Connect 4, just enter 
 their moves as the `player` and then use the A.I.'s moves as your own.  
 
-<img src="/Images/Connect%204/sampleProgramBoardColor.png" alt = "sample board output" width="20%">  
+<img src="/images/Connect%204/sampleProgramBoardColor.png" alt = "sample board output" width="20%">  
 
 ### How it works  
 The A.I. works by using a move selection algorithm known as [Minimax][Minimax Wikipedia], 
@@ -48,7 +47,7 @@ directory, and include a command line argument `-d` or `-aiDuel`
 followed by the name of your Python file. For example, if
 your AI was located in `external/aiduel/myAiFile.py`, you would run:
 ```
-> python3 connect4_client.py -d myAiFile
+> python3 ai_runner --game=connect4 -d myAiFile
 ```
 
 In order for your AI to be eligible, it must meet a few requirements:
