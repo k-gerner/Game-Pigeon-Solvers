@@ -22,7 +22,7 @@ are as follows:
 state of the board
 * `constants.py`: Constants relevant to the board setup and terminal output.
 You can modify some of these values.
-* `mancala_client.py`: Contains the logic for the UI and user input, as 
+* `mancala_cap_client.py`: Contains the logic for the UI and user input, as 
 well as the game runner
 * `Player.py`: Super class that players must implement. If you choose to
 use your own A.I., you must inherit from this class
@@ -30,7 +30,7 @@ use your own A.I., you must inherit from this class
 
 You can invoke the tool by running
 ```
-> python3 mancala_client.py
+> python3 mancala_cap_client.py
 ```
 Once you do this, you will see some info about how to interact with the 
 tool, further explained in the [Gameplay Features](#gameplay-features) section. 
@@ -75,7 +75,7 @@ use this functionality, include a command line argument `-d` or
 `-aiDuel` followed by the name of your Python file. For example, if
 your AI was located in `myAiFile.py`, you would run:
 ```
-> python3 mancala_client.py -d myAiFile
+> python3 mancala_cap_client.py -d myAiFile
 ```
 
 In order for your AI to be eligible, it must meet a few requirements:

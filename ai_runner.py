@@ -8,7 +8,7 @@ from anagrams import anagrams_client
 from connect4 import connect4_client
 from gomoku import gomoku_client
 from mancalaavalanche.python import mancala_avalanche
-from mancalacapture import mancala_client
+from mancalacapture import mancala_cap_client
 from othello import othello_client
 from tictactoe import tictactoe_client
 from wordbites import word_bites_client
@@ -19,7 +19,7 @@ clients = OrderedDict([
 	("connect4", connect4_client),
 	("gomoku", gomoku_client),
 	("mancala-avalanche", mancala_avalanche),
-	("mancala-capture", mancala_client),
+	("mancala-capture", mancala_cap_client),
 	("othello", othello_client),
 	("seabattle", sea_battle_client),
 	("tictactoe", tictactoe_client),
