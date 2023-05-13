@@ -1,5 +1,5 @@
 # Othello
-<img src="/Images/Othello/sampleOthelloBoard.jpg" alt = "Othello game board in Game Pigeon's UI" width="30%" align = "right">  
+<img src="/images/Othello/sampleOthelloBoard.jpg" alt = "Othello game board in Game Pigeon's UI" width="30%" align = "right">  
 
 ### The Basics
 The overall objective of the game is to end the game with more pieces 
@@ -36,7 +36,7 @@ be prompted to choose which color you want to be, BLACK (`0`) or WHITE
 (`O`). Whoever is BLACK will go first. You will then be prompted to 
 either enter your move, or press `enter` for the A.I. to play.  
 
-<img src="/Images/Othello/othelloGameBoard.png" alt = "sample board output" width="40%">  
+<img src="/images/Othello/othelloGameBoard.png" alt = "sample board output" width="40%">  
 
 ### How it works
 The A.I. works by using a move selection algorithm known as [Minimax][Minimax Wikipedia], 
@@ -126,7 +126,7 @@ section for more information. Invoked with `-d` or `-aiDuel`.
 * Colorblind mode: Use Blue/Orange instead of Green/Red for piece
   colorings. To enable, include the flag`-cb` or `-colorblindMode`.
 
-<img src="/Images/Othello/colorblindGameBoard.png" alt = "colorblind board output" width="40%">
+<img src="/images/Othello/colorblindGameBoard.png" alt = "colorblind board output" width="40%">
 
 
 ### ✨ New in Version 2.1
