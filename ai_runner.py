@@ -4,7 +4,7 @@ from collections import OrderedDict
 from util.terminaloutput.symbols import ERROR_SYMBOL
 from util.terminaloutput.erasing import erase, erasePreviousLines
 from seabattle import sea_battle_tool
-from anagrams import anagram_tool
+from anagrams import anagrams_client
 from connect4 import connect4_client
 from gomoku import gomoku_client
 from mancalaavalanche.python import mancala_avalanche
@@ -15,7 +15,7 @@ from wordbites import word_bites_client
 from wordhunt import word_hunt_client
 
 clients = OrderedDict([
-	("anagrams", anagram_tool),
+	("anagrams", anagrams_client),
 	("connect4", connect4_client),
 	("gomoku", gomoku_client),
 	("mancala-avalanche", mancala_avalanche),

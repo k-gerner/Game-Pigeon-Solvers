@@ -7,11 +7,11 @@ In Anagrams, players are given a set of either 6 or 7 letters. The
 objective of the game is to arrange the given letters into valid 
 English words.  
 ### How to use  
-First, download the `anagram_tool.py` and `letters7.txt` files and 
+First, download the `anagrams_client.py` and `letters7.txt` files and 
 place them all in the same directory. You can invoke the tool by 
 running  
 ```
-> python3 anagram_tool.py
+> python3 anagrams_client.py
 ```  
 Once you do this, you will be asked how many letters are given (either 
 6 or 7). Next, you will be prompted for the letters on the board. 
