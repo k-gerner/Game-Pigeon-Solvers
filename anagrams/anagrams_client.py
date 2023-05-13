@@ -12,7 +12,7 @@ englishWords = set()
 wordStarts = set()
 foundWords = set()
 
-INPUT_FILENAME = "anagrams/letters7.txt"
+INPUT_FILEPATH = "anagrams/letters7.txt"
 
 ERASE_MODE_ON = True
 
@@ -72,7 +72,7 @@ def printFoundWords(words):
 def populateWordSets(numLetters):
 	"""Fills the sets that will contain words we can search for"""
 	try :
-		inputFile = open(INPUT_FILENAME, 'r')
+		inputFile = open(INPUT_FILEPATH, 'r')
 		for word in inputFile:
 			strippedWord = word.rstrip() #removes newline char
 			if len(strippedWord) > numLetters:
@@ -83,7 +83,7 @@ def populateWordSets(numLetters):
 				wordStarts.add(strippedWord[:i])
 		inputFile.close()
 	except FileNotFoundError:
-		print(f"\n{ERROR_SYMBOL} Could not open the file. Please make sure %s is in the current directory, and run this file from inside the current directory.\n" % INPUT_FILENAME)
+		print(f"\n{ERROR_SYMBOL} Could not open the words file. Please make sure {INPUT_FILEPATH.split('/')[-1]} is in the current directory.\n")
 		exit(0)
 
 
