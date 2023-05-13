@@ -9,7 +9,7 @@ from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL
 from util.terminaloutput.erasing import erasePreviousLines
 from util.save.saving import path_to_save_file, allow_save
 
-from gomoku.strategy import GomokuStrategy, opponentOf, performMove, copyOfBoard
+from gomoku.gomoku_strategy import GomokuStrategy, opponentOf, performMove, copyOfBoard
 import time
 import os
 import sys

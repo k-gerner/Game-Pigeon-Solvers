@@ -22,7 +22,7 @@ played on a much bigger board, and you need 5 pieces in a row to
 win instead of 3.
 
 ### How to use 
-First, download the `gomoku_client.py` and `strategy.py` files and 
+First, download the `gomoku_client.py` and `gomoku_strategy.py` files and 
 place them both in the same directory. If you would like to challenge
 my AI with your own, see the [Dueling AIs Mode](#dueling-ais-mode)
 section. If you would like to challenge the AI yourself, you can 
@@ -46,7 +46,7 @@ quit, you can simply type `q` as your move input.
 If you want to use this to beat someone else in Gomoku, just enter 
 their moves as the `player` and then use the A.I.'s moves as your own.  
 
-There is some customization available as well. Inside of `strategy.py` 
+There is some customization available as well. Inside of `gomoku_strategy.py` 
 you can change certain parameters that will change how the A.I. finds 
 the best move:
 - `MAX_NEIGHBOR_DIST` - This parameter is the maximum distance from 
@@ -109,20 +109,24 @@ searching.
 
 ### How it works  
 #### Minimax and Alpha-Beta Pruning
-The A.I. works by using a move selection algorithm known as [Minimax](https://en.wikipedia.org/wiki/Minimax), and uses a pruning technique known as [Alpha-Beta Pruning](https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning). Minimax works by assuming that the opponent will make the best possible move at each turn. By doing this, the A.I. can look several moves ahead. Then, it can pick the best possible outcome for itself.  
+The A.I. works by using a move selection algorithm known as [Minimax][Minimax Wikipedia], 
+and uses a pruning technique known as [Alpha-Beta Pruning][AB Pruning Wikipedia]. 
+Minimax works by assuming that the opponent will make the best possible move 
+at each turn. By doing this, the A.I. can look several moves ahead. Then, it 
+can pick the best possible outcome for itself.  
 
 Alpha-Beta pruning works by keeping track of the best already 
 explored option along the path to the root for the maximizer 
 (alpha), and the best already explored option along the path to 
 the root for the minimizer (beta). A good explanatory video can 
-be found [here](https://www.youtube.com/watch?v=xBXHtz4Gbdo&ab_channel=CS188Spring2013). 
+be found [here][AB Pruning Youtube]. 
 With Alpha-Beta pruning, we can significantly cut down on the 
 number of board states that we have to evaluate.
 
 #### Zobrist Hashing and Transposition Tables
 Another method I used to speed up the algorithm was a technique 
-known as [Zobrist Hashing](https://en.wikipedia.org/wiki/Zobrist_hashing)
-in conjunction with [Transposition Tables](https://en.wikipedia.org/wiki/Transposition_table). 
+known as [Zobrist Hashing][Zobrist Hashing Wikipedia]
+in conjunction with [Transposition Tables][Transposition Tables Wikipedia]. 
 Zobrist Hashing is essentially a way to represent a state of the 
 board with a unique hash value. We create a `key` value for each 
 position on the board for each player color. For a given board 
@@ -233,7 +237,7 @@ After getting my final list of valid moves for a given board, I was
 able to use the Minimax algorithm to check the possible board states 
 `d` moves ahead. In order to prioritize moves that would lead to a 
 win sooner rather than later, I implemented 
-[Iterative Deepening](https://en.wikipedia.org/wiki/Iterative_deepening_depth-first_search), 
+[Iterative Deepening][Iterative Deepening Wikipedia], 
 which allowed me to perform searches at each depth `d` from `1` to 
 `MAX_DEPTH`. Once I reached the maximum depth for a given `d`, I had 
 to evaluate the entire board. As I mentioned before, to do this I 
@@ -242,7 +246,10 @@ had to look at every single 5 or 6 piece section on the board
 board an evaluation score. This was a costly operation, so the fewer 
 boards I have to evaluate, the better.  
 
-One helpful tool I used to determine which sections of my code needed to be improved was a profiler. By running `python3 -m cProfile -s time gomoku_client.py`, I could see which methods were taking up the most time, and how many times they were called.  
+One helpful tool I used to determine which sections of my code needed 
+to be improved was a profiler. By running `python3 -m cProfile -s time gomoku_client.py`, 
+I could see which methods were taking up the most time, and how many 
+times they were called.  
 
 ### Dueling AIs Mode
 Do you have your own Gomoku AI? Challenge mine! This program
@@ -308,3 +315,10 @@ step one move ahead, or `e` to exit back to play mode.
   instead of `p`. Also, the output is now less verbose.
 
 Thanks for checking out my Gomoku AI! I hope you enjoy!  
+
+[Minimax Wikipedia]: https://en.wikipedia.org/wiki/Minimax
+[AB Pruning Wikipedia]: https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning
+[AB Pruning Youtube]: https://www.youtube.com/watch?v=xBXHtz4Gbdo&ab_channel=CS188Spring2013
+[Zobrist Hashing Wikipedia]: https://en.wikipedia.org/wiki/Zobrist_hashing
+[Transposition Tables Wikipedia]: https://en.wikipedia.org/wiki/Transposition_table
+[Iterative Deepening Wikipedia]: https://en.wikipedia.org/wiki/Iterative_deepening_depth-first_search
