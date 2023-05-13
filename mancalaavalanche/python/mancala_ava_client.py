@@ -1,6 +1,6 @@
 # Kyle Gerner    7.9.2020
 # The class that contains the main method that runs the solver. Also contains
-from mancalaavalanche.python.classes import AvalancheBoard, Player, AvalancheSolver
+from mancalaavalanche.python.classes import AvalancheBoard, AvalanchePlayer, AvalancheSolver
 from util.terminaloutput.colors import GREEN_COLOR, RED_COLOR, NO_COLOR
 from util.terminaloutput.symbols import ERROR_SYMBOL
 from util.terminaloutput.erasing import erasePreviousLines
@@ -58,8 +58,8 @@ each spot on the {RED_COLOR}enemy{NO_COLOR} side of the board, with a space sepa
 
 def createSolver(boardVals):
 	"""Creates the AvalancheSolver object"""
-	p1 = Player()
-	p2 = Player()
+	p1 = AvalanchePlayer()
+	p2 = AvalanchePlayer()
 	board = AvalancheBoard(boardVals, p1, p2, True)
 	solver = AvalancheSolver(board)
 	return solver
