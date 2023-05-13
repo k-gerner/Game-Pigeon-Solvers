@@ -1,7 +1,7 @@
 # Tic Tac Toe AI client facing
 # Kyle G 6.6.2021
 
-from tictactoe.Player import Player
+from tictactoe.tictactoe_player import TicTacToePlayer
 from tictactoe.strategy import TicTacToeStrategy, opponentOf, isTerminal, performMove, copyOfBoard
 from util.terminaloutput.colors import GREEN_COLOR, RED_COLOR, NO_COLOR
 from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL
@@ -26,7 +26,7 @@ SAVE_FILENAME = path_to_save_file("tictactoe_save.txt")
 BOARD_HISTORY = []
 
 # class for the Human player
-class HumanPlayer(Player):
+class HumanPlayer(TicTacToePlayer):
 
 	def __init__(self, color):
 		super().__init__(color, isAI=False)
@@ -233,8 +233,8 @@ def getDuelingAi():
 	duelAiModuleName = getOpposingAiModuleName()
 	try:
 		DuelingAi  = getattr(import_module(duelAiModuleName), 'TicTacToeStrategy')
-		if not issubclass(DuelingAi, Player):
-			print(f"{ERROR_SYMBOL} Please make sure your AI is a subclass of 'Player'")
+		if not issubclass(DuelingAi, TicTacToePlayer):
+			print(f"{ERROR_SYMBOL} Please make sure your AI is a subclass of 'TicTacToePlayer'")
 			exit(0)
 		return DuelingAi
 	except ImportError:

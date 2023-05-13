@@ -30,13 +30,17 @@ play its best move. At any point, if you want to quit, you can simply
 type `q` as your move input.
 
 ### How it works
-The A.I. works by using a move selection algorithm known as [Minimax](https://en.wikipedia.org/wiki/Minimax), and uses a pruning technique known as [Alpha-Beta Pruning](https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning). Minimax works by assuming that the opponent will make the best possible move at each turn. By doing this, the A.I. can look several moves ahead. Then, it can pick the best possible outcome.  
+The A.I. works by using a move selection algorithm known as [Minimax][Minimax Wikipedia], 
+and uses a pruning technique known as [Alpha-Beta Pruning][AB Pruning Wikipedia]. 
+Minimax works by assuming that the opponent will make the best possible move at each 
+turn. By doing this, the A.I. can look several moves ahead. Then, it can pick the best 
+possible outcome.  
 
 Alpha-Beta pruning works by keeping track of the best already 
 explored option along the path to the root for the maximizer 
 (alpha), and the best already explored option along the path to 
 the root for the minimizer (beta). A good explanatory video can 
-be found [here](https://www.youtube.com/watch?v=xBXHtz4Gbdo&ab_channel=CS188Spring2013).
+be found [here][AB Pruning Youtube].
 
 ### Dueling AIs Mode
 Do you have your own Tic-Tac-Toe AI? Challenge mine! This program 
@@ -50,14 +54,14 @@ your AI was located in `myAiFile.py`, you would run:
 
 In order for your AI to be eligible, it must meet a few requirements:
 * AI logic must be contained in a class named `TicTacToeStrategy`
-* AI must be a subclass of `Player`, found in `Player.py`
+* AI must be a subclass of `TicTacToePlayer`, found in `tictactoe_player.py`
 * AI must have a function named `getMove` that accepts a game board 
 as a parameter, and returns the chosen move coordinates in the form of 
 a tuple in the format `(rowNumber, columnNumber)`
 
 ### Additional Features
 - Save the game by typing `s`. This will create a save
-  file named `saved_game.txt` which contains save data for the current
+  file named `tictactoe_save.txt` which contains save data for the current
   game state. When you start a new game, if a save state is detected,
   you will be asked if you would like to resume that game.
 - Inputting `h` will allow you to see previous moves that have been
@@ -67,7 +71,7 @@ a tuple in the format `(rowNumber, columnNumber)`
 
 ### ✨ New in Version 2.1
 * You can now save the game by typing `s`. This will create a save
-  file named `saved_game.txt`. See the [Additional Features](#additional-features)
+  file named `tictactoe_save.txt`. See the [Additional Features](#additional-features)
   section for more information!
 * You can now see previous moves that have been played by typing `h`.
   These will be displayed in place on the board. You will be prompted
@@ -83,3 +87,7 @@ a tuple in the format `(rowNumber, columnNumber)`
   * The game will now be played on a single game board instead of 
   printing a new board after each turn. This can be turned off 
   with the command line argument `-e` or `-eraseModeOff`.
+
+[Minimax Wikipedia]: https://en.wikipedia.org/wiki/Minimax
+[AB Pruning Wikipedia]: https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning
+[AB Pruning Youtube]: https://www.youtube.com/watch?v=xBXHtz4Gbdo&ab_channel=CS188Spring2013
