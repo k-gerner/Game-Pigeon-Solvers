@@ -4,7 +4,7 @@
 
 import math  # for infinities
 import random  # for randomizing valid moves list in minimax
-from connect4.Player import Player  # super class
+from connect4.connect4_player import Connect4Player  # super class
 
 EMPTY, RED, YELLOW = '.', 'o', '@'
 NUM_ROWS, NUM_COLS = 6, 7
@@ -14,7 +14,7 @@ WIN_SCORE = 1000000  # large enough to always be the preferred outcome
 
 
 # class for the A.I.
-class Connect4Strategy(Player):
+class Connect4Strategy(Connect4Player):
 
 	def __init__(self, color):
 		super().__init__(color)

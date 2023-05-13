@@ -3,7 +3,7 @@
 import math  # for infinities
 import random  # for randomizing valid moves list in minimax
 import sys  # for better progress bar formatting
-from gomoku.Player import Player  # super class
+from gomoku.gomoku_player import GomokuPlayer  # super class
 
 #### DO NOT MODIFY ####
 EMPTY, BLACK, WHITE = '.', 'X', 'O'
@@ -19,7 +19,7 @@ MAX_DEPTH = 6  # max number of moves ahead to calculate
 
 
 # class for the A.I.
-class GomokuStrategy(Player):
+class GomokuStrategy(GomokuPlayer):
 
 	def __init__(self, color, boardDimension=13):
 		"""Initializes the board attributes"""

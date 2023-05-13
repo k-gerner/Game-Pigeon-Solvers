@@ -4,14 +4,14 @@ import random  # for randomizing valid moves list in minimax
 from mancalacapture.board_functions import getValidMoves, performMove, isBoardTerminal, pushAllPebblesToBank, \
 	winningPlayerBankIndex
 from mancalacapture.constants import TOTAL_PEBBLES, POCKETS_PER_SIDE, BOARD_SIZE
-from mancalacapture.Player import Player  # super class
+from mancalacapture.mancala_player import MancalaPlayer  # super class
 
 MAX_DEPTH = 10  # max number of moves ahead to calculate
 MAX, MIN = True, False  # to be used in minimax
 
 
 # class for the A.I.
-class MancalaStrategy(Player):
+class MancalaStrategy(MancalaPlayer):
 
 	def __init__(self, bankIndex=13):
 		super().__init__(bankIndex)
