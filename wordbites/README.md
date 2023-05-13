@@ -1,6 +1,6 @@
 # Word Bites  
 
-<img src="/Images/Word%20Bites/sampleWordBitesBoard.jpeg" alt = "sample board" width="40%" align = "right">     
+<img src="/images/Word%20Bites/sampleWordBitesBoard.jpeg" alt = "sample board" width="40%" align = "right">     
 
 ### The Basics  
 In Word Bites, players are presented with a 9x8 board of open space. 
@@ -11,11 +11,9 @@ on the board to form English words. The longer the word, the more
 points the player earns. Whoever scores more points in 80 seconds 
 wins.
 ### How to use
-First, download the `word_bites_client.py` and `letters9.txt` files and 
-place them both in the same directory. You can invoke the tool by 
-running  
+First, download this project. You can invoke the tool by running  
 ```
-> python3 word_bites_client.py
+> python3 ai_runner --game=wordbites
 ```
 Once you do this, you will be prompted about which display mode you 
 would like to use: `Diagram Mode`, or `List Mode`. Typing `i` will 
@@ -29,14 +27,14 @@ Diagram mode will display each word one at a time, along with a visual
 representation of how to arrange the board pieces. Longer words will 
 be displayed first.  
 
-<img src="/Images/Word%20Bites/sampleDiagramMode.png" alt = "sample diagram mode" width = "30%"> 
+<img src="/images/Word%20Bites/sampleDiagramMode.png" alt = "sample diagram mode" width = "30%"> 
     
 #### List Mode
 List mode will display every possible word on the board all at once, 
 along with the orientation of the word, either saying `V` for 
 vertical, or `H` for horizontal. Longer words will be displayed first.  
 
-<img src="/Images/Word%20Bites/sampleListMode.png" alt = "sample list mode" width = "30%">  
+<img src="/images/Word%20Bites/sampleListMode.png" alt = "sample list mode" width = "30%">  
 
 ### ✨ New in Version 1.1
 * The output will now be updated in place, instead of printing 
