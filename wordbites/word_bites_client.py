@@ -33,7 +33,7 @@ LIST_MODE_DIRECTION_COLORS = {HORIZONTAL: BLUE_COLOR, VERTICAL: YELLOW_COLOR}
 ERASE_MODE_ON = True
 MORE_INFO_OUTPUT_HEIGHT = 30
 
-WORD_LIST_FILENAME = 'wordbites/letters9.txt'
+WORD_LIST_FILEPATH = 'wordbites/letters9.txt'
 
 
 def readInBoard():
@@ -311,8 +311,8 @@ def run():
 		global ERASE_MODE_ON
 		ERASE_MODE_ON = False
 	print("\nWelcome to Kyle's Word Bites Solver!")
-	try :
-		inputFile = open(WORD_LIST_FILENAME, 'r')
+	try:
+		inputFile = open(WORD_LIST_FILEPATH, 'r')
 		for word in inputFile:
 			strippedWord = word.strip()
 			if len(strippedWord) > max(MAX_LENGTHS.values()):
@@ -323,7 +323,7 @@ def run():
 				wordStarts.add(strippedWord[:i])
 		inputFile.close()
 	except FileNotFoundError:
-		print(f"\n{ERROR_SYMBOL} Could not open word list file. Please make sure {WORD_LIST_FILENAME} is in the current directory, and run this file from inside the current directory.\n")
+		print(f"\n{ERROR_SYMBOL} Could not open word list file. Please make sure {WORD_LIST_FILEPATH.split('/')[-1]} is in the current directory.\n")
 		exit(0)
 
 	# display mode select
