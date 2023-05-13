@@ -11,7 +11,8 @@ from util.save.saving import path_to_save_file, allow_save
 from importlib import import_module
 from datetime import datetime
 from connect4.connect4_player import Connect4Player
-from connect4.strategy import Connect4Strategy, opponentOf, performMove, checkIfGameOver, isValidMove, copyOfBoard
+from connect4.connect4_strategy import Connect4Strategy, opponentOf, performMove, checkIfGameOver, isValidMove, \
+    copyOfBoard
 
 ERASE_MODE_ON = True
 BOARD_OUTPUT_HEIGHT = 9

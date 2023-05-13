@@ -8,7 +8,7 @@ succession (hence the name). The player can choose one of seven
 columns to play their piece, which is placed in the column and lands 
 at the lowest open slot.
 ### How to use
-First, download the `connect4_client.py` and `strategy.py` files and 
+First, download the `connect4_client.py` and `connect4_strategy.py` files and 
 place them both in the same directory. If you would like to challenge
 my AI with your own, see the [Dueling AIs Mode](#dueling-ais-mode)
 section. If you would like to challenge the AI yourself, you can 
@@ -29,8 +29,8 @@ their moves as the `player` and then use the A.I.'s moves as your own.
 <img src="/Images/Connect%204/sampleProgramBoardColor.png" alt = "sample board output" width="20%">  
 
 ### How it works  
-The A.I. works by using a move selection algorithm known as [Minimax](https://en.wikipedia.org/wiki/Minimax), 
-and uses a pruning technique known as [Alpha-Beta Pruning](https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning). 
+The A.I. works by using a move selection algorithm known as [Minimax][Minimax Wikipedia], 
+and uses a pruning technique known as [Alpha-Beta Pruning][AB Pruning Wikipedia]. 
 Minimax works by assuming that the opponent will make the best possible 
 move at each turn. By doing this, the A.I. can look several moves 
 ahead. Then, it can pick the best possible outcome.  
@@ -38,7 +38,7 @@ ahead. Then, it can pick the best possible outcome.
 Alpha-Beta pruning works by keeping track of the best already explored 
 option along the path to the root for the maximizer (alpha), and the 
 best already explored option along the path to the root for the 
-minimizer (beta). A good explanatory video can be found [here](https://www.youtube.com/watch?v=xBXHtz4Gbdo&ab_channel=CS188Spring2013).
+minimizer (beta). A good explanatory video can be found [here][AB Pruning Youtube].
 
 ### Dueling AIs Mode
 Do you have your own Connect 4 AI? Challenge mine! This program
@@ -90,3 +90,7 @@ section for more information!
   * The column number of the most recently played move will be 
   colored green.
   * The column numbers of columns that are full will be colored grey.
+
+[Minimax Wikipedia]: https://en.wikipedia.org/wiki/Minimax
+[AB Pruning Wikipedia]: https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning
+[AB Pruning Youtube]: https://www.youtube.com/watch?v=xBXHtz4Gbdo&ab_channel=CS188Spring2013
