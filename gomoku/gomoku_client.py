@@ -8,6 +8,7 @@ from util.terminaloutput.colors import GREEN_COLOR, RED_COLOR, NO_COLOR, \
 from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL
 from util.terminaloutput.erasing import erasePreviousLines
 from util.save.saving import path_to_save_file, allow_save
+from util.aiduel.dueling import get_dueling_ai_class
 
 from gomoku.gomoku_strategy import GomokuStrategy, opponentOf, performMove, copyOfBoard
 import time
@@ -61,6 +62,7 @@ class HumanPlayer(GomokuPlayer):
 		col = COLUMN_LABELS.index(spot[0])
 		return row, col
 
+
 def createEmptyGameBoard(dimension):
 	"""Creates the gameBoard with the specified number of rows and columns"""
 	for i in range(dimension):
@@ -68,6 +70,7 @@ def createEmptyGameBoard(dimension):
 		for j in range(dimension):
 			row.append(EMPTY)
 		gameBoard.append(row)
+
 
 def printGameBoard(highlightCoordinates=None, board=None):
 	"""Prints the gameBoard in a human-readable format"""
@@ -89,6 +92,7 @@ def printGameBoard(highlightCoordinates=None, board=None):
 		print("")
 	print()
 
+
 def printMoveHistory(numMovesPrevious):
 	"""Prints the move history of the current game"""
 	while True:
@@ -109,6 +113,7 @@ def printMoveHistory(numMovesPrevious):
 			return
 		else:
 			erasePreviousLines(BOARD_OUTPUT_HEIGHT)
+
 
 def getBoardHistoryInputFromUser(isAi):
 	"""
@@ -135,6 +140,7 @@ def getBoardHistoryInputFromUser(isAi):
 			erasePreviousLines(1)
 	return userInput
 
+
 def printAsciiTitleArt():
 	"""Prints the fancy text when you start the program"""
 	print('\n\t    _  __     _      _')
@@ -158,6 +164,7 @@ def printAverageTimeTakenByPlayers():
 	print(f"{GREEN_COLOR}{TIME_TAKEN_PER_PLAYER[userPiece][0]}{NO_COLOR}: {userTimeTaken}s")
 	print(f"{RED_COLOR}{TIME_TAKEN_PER_PLAYER[opponentPiece][0]}{NO_COLOR}: {aiTimeTaken}s")
 
+
 def saveGame(board, turn):
 	"""Saves the given board state to a save file"""
 	if not allow_save(SAVE_FILENAME):
@@ -174,6 +181,7 @@ def saveGame(board, turn):
 		saveFile.write("Opponent piece: " + opponentOf(userPiece)  +"\n")
 		saveFile.write("Turn: " + turn)
 	print(f"{INFO_SYMBOL} The game has been saved!")
+
 
 def validateLoadedSaveState(board, piece, turn):
 	"""Make sure the state loaded from the save file is valid. Returns a boolean"""
@@ -195,6 +203,7 @@ def validateLoadedSaveState(board, piece, turn):
 			print(f"{ERROR_SYMBOL} Board contains invalid pieces!")
 			return False
 	return True
+
 
 def loadSavedGame():
 	"""Try to load the saved game data"""
@@ -239,32 +248,6 @@ def loadSavedGame():
 			print(f"{ERROR_SYMBOL} There was an issue reading from the save file. Starting a new game...")
 			return None
 
-def getOpposingAiModuleName():
-	"""Reads the command line arguments to determine the name of module for the opposing AI"""
-	try:
-		indexOfFlag = sys.argv.index("-d") if "-d" in sys.argv else sys.argv.index("-aiDuel")
-		module = sys.argv[indexOfFlag + 1].split(".py")[0]
-		return module
-	except (IndexError, ValueError):
-		print(f"{ERROR_SYMBOL} You need to provide the name of your AI strategy module.")
-		exit(0)
-
-def getDuelingAi():
-	"""Returns the imported AI Strategy class if the import is valid"""
-	duelAiModuleName = getOpposingAiModuleName()
-	try:
-		DuelingAi  = getattr(import_module(duelAiModuleName), 'GomokuStrategy')
-		if not issubclass(DuelingAi, GomokuPlayer):
-			print(f"{ERROR_SYMBOL} Please make sure your AI is a subclass of 'GomokuPlayer'")
-			exit(0)
-		return DuelingAi
-	except ImportError:
-		print(f"{ERROR_SYMBOL} Please provide a valid module to import.\n" +
-			  f"{INFO_SYMBOL} Pass the name of your Python file as a command line argument.")
-		exit(0)
-	except AttributeError:
-		print(f"{ERROR_SYMBOL} Please make sure your AI's class name is 'GomokuStrategy'")
-		exit(0)
 
 def run():
 	"""main method that prompts the user for input"""
@@ -274,7 +257,7 @@ def run():
 		global ERASE_MODE_ON
 		ERASE_MODE_ON = False
 	if "-d" in sys.argv or "-aiDuel" in sys.argv:
-		UserPlayerClass = getDuelingAi()
+		UserPlayerClass = get_dueling_ai_class(GomokuPlayer, "GomokuStrategy")
 		print(f"\n{INFO_SYMBOL} You are in AI Duel Mode!")
 		AI_DUEL_MODE = True
 	else:
