@@ -323,7 +323,7 @@ def run():
 				wordStarts.add(strippedWord[:i])
 		inputFile.close()
 	except FileNotFoundError:
-		print(f"\n{ERROR_SYMBOL} Could not open word list file. Please make sure {WORD_LIST_FILEPATH.split('/')[-1]} is in the current directory.\n")
+		print(f"\n{ERROR_SYMBOL} Could not open word list file. Please make sure {WORD_LIST_FILEPATH.split('/')[-1]} is in the Word Bites directory.\n")
 		exit(0)
 
 	# display mode select
