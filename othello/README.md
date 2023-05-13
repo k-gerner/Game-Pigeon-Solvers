@@ -18,7 +18,7 @@ is for Othello instead of Reversi.
 ### How to use  
 First, download the files in this folder. The contents of each file 
 are as follows:  
-* `OthelloClient.py`: Contains the logic for the UI and user input, as 
+* `othello_client.py`: Contains the logic for the UI and user input, as 
 well as the game runner
 * `strategy.py`: Contains the A.I. strategy logic, as well as some 
 functions for manipulating a game board
@@ -26,7 +26,7 @@ functions for manipulating a game board
 
 You can invoke the tool by running 
 ```
-> python3 OthelloClient.py
+> python3 othello_client.py
 ```
 Once you do this, you will see some info about how to interact with the 
 tool, further explained in the [Gameplay Features](#gameplay-features) section. 
@@ -102,7 +102,7 @@ use this functionality, include a command line argument `-d` or
 `-aiDuel` followed by the name of your Python file. For example, if
 your AI was located in `myAiFile.py`, you would run:
 ```
-> python3 OthelloClient.py -d myAiFile
+> python3 othello_client.py -d myAiFile
 ```
 
 In order for your AI to be eligible, it must meet a few requirements:

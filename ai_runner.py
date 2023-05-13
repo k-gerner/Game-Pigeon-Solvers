@@ -9,7 +9,7 @@ from connect4 import connect4_client
 from gomoku import gomoku_client
 from mancalaavalanche.python import mancala_avalanche
 from mancalacapture import mancala_client
-from othello import OthelloClient
+from othello import othello_client
 from tictactoe import tictactoe_client
 from wordbites import wordBitesTool
 from wordhunt import wordHuntTool
@@ -20,7 +20,7 @@ clients = OrderedDict([
 	("gomoku", gomoku_client),
 	("mancala-avalanche", mancala_avalanche),
 	("mancala-capture", mancala_client),
-	("othello", OthelloClient),
+	("othello", othello_client),
 	("seabattle", sea_battle_tool),
 	("tictactoe", tictactoe_client),
 	("wordbites", wordBitesTool),
