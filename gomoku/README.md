@@ -81,7 +81,7 @@ long each search takes on my 2015 Macbook Pro at depths 4, 5, and 6:
 - As mentioned above, you can change several parameters to fine-tune the A.I. yourself. 
 For more information about that, see the bottom of the [How to use](#how-to-use) section. 
 - Save the game by typing `s`. This will create a save file named 
-`saved_game.txt` which contains save data for the current game state. 
+`gomoku_save.txt` which contains save data for the current game state. 
 When you start a new game, if a save state is detected, you will be 
 asked if you would like to resume that game.
 - Inputting `h` will allow you to see previous moves that have been
@@ -256,7 +256,7 @@ your AI was located in `myAiFile.py`, you would run:
 
 In order for your AI to be eligible, it must meet a few requirements:
 * AI logic must be contained in a class named `GomokuStrategy`
-* AI must be a subclass of `Player`, found in `Player.py`
+* AI must be a subclass of `GomokuPlayer`, found in `gomoku_player.py`
 * AI must have a function named `getMove` that accepts a game board
   as a parameter, and returns the chosen move coordinates in the form of
   a tuple in the format `(rowNumber, columnNumber)`

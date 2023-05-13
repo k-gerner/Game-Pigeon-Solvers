@@ -13,7 +13,7 @@ from gomoku.strategy import GomokuStrategy, opponentOf, performMove, copyOfBoard
 import time
 import os
 import sys
-from gomoku.Player import Player
+from gomoku.gomoku_player import GomokuPlayer
 
 EMPTY, BLACK, WHITE = '.', 'X', 'O'
 gameBoard = [] # created later
@@ -29,7 +29,7 @@ BOARD_HISTORY = [] # [highlightCoordinates, board]
 
 
 # class for the Human player
-class HumanPlayer(Player):
+class HumanPlayer(GomokuPlayer):
 
 	def __init__(self, color):
 		super().__init__(color, isAI=False)
@@ -254,8 +254,8 @@ def getDuelingAi():
 	duelAiModuleName = getOpposingAiModuleName()
 	try:
 		DuelingAi  = getattr(import_module(duelAiModuleName), 'GomokuStrategy')
-		if not issubclass(DuelingAi, Player):
-			print(f"{ERROR_SYMBOL} Please make sure your AI is a subclass of 'Player'")
+		if not issubclass(DuelingAi, GomokuPlayer):
+			print(f"{ERROR_SYMBOL} Please make sure your AI is a subclass of 'GomokuPlayer'")
 			exit(0)
 		return DuelingAi
 	except ImportError:
