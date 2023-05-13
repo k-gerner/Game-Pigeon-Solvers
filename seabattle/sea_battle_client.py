@@ -10,7 +10,7 @@ from util.terminaloutput.colors import GREEN_COLOR as DESTROY_COLOR, \
 	NO_COLOR
 from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL
 from util.terminaloutput.erasing import erasePreviousLines
-from util.save.saving import file_location
+from util.save.saving import path_to_save_file
 import math
 import os
 import sys
@@ -34,7 +34,7 @@ SIZE = 10  # size of board
 COLUMN_LABELS = []  # Letters that correspond to the columns; Gets set when board is created
 
 ERASE_MODE_ON = True
-SAVE_FILENAME = file_location("sea_battle_save.txt")
+SAVE_FILENAME = path_to_save_file("sea_battle_save.txt")
 
 BOARD_OUTPUT_HEIGHT = -1  # Height of the output from printing the board; Gets set when board is created
 SPACE_DENSITY_TABLE_OUTPUT_HEIGHT = -1  # Height of the output from printing the space density table; Gets set when board is created

@@ -6,7 +6,7 @@ from tictactoe.strategy import TicTacToeStrategy, opponentOf, isTerminal, perfor
 from util.terminaloutput.colors import GREEN_COLOR, RED_COLOR, NO_COLOR
 from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL
 from util.terminaloutput.erasing import erasePreviousLines
-from util.save.saving import file_location
+from util.save.saving import path_to_save_file
 from importlib import import_module
 from datetime import datetime
 import os
@@ -22,7 +22,7 @@ USER_PIECE = X_PIECE
 ERASE_MODE_ON = True
 BOARD_OUTPUT_HEIGHT = 7
 
-SAVE_FILENAME = file_location("othello_save.txt")
+SAVE_FILENAME = path_to_save_file("othello_save.txt")
 BOARD_HISTORY = []
 
 # class for the Human player

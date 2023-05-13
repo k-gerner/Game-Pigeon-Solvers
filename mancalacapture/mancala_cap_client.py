@@ -9,7 +9,7 @@ from importlib import import_module
 from util.terminaloutput.colors import RED_COLOR, GREEN_COLOR, NO_COLOR, YELLOW_COLOR
 from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL
 from util.terminaloutput.erasing import erasePreviousLines
-from util.save.saving import file_location
+from util.save.saving import path_to_save_file
 from mancalacapture.Player import Player
 from mancalacapture.board_functions import getIndexOfOppositeHole, pushAllPebblesToBank, winningPlayerBankIndex, \
 	isBoardTerminal, performMove
@@ -22,7 +22,7 @@ USE_REVERSED_PRINT_LAYOUT = False
 BOARD = [4] * 6 + [0] + [4] * 6 + [0]
 PLAYER1_ID = 1
 PLAYER2_ID = 2
-SAVE_FILENAME = file_location("mancala_cap_save.txt")
+SAVE_FILENAME = path_to_save_file("mancala_cap_save.txt")
 BOARD_HISTORY = []  # [highlightPocketIndex, playerId, board]
 
 
