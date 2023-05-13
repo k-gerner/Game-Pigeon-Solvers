@@ -2,7 +2,7 @@
 from typing import List
 
 
-class Player:
+class MancalaPlayer:
 
 	def __init__(self, bankIndex, isAI: bool = True):
 		"""Determines whether this player is an AI; Sets the bank indices for this player"""

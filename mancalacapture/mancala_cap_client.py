@@ -10,7 +10,7 @@ from util.terminaloutput.colors import RED_COLOR, GREEN_COLOR, NO_COLOR, YELLOW_
 from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL
 from util.terminaloutput.erasing import erasePreviousLines
 from util.save.saving import path_to_save_file, allow_save
-from mancalacapture.Player import Player
+from mancalacapture.mancala_player import MancalaPlayer
 from mancalacapture.board_functions import getIndexOfOppositeHole, pushAllPebblesToBank, winningPlayerBankIndex, \
 	isBoardTerminal, performMove
 from mancalacapture.constants import POCKETS_PER_SIDE, BOARD_OUTPUT_HEIGHT, PLAYER1_BANK_INDEX, PLAYER2_BANK_INDEX, \
@@ -27,7 +27,7 @@ BOARD_HISTORY = []  # [highlightPocketIndex, playerId, board]
 
 
 # class for the Human player
-class HumanPlayer(Player):
+class HumanPlayer(MancalaPlayer):
 
 	def __init__(self, bankIndex=6):
 		super().__init__(bankIndex, isAI=False)
@@ -302,13 +302,14 @@ def getOpposingAiModuleName():
 		print(f"{ERROR_SYMBOL} You need to provide the name of your AI strategy module.")
 		exit(0)
 
+
 def getDuelingAi():
 	"""Returns the imported AI Strategy class if the import is valid"""
 	duelAiModuleName = getOpposingAiModuleName()
 	try:
 		DuelingAi  = getattr(import_module(duelAiModuleName), 'MancalaStrategy')
-		if not issubclass(DuelingAi, Player):
-			print(f"{ERROR_SYMBOL} Please make sure your AI is a subclass of 'Player'")
+		if not issubclass(DuelingAi, MancalaPlayer):
+			print(f"{ERROR_SYMBOL} Please make sure your AI is a subclass of 'MancalaPlayer'")
 			exit(0)
 		return DuelingAi
 	except ImportError:

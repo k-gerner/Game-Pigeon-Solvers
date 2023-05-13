@@ -57,7 +57,7 @@ minimizer (beta). A good explanatory video can be found [here][AB Pruning Youtub
 At the input prompt, you can enter one of several commands.
 #### Save the game: `s`
 Save the game by typing `s`. This will create a save file named
-`saved_game.txt` which contains save data for the current game state.
+`mancala_cap_save.txt` which contains save data for the current game state.
 When you start a new game, if a save state is detected, you will be
 asked if you would like to resume that game. 
 #### See previous moves: `h`
@@ -80,7 +80,7 @@ your AI was located in `myAiFile.py`, you would run:
 
 In order for your AI to be eligible, it must meet a few requirements:
 * AI logic must be contained in a class named `MancalaStrategy`
-* AI must be a subclass of `Player`, found in `Player.py`
+* AI must be a subclass of `MancalaPlayer`, found in `mancala_player.py`
 * AI must have a function named `getMove` that accepts a game board
   as a parameter, and returns the chosen move coordinates in the form of
   the index of the corresponding pocket on the board.
