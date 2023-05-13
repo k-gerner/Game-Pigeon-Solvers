@@ -10,7 +10,7 @@ from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL
 from util.save.saving import path_to_save_file, allow_save
 from importlib import import_module
 from datetime import datetime
-from connect4.Player import Player
+from connect4.connect4_player import Connect4Player
 from connect4.strategy import Connect4Strategy, opponentOf, performMove, checkIfGameOver, isValidMove, copyOfBoard
 
 ERASE_MODE_ON = True
@@ -257,8 +257,8 @@ def getDuelingAi():
     duelAiModuleName = getOpposingAiModuleName()
     try:
         DuelingAi  = getattr(import_module(duelAiModuleName), 'Connect4Strategy')
-        if not issubclass(DuelingAi, Player):
-            print(f"{ERROR_SYMBOL} Please make sure your AI is a subclass of 'Player'")
+        if not issubclass(DuelingAi, Connect4Player):
+            print(f"{ERROR_SYMBOL} Please make sure your AI is a subclass of 'Connect4Player'")
             exit(0)
         return DuelingAi
     except ImportError:
