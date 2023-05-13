@@ -16,8 +16,8 @@ rules used are actually the rules for Othello, which is why this A.I.
 is for Othello instead of Reversi.
 
 ### How to use  
-First, download the files in this folder. The contents of each file 
-are as follows:  
+First, download this project. The contents of the files for Othello
+are as follows:
 * `othello_client.py`: Contains the logic for the UI and user input, as 
 well as the game runner
 * `othello_strategy.py`: Contains the A.I. strategy logic, as well as some 
@@ -27,7 +27,7 @@ functions for manipulating a game board
 
 You can invoke the tool by running 
 ```
-> python3 othello_client.py
+> python3 ai_runner.py --game=othello
 ```
 Once you do this, you will see some info about how to interact with the 
 tool, further explained in the [Gameplay Features](#gameplay-features) section. 
@@ -104,7 +104,7 @@ directory, and include a command line argument `-d` or `-aiDuel`
 followed by the name of your Python file. For example, if
 your AI was located in `external/aiduel/myAiFile.py`, you would run:
 ```
-> python3 othello_client.py -d myAiFile
+> python3 ai_runner.py --game=othello -d myAiFile
 ```
 
 In order for your AI to be eligible, it must meet a few requirements:
