@@ -10,7 +10,7 @@ to knock out an AI for it)
 In Tic-Tac-Toe, the objective is to get 3 of your pieces in a 
 row on the board, in any direction.  
 ### How to use  
-First, download `tictactoe_client.py` and `strategy.py` files and 
+First, download `tictactoe_client.py` and `tictactoe_strategy.py` files and 
 place them both in the same directory. If you would like to challenge 
 my AI with your own, see the [Dueling AIs Mode](#dueling-ais-mode) 
 section. If you would like to challenge the AI yourself, you can 

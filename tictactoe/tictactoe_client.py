@@ -2,7 +2,7 @@
 # Kyle G 6.6.2021
 
 from tictactoe.tictactoe_player import TicTacToePlayer
-from tictactoe.strategy import TicTacToeStrategy, opponentOf, isTerminal, performMove, copyOfBoard
+from tictactoe.tictactoe_strategy import TicTacToeStrategy, opponentOf, isTerminal, performMove, copyOfBoard
 from util.terminaloutput.colors import GREEN_COLOR, RED_COLOR, NO_COLOR
 from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL
 from util.terminaloutput.erasing import erasePreviousLines
