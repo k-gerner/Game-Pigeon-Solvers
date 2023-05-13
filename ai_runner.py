@@ -28,16 +28,16 @@ clients = OrderedDict([
 ])
 
 mode_select_str = """
-[1]  Anagrams    (game=anagrams)
-[2]  Connect 4   (game=connect4)
-[3]  Gomoku 	 (game=gomoku)
-[4]  Mancala Avalanche  (game=mancala-avalanche)
-[5]  Mancala Capture    (game=mancala-capture)
-[6]  Othello	 (game=othello)
-[7]  Sea Battle  (game=seabattle)
-[8]  Tic Tac Toe (game=tictactoe)
-[9]  Word Bites  (game=wordbites)
-[10] Word Hunt   (game=wordhunt)
+[1]  Anagrams    (--game=anagrams)
+[2]  Connect 4   (--game=connect4)
+[3]  Gomoku 	 (--game=gomoku)
+[4]  Mancala Avalanche  (--game=mancala-avalanche)
+[5]  Mancala Capture    (--game=mancala-capture)
+[6]  Othello	 (--game=othello)
+[7]  Sea Battle  (--game=seabattle)
+[8]  Tic Tac Toe (--game=tictactoe)
+[9]  Word Bites  (--game=wordbites)
+[10] Word Hunt   (--game=wordhunt)
 """
 ascii_art = """
               _  __     _      _                               
@@ -64,7 +64,7 @@ def gamemode_specified():
 	Gets the client for the gamemode specified in the command line params, or None
 	"""
 	for arg in sys.argv:
-		if arg.startswith("game=") and arg.split("=")[1] in clients.keys():
+		if arg.startswith("--game=") and arg.split("=")[1] in clients.keys():
 			return clients[arg.split("=")[1]]
 	return None
 
