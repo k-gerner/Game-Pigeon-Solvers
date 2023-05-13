@@ -15,7 +15,7 @@ from mancalacapture.board_functions import getIndexOfOppositeHole, pushAllPebble
 	isBoardTerminal, performMove
 from mancalacapture.constants import POCKETS_PER_SIDE, BOARD_OUTPUT_HEIGHT, PLAYER1_BANK_INDEX, PLAYER2_BANK_INDEX, \
 	SIDE_INDENT_STR, LEFT_SIDE_ARROW, RIGHT_SIDE_ARROW, BOARD_SIZE
-from mancalacapture.strategy import MancalaStrategy
+from mancalacapture.mancala_cap_strategy import MancalaStrategy
 
 ERASE_MODE_ON = True
 USE_REVERSED_PRINT_LAYOUT = False

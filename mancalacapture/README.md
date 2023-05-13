@@ -26,7 +26,7 @@ You can modify some of these values.
 well as the game runner
 * `Player.py`: Super class that players must implement. If you choose to
 use your own A.I., you must inherit from this class
-* `strategy.py`: Contains the A.I. strategy logic
+* `mancala_cap_strategy.py`: Contains the A.I. strategy logic
 
 You can invoke the tool by running
 ```
