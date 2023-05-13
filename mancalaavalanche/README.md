@@ -1,6 +1,6 @@
 # Mancala (Avalanche)  
 
-<img src="/Images/Mancala%20Avalanche/sampleMancalaBoard.jpeg" alt = "sample board" width="40%" align = "right"> 
+<img src="/images/Mancala%20Avalanche/sampleMancalaBoard.jpeg" alt = "sample board" width="40%" align = "right"> 
 
 ### The Basics  
 Mancala Avalanche is a version of Mancala. Players each have 6 pits 
@@ -32,7 +32,7 @@ enter will calculate the best possible move set for that given board.
 You will then repeat this process until the game is over, or you choose 
 to quit the program.
 
-<img src="/Images/Mancala%20Avalanche/mancalaBoardOutput.png" alt = "sample board output" width = "30%">  
+<img src="/images/Mancala%20Avalanche/mancalaBoardOutput.png" alt = "sample board output" width = "30%">  
 
 #### ✨ New in Version 1.1
 * The output will now be updated in place, instead of printing 
