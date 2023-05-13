@@ -11,11 +11,11 @@ on the board to form English words. The longer the word, the more
 points the player earns. Whoever scores more points in 80 seconds 
 wins.
 ### How to use
-First, download the `wordBitesTool.py` and `letters9.txt` files and 
+First, download the `word_bites_client.py` and `letters9.txt` files and 
 place them both in the same directory. You can invoke the tool by 
 running  
 ```
-> python3 wordBitesTool.py
+> python3 word_bites_client.py
 ```
 Once you do this, you will be prompted about which display mode you 
 would like to use: `Diagram Mode`, or `List Mode`. Typing `i` will 

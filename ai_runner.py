@@ -11,7 +11,7 @@ from mancalaavalanche.python import mancala_avalanche
 from mancalacapture import mancala_client
 from othello import othello_client
 from tictactoe import tictactoe_client
-from wordbites import wordBitesTool
+from wordbites import word_bites_client
 from wordhunt import wordHuntTool
 
 clients = OrderedDict([
@@ -23,7 +23,7 @@ clients = OrderedDict([
 	("othello", othello_client),
 	("seabattle", sea_battle_tool),
 	("tictactoe", tictactoe_client),
-	("wordbites", wordBitesTool),
+	("wordbites", word_bites_client),
 	("wordhunt", wordHuntTool),
 ])
 
