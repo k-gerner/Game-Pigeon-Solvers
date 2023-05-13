@@ -83,7 +83,7 @@ def populateWordSets(numLetters):
 				wordStarts.add(strippedWord[:i])
 		inputFile.close()
 	except FileNotFoundError:
-		print(f"\n{ERROR_SYMBOL} Could not open the words file. Please make sure {INPUT_FILEPATH.split('/')[-1]} is in the current directory.\n")
+		print(f"\n{ERROR_SYMBOL} Could not open the words file. Please make sure {INPUT_FILEPATH.split('/')[-1]} is in the Anagrams directory.\n")
 		exit(0)
 
 
