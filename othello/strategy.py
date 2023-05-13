@@ -2,7 +2,7 @@
 # Started 7.15.22
 # Contains AI strategy and board manipulation methods
 import math
-from othello.Player import Player
+from othello.othello_player import OthelloPlayer
 from functools import cmp_to_key
 from collections import defaultdict
 
@@ -28,7 +28,7 @@ CORNER_ADJACENT_COORDINATES = {(0, 1), (1, 1), (1, 0),
                                (BOARD_DIMENSION - 2, BOARD_DIMENSION - 1)}
 
 
-class OthelloStrategy(Player):
+class OthelloStrategy(OthelloPlayer):
     """Where all the calculations are performed to find the best move"""
 
     def __init__(self, color):

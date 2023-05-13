@@ -36,7 +36,7 @@ USER_PIECE = BLACK      # may be changed in game setup
 OPPONENT_PIECE = WHITE  # may be changed in game setup
 
 # class for the Human player
-class HumanPlayer(Player):
+class HumanPlayer(OthelloPlayer):
 
     def __init__(self, color):
         super().__init__(color, isAI=False)
