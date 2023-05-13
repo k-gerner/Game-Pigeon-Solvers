@@ -91,20 +91,13 @@ def create_saves_directory():
 		os.makedirs("saved_games")
 
 
-def create_dueling_directory():
-	"""Creates the AI dueling directory if it doesn't exist"""
-	if not os.path.isdir("dueling"):
-		os.makedirs("dueling")
-
-
 def main():
 	client = gamemode_specified()
 	if client is None:
 		print(ascii_art)
 		client = get_client_from_user()
-		erase(ascii_art)  # clear ascii art
+		erase(ascii_art)
 	create_saves_directory()
-	create_dueling_directory()
 	client.run()
 
 
