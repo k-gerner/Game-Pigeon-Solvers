@@ -36,8 +36,6 @@ MAX_LENGTH = 10 # max length of the words to find; can be changed by user input
 positionsList = [] # used to keep the lists of positions in diagram mode, since nested lists cannot be hashed
 wordStarts = set() # set that holds every valid part of every word from beginning to some point in the middle
 
-ERASE_MODE_ON = True
-
 
 def readInBoard():
 	"""Read in the user's input for the board letters"""
@@ -45,7 +43,7 @@ def readInBoard():
 	inputLetters = []
 	for i in range(4):
 		letters = input("Row %d of letters:\t" % (i+1))
-		while(True):
+		while True:
 			letters = letters.lower()
 			lettersSplit = letters.split()
 			allSingleChar = True
@@ -229,10 +227,6 @@ def printOutput(validWords, mode):
 def run():
 	# initial setup
 	global MAX_LENGTH
-	os.system("")  # allows output text coloring for Windows OS
-	if len(sys.argv) == 2 and sys.argv[1] in ["-e", "-eraseModeOff"]:
-		global ERASE_MODE_ON
-		ERASE_MODE_ON = False
 	print("Welcome to Kyle's Word Hunt solver!")
 	print("\nNote: This code was designed for the 4x4 (default) board size.")
 	maxLen = input("\nDefault max word length is 10. If you wish to change it, enter\n"  +

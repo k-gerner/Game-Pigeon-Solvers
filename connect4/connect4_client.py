@@ -14,7 +14,6 @@ from connect4.connect4_player import Connect4Player
 from connect4.connect4_strategy import Connect4Strategy, opponentOf, performMove, checkIfGameOver, isValidMove, \
     copyOfBoard
 
-ERASE_MODE_ON = True
 BOARD_OUTPUT_HEIGHT = 9
 
 SAVE_FILENAME = path_to_save_file("connect4_save.txt")
@@ -246,10 +245,6 @@ def printAsciiTitleArt():
 def run():
     """main method that prompts the user for input"""
     global userPiece, TIME_TAKEN_PER_PLAYER
-    os.system("")  # allows colored terminal to work on Windows OS
-    if "-e" in sys.argv or "-eraseModeOff" in sys.argv:
-        global ERASE_MODE_ON
-        ERASE_MODE_ON = False
     if "-d" in sys.argv or "-aiDuel" in sys.argv:
         UserPlayerClass = get_dueling_ai_class(Connect4Player, "Connect4Strategy")
         print(f"\n{INFO_SYMBOL} You are in AI Duel Mode!")

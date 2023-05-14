@@ -2,7 +2,7 @@ import sys
 import os
 from collections import OrderedDict
 from util.terminaloutput.symbols import ERROR_SYMBOL
-from util.terminaloutput.erasing import erase, erasePreviousLines
+from util.terminaloutput.erasing import erase, erasePreviousLines, set_erase_mode
 from seabattle import sea_battle_client
 from anagrams import anagrams_client
 from connect4 import connect4_client
@@ -92,6 +92,9 @@ def create_saves_directory():
 
 
 def main():
+	os.system("")  # allows output text coloring for Windows OS
+	if "-e" in sys.argv or "-eraseModeOff" in sys.argv:
+		set_erase_mode(False)
 	client = gamemode_specified()
 	if client is None:
 		print(ascii_art)

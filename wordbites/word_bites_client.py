@@ -6,8 +6,6 @@ from functools import cmp_to_key
 from util.terminaloutput.colors import NO_COLOR, BLUE_COLOR, YELLOW_COLOR
 from util.terminaloutput.symbols import ERROR_SYMBOL
 from util.terminaloutput.erasing import erasePreviousLines
-import sys
-import os
 
 # directional constants
 HORIZONTAL = 'H'
@@ -30,7 +28,6 @@ validsWithDetails = set()  # contains the words and direction, as well as index 
 piecesList = []  # used to keep the list of pieces for a valid word (in DIAGRAM mode), since lists cannot be hashed in the set
 
 LIST_MODE_DIRECTION_COLORS = {HORIZONTAL: BLUE_COLOR, VERTICAL: YELLOW_COLOR}
-ERASE_MODE_ON = True
 MORE_INFO_OUTPUT_HEIGHT = 30
 
 WORD_LIST_FILEPATH = 'wordbites/letters9.txt'
@@ -67,10 +64,9 @@ def readInBoard():
 					count += 1
 					pieceStr = input("%s piece #%d:\t" % (pair[0], count)).strip().lower()
 		erasePreviousLines(6)
-		if ERASE_MODE_ON:
-			erasePreviousLines(len(pair[1]))
-			pieceListOutput = ", ".join(pair[1])
-			print(f"{pair[0]} pieces: {pieceListOutput}")
+		erasePreviousLines(len(pair[1]))
+		pieceListOutput = ", ".join(pair[1])
+		print(f"{pair[0]} pieces: {pieceListOutput}")
 
 
 def findWords():
@@ -306,10 +302,6 @@ def run():
 	"""main method - fills english words sets and calls other functions"""
 	global DISPLAY_MODE
 	# initial setup
-	os.system("")  # allows colored terminal to work on Windows OS
-	if len(sys.argv) == 2 and sys.argv[1] in ["-e", "-eraseModeOff"]:
-		global ERASE_MODE_ON
-		ERASE_MODE_ON = False
 	print("\nWelcome to Kyle's Word Bites Solver!")
 	try:
 		inputFile = open(WORD_LIST_FILEPATH, 'r')
