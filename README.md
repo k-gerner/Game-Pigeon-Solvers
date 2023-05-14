@@ -48,8 +48,8 @@ To start, download this project and run
 ```
 > python3 ai_runner.py 
 ```
-You will be prompted to choose from the list of games. If you'd like to 
-quickstart into a specific game, add the `--game=[name]` flag. To find 
+You will be prompted to choose from the list of games. If you would like 
+to quickstart into a specific game, add the `--game=[name]` flag. To find 
 the `name` of a game, check the `README.md` file of the corresponding 
 game.  
 
