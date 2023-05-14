@@ -13,7 +13,6 @@ from util.terminaloutput.erasing import erasePreviousLines
 from util.save.saving import path_to_save_file, allow_save
 import math
 import os
-import sys
 
 # Board characters
 DESTROY = "D"
@@ -33,7 +32,6 @@ REMAINING_SHIPS = {  # ship_length: num_remaining
 SIZE = 10  # size of board
 COLUMN_LABELS = []  # Letters that correspond to the columns; Gets set when board is created
 
-ERASE_MODE_ON = True
 SAVE_FILENAME = path_to_save_file("sea_battle_save.txt")
 
 BOARD_OUTPUT_HEIGHT = -1  # Height of the output from printing the board; Gets set when board is created
@@ -576,10 +574,6 @@ def run():
 	Main method that prompts the user for input
 	"""
 	global SIZE, BOARD_OUTPUT_HEIGHT, SPACE_DENSITY_TABLE_OUTPUT_HEIGHT, COLUMN_LABELS
-	os.system("") # allows colored terminal to work on Windows OS
-	if len(sys.argv) == 2 and sys.argv[1] in ["-e", "-eraseModeOff"]:
-		global ERASE_MODE_ON
-		ERASE_MODE_ON = False
 	print("""
    _____              ____        _   _   _      
   / ____|            |  _ \\      | | | | | |     

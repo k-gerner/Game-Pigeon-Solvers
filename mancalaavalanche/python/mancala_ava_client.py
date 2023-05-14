@@ -4,13 +4,9 @@ from mancalaavalanche.python.classes import AvalancheBoard, AvalanchePlayer, Ava
 from util.terminaloutput.colors import GREEN_COLOR, RED_COLOR, NO_COLOR
 from util.terminaloutput.symbols import ERROR_SYMBOL
 from util.terminaloutput.erasing import erasePreviousLines
-import os
-import sys
 
 ONE_BY_ONE = 1
 ALL_AT_ONCE = 2
-
-ERASE_MODE_ON = True
 
 
 def inputForBoard():
@@ -90,7 +86,7 @@ def printBestMovesOneByOne(pointsGained, bestMoves):
 	bestMoveIndexes = increaseAllValuesInListByOne(bestMoves)
 	count = 1
 	for moveIndex in bestMoveIndexes:
-		if input("#%d:  %d%s" % (count, moveIndex, "\n" if ERASE_MODE_ON else "")).strip().lower() == 'q':
+		if input("#%d:  %d%s" % (count, moveIndex, "\n")).strip().lower() == 'q':
 			print("\nThanks for using my Mancala Avalanche solver!\n")
 			exit(0)
 		count += 1
@@ -106,10 +102,6 @@ def printSequence(mode, pointsGained, bestMoves):
 
 
 def run():
-	os.system("")  # allows output text coloring for Windows OS
-	if len(sys.argv) == 2 and sys.argv[1] in ["-e", "-eraseModeOff"]:
-		global ERASE_MODE_ON
-		ERASE_MODE_ON = False
 	print("\nWelcome to Kyle's Mancala Avalanche AI! Written on 7.9.2020")
 	if input(
 			"\nWould you like to receive your move set in a printed list (as opposed to one at a time)? (y/n):\t").strip().lower() == "y":

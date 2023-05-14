@@ -1,7 +1,6 @@
 # Kyle Gerner
 # Started 3.22.2021
 # Gomoku solver, client facing
-from importlib import import_module
 from datetime import datetime
 from util.terminaloutput.colors import GREEN_COLOR, RED_COLOR, NO_COLOR, \
 	DARK_GREY_BACKGROUND as MOST_RECENT_HIGHLIGHT_COLOR
@@ -20,7 +19,6 @@ EMPTY, BLACK, WHITE = '.', 'X', 'O'
 gameBoard = [] # created later
 userPiece = None
 
-ERASE_MODE_ON = True
 BOARD_OUTPUT_HEIGHT = -1
 BOARD_DIMENSION = 10
 TIME_TAKEN_PER_PLAYER = {}
@@ -252,10 +250,6 @@ def loadSavedGame():
 def run():
 	"""main method that prompts the user for input"""
 	global gameBoard, userPiece, BOARD_OUTPUT_HEIGHT, COLUMN_LABELS, TIME_TAKEN_PER_PLAYER, BOARD_DIMENSION
-	os.system("") # allows colored terminal to work on Windows OS
-	if "-e" in sys.argv or "-eraseModeOff" in sys.argv:
-		global ERASE_MODE_ON
-		ERASE_MODE_ON = False
 	if "-d" in sys.argv or "-aiDuel" in sys.argv:
 		UserPlayerClass = get_dueling_ai_class(GomokuPlayer, "GomokuStrategy")
 		print(f"\n{INFO_SYMBOL} You are in AI Duel Mode!")

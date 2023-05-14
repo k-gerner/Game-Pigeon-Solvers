@@ -25,7 +25,6 @@ EMPTY = "."
 # Miscellaneous
 COLUMN_LABELS = list(map(chr, range(65, 65 + BOARD_DIMENSION)))
 BOARD_OUTLINE_HEIGHT = 4
-ERASE_MODE_ON = True
 SAVE_FILENAME = path_to_save_file("othello_save.txt")
 TIME_TAKEN_PER_PLAYER = {}
 USER_COLOR = GREEN_COLOR
@@ -339,10 +338,6 @@ def createNewBoard():
 
 def run():
     global BOARD, USER_PIECE, OPPONENT_PIECE, TIME_TAKEN_PER_PLAYER
-    os.system("") # allows colored terminal to work on Windows OS
-    if "-e" in sys.argv or "-eraseModeOff" in sys.argv:
-        global ERASE_MODE_ON
-        ERASE_MODE_ON = False
     if "-cb" in sys.argv or "-colorblindMode" in sys.argv:
         global AI_COLOR, USER_COLOR
         AI_COLOR = ORANGE_COLOR

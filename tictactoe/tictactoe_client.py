@@ -8,7 +8,6 @@ from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL
 from util.terminaloutput.erasing import erasePreviousLines
 from util.save.saving import path_to_save_file, allow_save
 from util.aiduel.dueling import get_dueling_ai_class
-from importlib import import_module
 from datetime import datetime
 import os
 import sys
@@ -20,7 +19,6 @@ gameBoard = [[EMPTY, EMPTY, EMPTY],
 			 [EMPTY, EMPTY, EMPTY]]
 USER_PIECE = X_PIECE
 
-ERASE_MODE_ON = True
 BOARD_OUTPUT_HEIGHT = 7
 
 SAVE_FILENAME = path_to_save_file("tictactoe_save.txt")
@@ -222,9 +220,6 @@ def run():
 	"""main method that prompts the user for input"""
 	global gameBoard, USER_PIECE
 	players = {}
-	if "-e" in sys.argv or "-eraseModeOff" in sys.argv:
-		global ERASE_MODE_ON
-		ERASE_MODE_ON = False
 	if "-d" in sys.argv or "-aiDuel" in sys.argv:
 		UserPlayerClass = get_dueling_ai_class(TicTacToePlayer, "TicTacToeStrategy")
 		print(f"\n{INFO_SYMBOL} You are in AI Duel Mode!")
@@ -232,7 +227,6 @@ def run():
 	else:
 		UserPlayerClass = HumanPlayer
 		AI_DUEL_MODE = False
-	os.system("") # allows colored terminal to work on Windows OS
 	print("""
   _______ _        _______           _______                    _____ 
  |__   __(_)      |__   __|         |__   __|             /\\   |_   _|

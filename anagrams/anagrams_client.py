@@ -6,15 +6,12 @@ from functools import cmp_to_key
 from util.terminaloutput.symbols import ERROR_SYMBOL
 from util.terminaloutput.erasing import erasePreviousLines
 import os
-import sys
 
 englishWords = set()
 wordStarts = set()
 foundWords = set()
 
 INPUT_FILEPATH = "anagrams/letters7.txt"
-
-ERASE_MODE_ON = True
 
 
 def findWords(remainingLetters, currStr=""):
@@ -89,10 +86,6 @@ def populateWordSets(numLetters):
 
 def run():
 	# initial setup
-	os.system("")  # allows output text coloring for Windows OS
-	if len(sys.argv) == 2 and sys.argv[1] in ["-e", "-eraseModeOff"]:
-		global ERASE_MODE_ON
-		ERASE_MODE_ON = False
 	print("\nWelcome to Kyle's Anagrams Solver Tool!\n")
 	numLetters = input("How many letters are on the board? (6 or 7):\t").strip()
 	if numLetters.isdigit() and (int(numLetters) == 6 or int(numLetters) == 7):

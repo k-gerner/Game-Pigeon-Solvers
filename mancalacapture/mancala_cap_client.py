@@ -17,7 +17,6 @@ from mancalacapture.constants import POCKETS_PER_SIDE, BOARD_OUTPUT_HEIGHT, PLAY
 	SIDE_INDENT_STR, LEFT_SIDE_ARROW, RIGHT_SIDE_ARROW, BOARD_SIZE
 from mancalacapture.mancala_cap_strategy import MancalaStrategy
 
-ERASE_MODE_ON = True
 USE_REVERSED_PRINT_LAYOUT = False
 BOARD = [4] * 6 + [0] + [4] * 6 + [0]
 PLAYER1_ID = 1
@@ -293,9 +292,6 @@ def getBoardHistoryInputFromUser(isAi):
 
 
 def run():
-	if "-e" in sys.argv or "-eraseModeOff" in sys.argv:
-		global ERASE_MODE_ON
-		ERASE_MODE_ON = False
 	if "-d" in sys.argv or "-aiDuel" in sys.argv:
 		UserPlayerClass = get_dueling_ai_class(MancalaPlayer, "MancalaStrategy")
 		print(f"\n{INFO_SYMBOL} You are in AI Duel Mode!")
@@ -303,7 +299,6 @@ def run():
 	else:
 		UserPlayerClass = HumanPlayer
 		AI_DUEL_MODE = False
-	os.system("")  # allows colored terminal to work on Windows OS
 	printAsciiArt()
 
 	players = {  # remove hardcode values later
