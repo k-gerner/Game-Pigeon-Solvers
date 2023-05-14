@@ -43,6 +43,19 @@ up in this repository! ☺
 ---
 
 ## Overview
+
+To start, download this project and run 
+```
+> python3 ai_runner.py 
+```
+You will be prompted to choose from the list of games. If you'd like to 
+quickstart into a specific game, add the `--game=[name]` flag. To find 
+the `name` of a game, check the `README.md` file of the corresponding 
+game.  
+
+You will find the list of available AIs below:
+
+
 ## 🎮 Gomoku
 The objective of Gomoku is to get 5 of your pieces to line up in 
 succession. You can think of it like a much more advanced version 
