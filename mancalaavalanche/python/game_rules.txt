@@ -1,0 +1,10 @@
+2 players will play on a standard Mancala board. 
+
+One player will choose a stack of pebbles in one of his holes to play. The player will pick up all the pebbles from
+that hole and place one in each hole moving forward around the board until the player runs out of pebbles in their hand.
+
+If the last pebble is placed in a hole with at least one other pebble already present in the hole, the player will
+perform the same action repeatedly until the last pebble is placed in a hole that is empty.
+
+Each pebble placed in the player's bank counts as one point. The player does not place any pebbles in the enemy's bank
+during their turn.

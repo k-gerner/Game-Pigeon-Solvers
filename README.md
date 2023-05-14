@@ -4,13 +4,12 @@ Created by Kyle Gerner
 This repo contains tools that will make it easy to win at the Game 
 Pigeon games specified. You'll be practically unbeatable! For a brief 
 overview of each game, and the features of the AI that I've built for 
-it, see the [Overview](https://github.com/k-gerner/Game-Pigeon-Solvers#overview) 
+it, see the [Overview][Overview section]  
 section.
 ### What is Game Pigeon?
-[Game Pigeon](https://en.wikipedia.org/wiki/GamePigeon) is a mobile 
-gaming app for iOS devices. The app allows iMessage users to play 
-each other in mini-games such as chess, mancala, anagrams, battleship 
-and more.  
+[Game Pigeon][GamePigeon Wikipedia] is a mobile gaming app for iOS 
+devices. The app allows iMessage users to play each other in mini-games 
+such as chess, mancala, anagrams, battleship and more.  
 
 ### Why did I make this?
 My friend and I are pretty competitive, and one way we compete is in 
@@ -18,24 +17,24 @@ these Game Pigeon games. Each game we bet $1 on the outcome. Some of
 these games rely on strategy and recognition, which means you can 
 write programs to give you the upper hand.  
 
-The first program I wrote was for the [Anagrams](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Anagrams%20Tool) 
+The first program I wrote was for the [Anagrams][Anagrams Directory] 
 game, back in February 2020. After that, I wrote the Java version of 
-the solver for the avalanche mode in [Mancala](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Mancala%20Avalanche), 
-shortly followed by the Python version. Next, I wrote the [Word Hunt](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Word%20Hunt%20Tool) 
-tool in February 2021. I also wrote the [Word Bites](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Word%20Bites%20Tool) 
-tool and [Connect 4 A.I.](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Connect%204%20AI) 
-in March 2021. I wrote the [Gomoku A.I.](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI) 
+the solver for the avalanche mode in [Mancala][Mancala Avalanche Directory], 
+shortly followed by the Python version. Next, I wrote the [Word Hunt][Word Hunt Directory] 
+tool in February 2021. I also wrote the [Word Bites][Word Bites Directory] 
+tool and [Connect 4 A.I.][Connect 4 Directory] 
+in March 2021. I wrote the [Gomoku A.I.][Gomoku Directory] 
 over the course of a few months from March to May 2021. This was by 
 far the most complex project out of all of these, and it is easily 
-the one I am most proud of. I also quickly coded a [Tic-Tac-Toe A.I.](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Tic%20Tac%20Toe%20AI) 
+the one I am most proud of. I also quickly coded a [Tic-Tac-Toe A.I.][Tic Tac Toe Directory] 
 one night in June since it was essentially just a watered-down version 
 of the Connect 4 and Gomoku AIs. In August and September 2021, my 
 friend and I started playing Sea Battle (a Battleship spin-off), so 
-naturally, I had to quickly write a [Sea Battle A.I.](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Sea%20Battle) 
+naturally, I had to quickly write a [Sea Battle A.I.][Sea Battle Directory] 
 to gain the upper hand. Then, in July 2022, we started playing Othello. 
-As you can probably guess, I made an [Othello A.I.](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Othello%20AI) 
+As you can probably guess, I made an [Othello A.I.][Othello Directory] 
 too. In late 2022, we started playing Mancala (Capture mode). I of course 
-had to write a [Mancala Capture A.I.](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Mancala%20Capture).
+had to write a [Mancala Capture A.I.][Mancala Capture Directory].
 
 
 Whenever we start competing in a new game, you'll see a new A.I. pop 
@@ -44,6 +43,19 @@ up in this repository! ☺
 ---
 
 ## Overview
+
+To start, download this project and run 
+```
+> python3 ai_runner.py 
+```
+You will be prompted to choose from the list of games. If you would like 
+to quickstart into a specific game, add the `--game=[name]` flag. To find 
+the `name` of a game, check the `README.md` file of the corresponding 
+game.  
+
+You will find the list of available AIs below:
+
+
 ## 🎮 Gomoku
 The objective of Gomoku is to get 5 of your pieces to line up in 
 succession. You can think of it like a much more advanced version 
@@ -71,7 +83,7 @@ would like to have all output to the terminal preserved
 to look ahead), max number of moves to evaluate from each board 
 state, and max neighbor distance (for determining valid moves)  
 
-[Check it out!](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Gomoku%20AI)
+[Check it out!][Gomoku Directory]
 
 ---
 
@@ -100,7 +112,7 @@ preserved
 to look ahead), max number of moves to evaluate from each board 
 state, and board size  
 
-[Check it out!](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Othello%20AI)
+[Check it out!][Othello Directory]
 
 --- 
 
@@ -126,7 +138,7 @@ printing lines and lines of output across turns. This can be
 disabled if you would like to have all output to the terminal 
 preserved  
 
-[Check it out!](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Sea%20Battle)
+[Check it out!][Sea Battle Directory]
 
 ---
 
@@ -152,7 +164,7 @@ printing lines and lines of output across turns. This can be
 disabled if you would like to have all output to the terminal 
 preserved  
 
-[Check it out!](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Connect%204%20AI)
+[Check it out!][Connect 4 Directory]
 
 ---
 
@@ -174,7 +186,7 @@ printing lines and lines of output across turns. This can be
 disabled if you would like to have all output to the terminal 
 preserved  
 
-[Check it out!](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Word%20Hunt%20Tool)
+[Check it out!][Word Hunt Directory]
 
 ---
 
@@ -195,7 +207,7 @@ printing lines and lines of output across turns. This can be
 disabled if you would like to have all output to the terminal 
 preserved  
 
-[Check it out!](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Word%20Bites%20Tool)
+[Check it out!][Word Bites Directory]
 
 ---
 
@@ -220,7 +232,7 @@ printing lines and lines of output across turns. This can be
 disabled if you would like to have all output to the terminal 
 preserved  
 
-[Check it out!](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Mancala%20Capture)
+[Check it out!][Mancala Capture Directory]
 
 ---
 
@@ -241,7 +253,7 @@ place instead of printing lines and lines of output across turns.
 This can be disabled if you would like to have all output to the 
 terminal preserved  
 
-[Check it out!](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Mancala%20Avalanche)
+[Check it out!][Mancala Avalanche Directory]
 
 ---
 
@@ -257,7 +269,7 @@ printing lines and lines of output across turns. This can be
 disabled if you would like to have all output to the terminal 
 preserved  
 
-[Check it out!](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Anagrams%20Tool)
+[Check it out!][Anagrams Directory]
 
 --- 
 
@@ -280,4 +292,18 @@ printing lines and lines of output across turns. This can be
 disabled if you would like to have all output to the terminal 
 preserved  
 
-[Check it out!](https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/Tic%20Tac%20Toe%20AI)
+[Check it out!][Tic Tac Toe Directory]
+
+
+[Overview section]: https://github.com/k-gerner/Game-Pigeon-Solvers#overview
+[GamePigeon Wikipedia]: https://en.wikipedia.org/wiki/GamePigeon
+[Anagrams Directory]: https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/anagrams
+[Mancala Avalanche Directory]: https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/mancalaavalanche
+[Word Hunt Directory]: https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/wordhunt
+[Word Bites Directory]: https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/wordbites
+[Connect 4 Directory]: https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/connect4
+[Gomoku Directory]: https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/gomoku
+[Tic Tac Toe Directory]: https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/tictactoe
+[Sea Battle Directory]: https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/seabattle
+[Othello Directory]: https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/othello
+[Mancala Capture Directory]: https://github.com/k-gerner/Game-Pigeon-Solvers/tree/master/mancalacapture
