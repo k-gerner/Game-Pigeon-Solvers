@@ -202,7 +202,7 @@ def validateLoadedSaveState(board):
 		if not 1 <= ship_size <= 4:
 			print(f"{ERROR_SYMBOL} Invalid ship size: {ship_size}")
 			return False
-		if not num_ships > 0:
+		if not num_ships >= 0:
 			print(f"{ERROR_SYMBOL} Invalid number of ships remaining for size {ship_size}: {num_ships}")
 			return False
 	return True
