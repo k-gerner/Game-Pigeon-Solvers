@@ -1,0 +1,11 @@
+# Python specific
+*.pyc
+*.pyo
+__pycache__/
+*$py.class
+
+# Java specific
+*.class
+
+# Repo specific
+saved_games/
