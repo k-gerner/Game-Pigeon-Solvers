@@ -13,6 +13,7 @@ from othello import othello_client
 from tictactoe import tictactoe_client
 from wordbites import word_bites_client
 from wordhunt import word_hunt_client
+from dotsandboxes import dots_and_boxes_client
 
 clients = OrderedDict([
 	("anagrams", anagrams_client),
@@ -25,6 +26,7 @@ clients = OrderedDict([
 	("tictactoe", tictactoe_client),
 	("wordbites", word_bites_client),
 	("wordhunt", word_hunt_client),
+	("dotsandboxes", dots_and_boxes_client)
 ])
 
 mode_select_str = """
@@ -38,6 +40,7 @@ mode_select_str = """
 [8]  Tic Tac Toe (--game=tictactoe)
 [9]  Word Bites  (--game=wordbites)
 [10] Word Hunt   (--game=wordhunt)
+[11] Dots & Boxes  (--game=dotsandboxes)
 """
 ascii_art = """
               _  __     _      _                               
@@ -76,7 +79,7 @@ def get_client_from_user():
 	print("Please choose one of the options by typing the corresponding number.")
 	mode = input(mode_select_str).strip()
 	erasePreviousLines(1)
-	while not (mode.isnumeric() and 1 <= int(mode) <= 10):
+	while not (mode.isnumeric() and 1 <= int(mode) <= len(clients)):
 		if mode.lower() == 'q':
 			exit(0)
 		mode = input(f"{ERROR_SYMBOL} Please choose a valid number:  ").strip()
