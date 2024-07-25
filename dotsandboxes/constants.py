@@ -5,7 +5,7 @@ from util.terminaloutput.colors import NO_COLOR, BLUE_COLOR, RED_COLOR
 OPEN, USER, OPP = 0, 1, 2
 
 # Side name constants
-LEFT, UP, RIGHT, DOWN = 0, 1, 2, 3
+LEFT, UP, RIGHT, DOWN = 'L', 'U', 'R', 'D'
 
 EDGE_SQUARE_MAPS = {
 	4: edge_square_mapping(4),

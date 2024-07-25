@@ -49,6 +49,10 @@ class DotsAndBoxesBoard:
 				available.append(count)
 		return available
 
+	def is_open(self, square_index, side):
+		sq = self.squares[square_index]
+		return sq.is_valid_side(side)
+
 	def draw_edge(self, edge_index, player):
 		"""Returns an array of the indices of captured squares from this edge"""
 		captured_squares = []

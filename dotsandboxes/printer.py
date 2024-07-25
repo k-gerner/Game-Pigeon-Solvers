@@ -9,7 +9,7 @@ CAPTURE_FILL = "XXXXXX"
 OPEN_FILL = "      "
 
 
-def partition_list(arr, chunk_size):
+def _partition_list(arr, chunk_size):
 	partitioned = []
 	for i in range(len(arr) // chunk_size):
 		chunk = arr[i * chunk_size : (i + 1) * chunk_size]
@@ -17,7 +17,7 @@ def partition_list(arr, chunk_size):
 	return partitioned
 
 
-def inner_square_text(square_index, is_open, is_top):
+def _inner_square_text(square_index, is_open, is_top):
 	"""
 	'XXXXXX' if captured, top or bottom
 	'  12  ' if top of square and uncaptured
@@ -34,9 +34,9 @@ def inner_square_text(square_index, is_open, is_top):
 
 
 def print_board(board):
-	horiz_edges_chunks = partition_list(board.edges[:len(board.edges) // 2], board.size - 1)
-	vert_edges_chunks = partition_list(board.edges[len(board.edges) // 2:], board.size)
-	vert_edges_index_chunks = partition_list(range(len(board.edges) // 2, len(board.edges)), board.size)
+	horiz_edges_chunks = _partition_list(board.edges[:len(board.edges) // 2], board.size - 1)
+	vert_edges_chunks = _partition_list(board.edges[len(board.edges) // 2:], board.size)
+	vert_edges_index_chunks = _partition_list(range(len(board.edges) // 2, len(board.edges)), board.size)
 	output = ""
 	# first calculate the text for the top row of edges
 	top_row = f"{color_text(TOP_EDGES_SPLITTER, PLAYER_COLORS[horiz_edges_chunks[0][0]])}"
@@ -55,7 +55,7 @@ def print_board(board):
 				square_index = EDGE_SQUARE_MAPS[board.size][vert_edge_index][0]
 				square = board.squares[square_index]
 				square_is_open = not square.is_captured()
-				inner_text = inner_square_text(square_index, square_is_open, is_top)
+				inner_text = _inner_square_text(square_index, square_is_open, is_top)
 
 				if is_top or square.is_captured():
 					text_color = PLAYER_COLORS[square.owner]
@@ -67,9 +67,6 @@ def print_board(board):
 			row_text += "\n"
 		output += row_text
 	print(output)
-
-
-
 
 
 def print_ascii_art():
@@ -88,14 +85,39 @@ def print_ascii_art():
  |____/ \___/_/\_\___||___/    
  """)
 
-def err(text):
-	output = f"{ERROR_SYMBOL} {text}"
-	print(output)
+
+def print_game_rules():
+	"""Gives the user the option to view the rules of the game"""
+	print("GAME RULES NOT IMPLEMENTED")
 
 
-def info(text):
-	output = f"{INFO_SYMBOL} {text}"
-	print(output)
+def _err_text(text, leading_new_lines=0, trailing_new_lines=0):
+	return "\n" * leading_new_lines + f"{ERROR_SYMBOL} {text}" + "\n" * trailing_new_lines
+
+
+def err(text, leading_new_lines=0, trailing_new_lines=0):
+	error_msg = _err_text(text, leading_new_lines, trailing_new_lines)
+	print(error_msg)
+
+
+def err_in(text, leading_new_lines=0, trailing_new_lines=0):
+	error_msg = _err_text(text, leading_new_lines, trailing_new_lines)
+	return input(error_msg)
+
+
+def _info_text(text, leading_new_lines=0, trailing_new_lines=0):
+	return "\n" * leading_new_lines + f"{INFO_SYMBOL} {text}" + "\n" * trailing_new_lines
+
+
+def info(text, leading_new_lines=0, trailing_new_lines=0):
+	info_msg = _info_text(text, leading_new_lines, trailing_new_lines)
+	print(info_msg)
+
+
+def info_in(text, leading_new_lines=0, trailing_new_lines=0):
+	info_msg = _info_text(text, leading_new_lines, trailing_new_lines)
+	return input(info_msg)
+
 
 def color_text(text, color):
 	return f"{color}{text}{NO_COLOR}"
