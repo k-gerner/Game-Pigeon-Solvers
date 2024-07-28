@@ -23,17 +23,13 @@ LINE_HORIZ = "--"
 # Relevant to game state
 board_history = []
 
-# Misc
-USER_COLOR = BLUE_COLOR
-OPP_COLOR = RED_COLOR
-
 
 class HumanPlayer(DotsAndBoxesPlayer):
 
 	def __init__(self, player_id):
 		super().__init__(player_id, is_ai=False)
 
-	def get_move(self, board):
+	def get_moves(self, board):
 		"""Takes in the user's input and returns the move"""
 		move = input("It's your turn, which spot would you like to play?\t").strip().upper()
 		while True:
@@ -51,7 +47,7 @@ class HumanPlayer(DotsAndBoxesPlayer):
 			else:
 				square_index = move.rstrip('LURD ')
 				side = move[len(square_index):].strip()
-				valid_format = square_index.isdigit() and side in ['L', 'U', 'R', 'D']
+				valid_format = square_index.isdigit() and side in [LEFT, UP, RIGHT, DOWN]
 				if not valid_format:
 					move = pr.err_in("Please enter a valid move:\t").strip().upper()
 					continue
@@ -59,10 +55,10 @@ class HumanPlayer(DotsAndBoxesPlayer):
 				if not square_index_int < (board.size - 1) ** 2:
 					move = pr.err_in("Not in range. Please enter a valid move:\t").strip().upper()
 					continue
-				if not board.is_open(square_index_int, side):
+				if not board.is_square_edge_open(square_index_int, side):
 					move = pr.err_in("That spot is already taken! Try again:\t").strip().upper()
 					continue
-				return square_index_int, side
+				return [(square_index_int, side)]
 
 
 def end_game(winner=None):
@@ -72,6 +68,7 @@ def end_game(winner=None):
 
 
 def save_game(board, turn):
+	pass
 	# if not allow_save(SAVE_FILENAME):
 	# 	return
 	# with open(SAVE_FILENAME, 'w') as saveFile:
@@ -87,12 +84,61 @@ def save_game(board, turn):
 	# 	saveFile.write("Turn: " + turn)
 	# pr.info("The game has been saved!")
 
+
 def load_saved_game():
 	pass
 
 
 def print_move_history(num_previous):
 	pass
+
+
+def switch_turn(player):
+	return USER if player == OPP else OPP
+
+
+def get_board_size_input():
+	size = input("Which size board (vertex width)? (4, 5 or 6):\t").strip().upper()
+	while True:
+		if size == 'Q':
+			end_game()
+		elif size == '':
+			pr.info("Using default board size of 4!")
+			return 4
+		if not size.isdigit() or int(size) not in [4, 5, 6]:
+			size = pr.err_in("Invalid size. Options are 4, 5 or 6:\t")
+			continue
+		return int(size)
+
+
+def get_color_mappings():
+	blue = pr.color_text(BLUE_COLOR, "BLUE")
+	red = pr.color_text(RED_COLOR, "RED")
+	color = input(f"Would you like to be {blue} (b) or {red} (r)?:\t").strip().upper()
+	while True:
+		if color == 'Q':
+			end_game()
+		elif color == '':
+			blue = pr.color_text(BLUE_COLOR, "BLUE")
+			pr.info(f"Using default color {blue}!")
+			return {
+				USER: BLUE_COLOR,
+				OPP: RED_COLOR
+			}
+		if not color in ['B', 'R']:
+			size = pr.err_in("Invalid color. Options are {blue} (b) or {red} (r):\t").strip().upper()
+			continue
+		if color == 'B':
+			return {
+				USER: BLUE_COLOR,
+				OPP: RED_COLOR
+			}
+		else:
+			return {
+				USER: RED_COLOR,
+				OPP: BLUE_COLOR
+			}
+
 
 
 def run():
@@ -126,13 +172,58 @@ def run():
 		OPP: [ai_player_name, 0, 0]
 	}
 
+	board_size = get_board_size_input()
+	player_colors = get_color_mappings()
+	board = DotsAndBoxesBoard(board_size)
+	pr.print_board(board)
+
+	# Blue goes first
+	turn = USER if player_colors[USER] == BLUE_COLOR else OPP
+	while not board.is_full():
+		player = players[turn]
+		if player.is_ai:
+			user_input = input(f"{player_names[turn]}'s turn, press enter for it to play.\t")
+			while user_input in ['Q', 'S', 'QS', 'SQ', 'H']:
+				if user_input == 'Q':
+					end_game()
+				elif user_input == 'S':
+					save_game(board, turn)
+					user_input = input("Press enter to continue. ").strip().upper()
+					# erasePreviousLines(2)
+				elif user_input == 'QS' or user_input == 'SQ':
+					save_game(board, turn)
+					end_game()
+				# elif user_input == 'H':
+				# 	user_input, linesWrittenToConsole = getBoardHistoryInputFromUser(BOARD, turn, True,
+				# 																	linesWrittenToConsole)
+		moves = player.get_moves(board)
+		moves_str = ', '.join(pr.color_text(f"{square_index}{side}", player_colors[turn]) for square_index, side in moves)
+		print(f"{player_names[turn]} played: {moves_str}")
+		for move in moves:
+			board.draw_square_edge(move[0], move[1], turn)
+		turn = switch_turn(turn)
+		pr.print_board(board)
+
+	user_score = board.score(USER)
+	opp_score = board.score(OPP)
+	print("Final score:")
+	print(f"{pr.color_text(player_names[USER.player_id], player_colors[USER.player_id])}: {user_score}")
+	print(f"{pr.color_text(player_names[OPP.player_id], player_colors[OPP.player_id])}: {opp_score}")
+
+
+
+
+
 	# temp testing stuff below
 
-	h = HumanPlayer(USER)
-	board = DotsAndBoxesBoard(4)
-	pr.print_board(board)
-	h.get_move(board)
-	pr.tmp()
+	# h = HumanPlayer(USER)
+	# board = DotsAndBoxesBoard(4)
+	# pr.print_board(board)
+	# h.get_move(board)
+	# pr.tmp()
+
+
+
 	# TODO!!!!
 	# maybe make the board store data in a graph structure?
 	# the squares could be the nodes and the edges would connect them

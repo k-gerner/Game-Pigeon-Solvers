@@ -38,3 +38,5 @@ def edge_square_mapping(size):
 				right_square = (squares_dimension * edge_row) + edge_col
 				edge_to_squares[i] = [left_square, right_square]
 	return edge_to_squares
+
+

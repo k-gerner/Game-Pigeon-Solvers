@@ -1,8 +1,7 @@
 # The super class that player objects will inherit from
 from typing import Tuple, Literal
 from dotsandboxes.dots_and_boxes_board import DotsAndBoxesBoard
-
-Direction = Literal['l', 'u', 'r', 'd', 'L', 'U', 'R', 'D']
+from dotsandboxes.constants import Direction
 
 
 class DotsAndBoxesPlayer:
@@ -12,13 +11,13 @@ class DotsAndBoxesPlayer:
 		self.player_id = player_id
 		self.is_ai = is_ai
 
-	def get_move(self, board: DotsAndBoxesBoard) -> Tuple[int, Direction]:
+	def get_moves(self, board: DotsAndBoxesBoard) -> Tuple[int, Direction]:
 		"""
-		Returns the chosen move for a given board.
+		Returns a list of the chosen moves (tuples) for a given board.
 		- The first int is which square is chosen. Zero-indexed, starting from
 		  the top left and working left-to-right, top-to-bottom
 		- The second int is which side is chosen. This should be one of
-		  LEFT, UP, RIGHT, DOWN (0, 1, 2, 3) as specified in constants.py
+		  LEFT, UP, RIGHT, DOWN (L, U, R, D) as specified in constants.py
 		"""
 		print("\n<!> Function 'getMove' has not been implemented.\n" +
 			  "The program has been terminated.\n" +
