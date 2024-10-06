@@ -2,9 +2,9 @@
 # 2.24.2021
 # Tool for Game Pigeon's 'Word Hunt' puzzle game
 
-from wordhunt.board import Board
+from wordhunt.small_square_board import SmallSquareBoard
 from wordhunt.letter import Letter
-from util.terminaloutput.symbols import ERROR_SYMBOL
+from util.terminaloutput.symbols import ERROR_SYMBOL, WARN_SYMBOL, INFO_SYMBOL
 from util.terminaloutput.erasing import erasePreviousLines
 from functools import cmp_to_key
 import os
@@ -38,31 +38,27 @@ positionsList = [] # used to keep the lists of positions in diagram mode, since 
 wordStarts = set() # set that holds every valid part of every word from beginning to some point in the middle
 
 
-def readInBoard():
+def readInBoard(board_clazz, row_sizes):
 	"""Read in the user's input for the board letters"""
 	print("Please enter each row of letters (one row at a time) in the format \"a b c d\"")
-	inputLetters = []
-	for i in range(4):
-		letters = input("Row %d of letters:\t" % (i+1))
+	input_letters = []
+	for i in range(len(row_sizes)):
+		letters = input("Row %d of letters:\t" % (i+1)).lower()
 		while True:
-			letters = letters.lower()
-			lettersSplit = letters.split()
-			allSingleChar = True
-			for l in lettersSplit:
-				if len(l) > 1: 
-					allSingleChar = False
-			if allSingleChar:
-				if len(lettersSplit) == 4:
-					# if exactly 4 single letters entered
+			letters_split = letters.split()
+			if len(letters_split) == row_sizes[i]:
+				# if correct number of letters entered
+				if all(len(letter) == 1 for letter in letters_split):
+					# if all single characters
 					break
 			erasePreviousLines(1)
-			letters = input("Invalid input. Please try again:\t")
-		for letter in lettersSplit:
-			inputLetters.append(letter)
-	letterObjs = []
-	for i in range(len(inputLetters)):
-		letterObjs.append(Letter(inputLetters[i], i))
-	board = Board(letterObjs)
+			letters = input("Invalid input. Please try again:\t").lower()
+		for letter in letters_split:
+			input_letters.append(letter)
+	letter_objs = []
+	for i in range(len(input_letters)):
+		letter_objs.append(Letter(input_letters[i], i))
+	board = board_clazz(letter_objs)
 	return board
 
 
@@ -90,7 +86,6 @@ def printModeInfo():
 	for pair in sample:
 		print("%d:\t%s\t %d" % (place, pair[1], pair[0]))
 		place += 1
-	# print("\t  .\n\t  .\n\t  .\n")
 	print(" .\t  .\t .\n" * 3)
 	# diagram mode
 	print("\nDiagram Mode feeds the user 1 word at a time, and displays a\n" + 
@@ -225,11 +220,28 @@ def printOutput(validWords, mode):
 	print("No more words, thanks for using my Word Hunt Tool!\n")
 
 
+def get_board_size_values():
+	layout = input("Which board layout would you like to use? [1 - 4]\n").strip()
+	erasePreviousLines(2)
+	if layout == "1":
+		print(f"{INFO_SYMBOL} Using the 4x4 board layout.")
+		return SmallSquareBoard, [4, 4, 4, 4]
+	elif layout == "2":
+		raise NotImplementedError("Sorry, this board layout is not yet supported.")
+	elif layout == "3":
+		raise NotImplementedError("Sorry, this board layout is not yet supported.")
+	elif layout == "4":
+		raise NotImplementedError("Sorry, this board layout is not yet supported.")
+	else:
+		print(f"{WARN_SYMBOL} Using default 4x4 board layout.")
+		return SmallSquareBoard, [4, 4, 4, 4]
+
+
 def run():
 	# initial setup
 	global MAX_LENGTH
 	print("Welcome to Kyle's Word Hunt solver!")
-	print("\nNote: This code was designed for the 4x4 (default) board size.")
+	board_class, row_sizes = get_board_size_values()
 	maxLen = input("\nDefault max word length is 10. If you wish to change it, enter\n"  +
 				   "the desired maximum word length (3 <= L <= 10):\t").strip()
 	erasePreviousLines(3)
@@ -240,7 +252,7 @@ def run():
 			MAX_LENGTH = int(maxLen)
 			print("New max word length is %d." % MAX_LENGTH)
 	else:
-		print(f"{ERROR_SYMBOL} Using default max word length (10).")
+		print(f"{WARN_SYMBOL} Using default max word length (10).")
 	# filename = input("What word list file would you like as input?\t")
 	try :
 		inputFile = open(WORDS_LIST_FILEPATH, 'r')
@@ -272,7 +284,7 @@ def run():
 		print("\nWords will be displayed in Diagram Mode.")
 
 	# read in user board input
-	board = readInBoard()
+	board = readInBoard(board_class, row_sizes)
 	erasePreviousLines(5)
 	print("\nThe board is: ")
 	printBoard(board)
