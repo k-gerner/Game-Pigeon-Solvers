@@ -2,7 +2,8 @@
 # 2.24.2021
 # Tool for Game Pigeon's 'Word Hunt' puzzle game
 
-from wordhunt.classes import Board, Letter
+from wordhunt.board import Board
+from wordhunt.letter import Letter
 from util.terminaloutput.symbols import ERROR_SYMBOL
 from util.terminaloutput.erasing import erasePreviousLines
 from functools import cmp_to_key
