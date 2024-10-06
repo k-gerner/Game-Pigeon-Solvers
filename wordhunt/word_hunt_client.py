@@ -221,8 +221,23 @@ def printOutput(validWords, mode):
 
 
 def get_board_size_values():
+	print("""
+	               . . .  
+	. . . .      . . . . .
+	. . . .      . .   . .
+	. . . .      . . . . .
+	. . . .        . . .
+	[1] - 4x4   [2] - Donut
+	   
+	. .   . .    . . . . .
+	. . . . .    . . . . .
+	  . . .      . . . . .
+	. . . . .    . . . . .
+	. .   . .    . . . . .
+	[3] - Cross  [4] - 5x5
+	""")
 	layout = input("Which board layout would you like to use? [1 - 4]\n").strip()
-	erasePreviousLines(2)
+	erasePreviousLines(17)
 	if layout == "1":
 		print(f"{INFO_SYMBOL} Using the 4x4 board layout.")
 		return SmallSquareBoard, [4, 4, 4, 4]
