@@ -85,7 +85,7 @@ def square_number_str(square_index, owner):
 
 def print_board(board):
 	# Get 2-D array where each inner list is a row of squares
-	square_rows = _partition_list(board.squares, board.size - 1)
+	square_rows = board.squares
 	output = ""
 	top_row_text = f"{color_text(TOP_EDGES_SPLITTER, PLAYER_COLORS[square_rows[0][0].get_edge_owner(UP)])}"
 	for sq in square_rows[0]:

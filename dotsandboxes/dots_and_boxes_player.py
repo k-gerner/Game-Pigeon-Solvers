@@ -11,12 +11,13 @@ class DotsAndBoxesPlayer:
 		self.player_id = player_id
 		self.is_ai = is_ai
 
-	def get_moves(self, board: DotsAndBoxesBoard) -> Tuple[int, Direction]:
+	def get_moves(self, board: DotsAndBoxesBoard) -> Tuple[int, int, Direction]:
 		"""
 		Returns a list of the chosen moves (tuples) for a given board.
-		- The first int is which square is chosen. Zero-indexed, starting from
-		  the top left and working left-to-right, top-to-bottom
-		- The second int is which side is chosen. This should be one of
+		- The first two ints correspond to the row and column of the chosen
+		  square, respectively. Rows are in order top-to-bottom, and columns
+		  are in order left-to-right. They are both zero-indexed.
+		- The third and final int is which side is chosen. This should be one of
 		  LEFT, UP, RIGHT, DOWN (L, U, R, D) as specified in constants.py
 		"""
 		print("\n<!> Function 'getMove' has not been implemented.\n" +

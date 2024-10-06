@@ -13,8 +13,11 @@ class DotsAndBoxesBoard:
 		self.size = size  # dots in each row/col
 		if not squares:
 			sq = []
-			for i in range((size - 1) ** 2):
-				sq.append(Square())
+			for row_i in range(size - 1):
+				row = []
+				for col_i in range(size - 1):
+					row.append(Square())
+				sq.append(row)
 			self.squares = sq
 			num_edges = 2 * (size**2 - size)
 			self.edges = [OPEN]*num_edges
@@ -25,16 +28,20 @@ class DotsAndBoxesBoard:
 	def copy(self):
 		"""Returns a copy of the board"""
 		squares_copy = []
-		for sq in self.squares:
-			squares_copy.append(sq.copy())
+		for squares_row in self.squares:
+			row_copy = []
+			for sq in squares_row:
+				row_copy.append(sq.copy())
+			squares_copy.append(row_copy)
 		return DotsAndBoxesBoard(self.size, squares_copy, self.edges.copy())
 
 	def score(self, player):
 		"""Get the score for the given player"""
 		score = 0
-		for sq in self.squares:
-			if sq.owner == player:
-				score += 1
+		for row in self.squares:
+			for sq in row:
+				if sq.owner == player:
+					score += 1
 		return score
 
 	def available_edges(self):
@@ -46,50 +53,60 @@ class DotsAndBoxesBoard:
 		return available
 
 	def available_square_indices(self):
-		"""Returns a list of the indices of uncaptured squares"""
+		"""Returns a list of the coordinates of uncaptured squares"""
 		available = []
-		for count, sq in enumerate(self.squares):
-			if not sq.is_captured():
-				available.append(count)
+		for row_index, sq_row in enumerate(self.squares):
+			for col_index, sq in enumerate(sq_row):
+				if not sq.is_captured():
+					available.append((row_index, col_index))
 		return available
 
-	def is_square_edge_open(self, square_index:int, side:Direction):
+	def square_index_to_coordinate(self, square_index):
+		"""Returns a (row, col) tuple for the given square index"""
+		squares_dimension = self.size - 1
+		row = square_index // squares_dimension
+		col = square_index % squares_dimension
+		return row, col
+
+	def is_square_edge_open(self, row, col, side:Direction):
 		"""Whether the specified square has the specified side available"""
-		sq = self.squares[square_index]
+		sq = self.squares[row][col]
 		return sq.is_valid_side(side)
 
 	def is_edge_open(self, edge_index:int):
 		"""Whether the edge at the given index is available"""
 		return self.edges[edge_index] == OPEN
 
-	def draw_edge(self, edge_index, player):
-		"""Returns an array of the indices of captured squares from this edge (edge-format)"""
-		captured_squares = []
-		bordering_squares = EDGE_SQUARE_MAPS[self.size][edge_index]
-		for sq_index in bordering_squares:
-			if self.squares[sq_index].mark_edge(): # ERROR HERE - NEED TO CONVERT. MAYBE ADD NEW CONVERSION IN UTIL.PY
-				captured_squares.append(sq_index, player)
-		self.edges[edge_index] = player
-		return captured_squares
+	# def draw_edge(self, edge_index, player):
+	# 	"""Returns an array of the indices of captured squares from this edge (edge-format)"""
+	# 	captured_squares = []
+	# 	bordering_squares_indices = EDGE_SQUARE_MAPS[self.size][edge_index]
+	# 	bordering_squares_coords = [self.square_index_to_coordinate(ind) for ind in bordering_squares_indices]
+	# 	for row, col in bordering_squares_coords:
+	# 		if self.squares[row][col].mark_edge(): # ERROR HERE - NEED TO CONVERT. MAYBE ADD NEW CONVERSION IN UTIL.PY
+	# 			captured_squares.append((row, col))
+	# 	self.edges[edge_index] = player
+	# 	return captured_squares
 
-	def draw_square_edge(self, square_index, side, player):
-		"""Returns an array of the indices of captured squares from this edge (square-side-format)"""
+	def draw_square_edge(self, row, col, side, player):
+		"""Returns an array of the coordinates of captured squares from this edge (square-side-format)"""
 		captured_squares = []
-		if self.squares[square_index].mark_edge(side, player):
-			captured_squares.append(square_index)
-		neighbor_square_index, neighbor_dir = neighbor_square(square_index, side, self.size)
-		if neighbor_square_index is not None:
-			if self.squares[neighbor_square_index].mark_edge(neighbor_dir, player):
-				captured_squares.append(neighbor_square_index)
+		if self.squares[row][col].mark_edge(side, player):
+			captured_squares.append((row, col))
+		neighbor_row, neighbor_col, neighbor_dir = neighbor_square(row, col, side, self.size)
+		if neighbor_row is not None:
+			if self.squares[neighbor_row][neighbor_col].mark_edge(neighbor_dir, player):
+				captured_squares.append((neighbor_row, neighbor_col))
 
-		edge_index = square_to_edge(square_index, side, self.size)
+		edge_index = square_to_edge(row, col, side, self.size)
 		self.edges[edge_index] = player
 		return captured_squares
 
 	def is_full(self):
-		for sq in self.squares:
-			if not sq.is_captured():
-				return False
+		for row in self.squares:
+			for sq in row:
+				if not sq.is_captured():
+					return False
 		return True
 
 

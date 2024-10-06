@@ -4,6 +4,7 @@
 
 from datetime import datetime
 import sys
+import time
 import dotsandboxes.printer as pr
 from dotsandboxes.dots_and_boxes_player import DotsAndBoxesPlayer
 from dotsandboxes.dots_and_boxes_board import DotsAndBoxesBoard
@@ -52,17 +53,21 @@ class HumanPlayer(DotsAndBoxesPlayer):
 					move = pr.err_in("Please enter a valid move:\t").strip().upper()
 					continue
 				square_index_int = int(square_index)
-				if not square_index_int < (board.size - 1) ** 2:
+				row, col = board.square_index_to_coordinate(square_index_int)
+				if not (row < board.size - 1 and col < board.size - 1):
 					move = pr.err_in("Not in range. Please enter a valid move:\t").strip().upper()
 					continue
-				if not board.is_square_edge_open(square_index_int, side):
+				if not board.is_square_edge_open(row, col, side):
 					move = pr.err_in("That spot is already taken! Try again:\t").strip().upper()
 					continue
-				return [(square_index_int, side)]
+				return [(row, col, side)]
 
 
-def end_game(winner=None):
-	print("(end game not implemented yet)")
+def end_game(winner=None, color=None):
+	if winner:
+		print(pr.color_text(f"Winner is {winner}!", color))
+	else:
+		print("It's a tie!")
 	print("\nThanks for playing!")
 	exit(0)
 
@@ -125,10 +130,10 @@ def get_color_mappings():
 				USER: BLUE_COLOR,
 				OPP: RED_COLOR
 			}
-		if not color in ['B', 'R']:
-			size = pr.err_in("Invalid color. Options are {blue} (b) or {red} (r):\t").strip().upper()
+		elif color not in ['B', 'R']:
+			color = pr.err_in("Invalid color. Options are {blue} (b) or {red} (r):\t").strip().upper()
 			continue
-		if color == 'B':
+		elif color == 'B':
 			return {
 				USER: BLUE_COLOR,
 				OPP: RED_COLOR
@@ -138,7 +143,6 @@ def get_color_mappings():
 				USER: RED_COLOR,
 				OPP: BLUE_COLOR
 			}
-
 
 
 def run():
@@ -168,8 +172,16 @@ def run():
 		# OPP: DotsAndBoxesStrategy(OPP)
 	}
 	time_taken_per_player = {
-		USER: [user_player_name, 0, 0],  # [player name, total time, num moves]
-		OPP: [ai_player_name, 0, 0]
+		USER: {
+			"name": user_player_name,
+			"total_time": 0,
+			"num_turns": 0
+		},
+		OPP: {
+			"name": ai_player_name,
+			"total_time": 0,
+			"num_turns": 0
+		}
 	}
 
 	board_size = get_board_size_input()
@@ -196,19 +208,33 @@ def run():
 				# elif user_input == 'H':
 				# 	user_input, linesWrittenToConsole = getBoardHistoryInputFromUser(BOARD, turn, True,
 				# 																	linesWrittenToConsole)
+		start_time = time.time()
 		moves = player.get_moves(board)
-		moves_str = ', '.join(pr.color_text(f"{square_index}{side}", player_colors[turn]) for square_index, side in moves)
+		end_time = time.time()
+		time_taken_per_player[turn]["total_time"] += (end_time - start_time)
+		time_taken_per_player[turn]["num_turns"] += 1
+		moves_str = ', '.join(pr.color_text(f"{row * (board_size - 1) + col}{side}", player_colors[turn]) for row, col, side in moves)
 		print(f"{player_names[turn]} played: {moves_str}")
 		for move in moves:
-			board.draw_square_edge(move[0], move[1], turn)
+			board.draw_square_edge(move[0], move[1], move[2], turn)
 		turn = switch_turn(turn)
 		pr.print_board(board)
 
 	user_score = board.score(USER)
 	opp_score = board.score(OPP)
 	print("Final score:")
-	print(f"{pr.color_text(player_names[USER.player_id], player_colors[USER.player_id])}: {user_score}")
-	print(f"{pr.color_text(player_names[OPP.player_id], player_colors[OPP.player_id])}: {opp_score}")
+	print(f"{pr.color_text(player_names[USER], player_colors[USER])}: {user_score}")
+	print(f"{pr.color_text(player_names[OPP], player_colors[OPP])}: {opp_score}")
+	if user_score == opp_score:
+		winner_name = None
+		winner_color = None
+	elif user_score > opp_score:
+		winner_name = player_names[USER]
+		winner_color = player_colors[USER]
+	else:
+		winner_name = player_names[OPP]
+		winner_color = player_colors[OPP]
+	end_game(winner_name, winner_color)
 
 
 

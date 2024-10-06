@@ -23,42 +23,41 @@ PLAYER_COLORS = {
 Direction = Literal[LEFT, UP, RIGHT, DOWN]
 
 
-def neighbor_square(square_index, direction, board_size):
+def neighbor_square(row, col, direction, board_size):
 	"""
-	Returns a tuple of (neighbor_square_index, neighbor_direction),
-	or (None, None) if there is no neighbor
+	Returns a tuple of (neighbor_row, neighbor_col, neighbor_direction),
+	or (None, None, None) if there is no neighbor
 	"""
 	squares_dimension = board_size - 1
-	col = square_index % squares_dimension
 	has_no_neighbor = (col == 0 and direction == LEFT) or (
 			col == squares_dimension - 1 and direction == RIGHT) or (
-							  square_index < squares_dimension and direction == UP) or (
-							  square_index + squares_dimension > squares_dimension ** 2 and direction == DOWN)
+							  row == 0 and direction == UP) or (
+							  row == squares_dimension - 1 and direction == DOWN)
 	if has_no_neighbor:
-		return None, None
+		return None, None, None
 	elif direction == LEFT:
-		return square_index - 1, RIGHT
+		return row, col - 1, RIGHT
 	elif direction == UP:
-		return square_index - squares_dimension, DOWN
+		return row - 1, col, DOWN
 	elif direction == RIGHT:
-		return square_index + 1, LEFT
+		return row, col + 1, LEFT
 	else:
-		return square_index + squares_dimension, UP
+		return row + 1, col, UP
 
 
-def square_to_edge(square_index, direction, board_size):
+def square_to_edge(row, col, direction, board_size):
 	"""
 	Returns the index of the edge the corresponds to the given square and direction
 	"""
 	if direction == UP:
-		return square_index
+		return (row * (board_size - 1)) + col
 	elif direction == DOWN:
-		return square_index + (board_size - 1)
+		return (row * board_size) + col
 	elif direction == LEFT:
-		row = square_index // (board_size - 1)
 		offset = (board_size ** 2 - board_size) + row
-		return square_index + offset
+		overall_index = (row * (board_size - 1)) + col
+		return overall_index + offset
 	else:
-		row = square_index // (board_size - 1)
 		offset = (board_size ** 2 - board_size) + row + 1
-		return square_index + offset
+		overall_index = (row * (board_size - 1)) + col
+		return overall_index + offset
