@@ -3,11 +3,6 @@
 
 # Parent class different representations of a Word Hunt board
 class Board(object):
-	#	_____________________	<-- board index layout
-	#	|__0_|__1_|__2_|__3_|	_____________
-	#	|__4_|__5_|__6_|__7_|	|_0_|_1_|_2_|	<-- direction layout
-	#	|__8_|__9_|_10_|_11_|	|_7_|_X_|_3_|
-	#	|_12_|_13_|_14_|_15_|	|_6_|_5_|_4_|
 
 	# takes in an array of Letter objects and sets lb
 	def __init__(self, lettersArr):
@@ -29,62 +24,38 @@ class Board(object):
 		for i in self.lb:
 			newArr.append(i.copyLetter())
 		return self.__class__(newArr)
-	#
-	# # look at letter to the upper left but do not mark as visited
-	# def peekUpperLeft(self, pos):
-	# 	if pos % 4 == 0 or pos <= 3:
-	# 		# if on left edge or on upper edge
-	# 		return -1
-	# 	return self.lb[pos - 5]
-	#
-	# # look at letter above but do not mark as visited
-	# def peekUp(self, pos):
-	# 	if pos <= 3:
-	# 		# if on upper edge
-	# 		return -1
-	# 	return self.lb[pos - 4]
-	#
-	# # look at letter to the upper right but do not mark as visited
-	# def peekUpperRight(self, pos):
-	# 	if pos <= 3 or pos % 4 == 3:
-	# 		# if on upper edge or on right edge
-	# 		return -1
-	# 	return self.lb[pos - 3]
-	#
-	# # look at letter to the right but do not mark as visited
-	# def peekRight(self, pos):
-	# 	if pos % 4 == 3:
-	# 		# if on right edge
-	# 		return -1
-	# 	return self.lb[pos + 1]
-	#
-	# # look at letter to the lower right but do not mark as visited
-	# def peekLowerRight(self, pos):
-	# 	if pos >= 12 or pos % 4 == 3:
-	# 		# if on lower edge or on right edge
-	# 		return -1
-	# 	return self.lb[pos + 5]
-	#
-	# # look at letter below but do not mark as visited
-	# def peekDown(self, pos):
-	# 	if pos >= 12:
-	# 		# if on lower edge
-	# 		return -1
-	# 	return self.lb[pos + 4]
-	#
-	# # look at letter to lower left but do not mark as visited
-	# def peekLowerLeft(self, pos):
-	# 	if pos % 4 == 0 or pos >= 12:
-	# 		# if on left edge or on lower edge
-	# 		return -1
-	# 	return self.lb[pos + 3]
-	#
-	# # look at letter to the left but do not mark as visited
-	# def peekLeft(self, pos):
-	# 	if pos % 4 == 0:
-	# 		# if on left edge
-	# 		return -1
-	# 	return self.lb[pos - 1]
+
+	# look at letter to the upper left but do not mark as visited
+	def peekUpperLeft(self, pos):
+		raise NotImplementedError
+
+	# look at letter above but do not mark as visited
+	def peekUp(self, pos):
+		raise NotImplementedError
+
+	# look at letter to the upper right but do not mark as visited
+	def peekUpperRight(self, pos):
+		raise NotImplementedError
+
+	# look at letter to the right but do not mark as visited
+	def peekRight(self, pos):
+		raise NotImplementedError
+
+	# look at letter to the lower right but do not mark as visited
+	def peekLowerRight(self, pos):
+		raise NotImplementedError
+
+	# look at letter below but do not mark as visited
+	def peekDown(self, pos):
+		raise NotImplementedError
+
+	# look at letter to lower left but do not mark as visited
+	def peekLowerLeft(self, pos):
+		raise NotImplementedError
+
+	# look at letter to the left but do not mark as visited
+	def peekLeft(self, pos):
+		raise NotImplementedError
 
 	# look at letter in specified direction and DO mark as visited, -1 on fail
 	def visitDirection(self, pos, dir):
