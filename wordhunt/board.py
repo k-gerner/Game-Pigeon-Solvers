@@ -57,6 +57,9 @@ class Board(object):
 	def peekLeft(self, pos):
 		raise NotImplementedError
 
+	def display_board(self, word, positions):
+		raise NotImplementedError
+
 	# look at letter in specified direction and DO mark as visited, -1 on fail
 	def visitDirection(self, pos, dir):
 		visitedLetter = self.directionDict[dir](pos)  # calls the correct function depending on value of dir
