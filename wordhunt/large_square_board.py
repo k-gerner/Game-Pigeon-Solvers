@@ -1,4 +1,4 @@
-from wordhunt.board import Board
+from wordhunt.board import Board, populate_diagram_squares
 
 # Class representing the 5x5 board
 #	__________________________	<-- board index layout
@@ -10,6 +10,9 @@ from wordhunt.board import Board
 
 
 class LargeSquareBoard(Board):
+	diagram_output_height = 8
+	row_sizes = [5, 5, 5, 5, 5]
+	name = "5x5"
 
 	def __init__(self, lettersArr):
 		super().__init__(lettersArr)
@@ -61,3 +64,35 @@ class LargeSquareBoard(Board):
 			# if on left edge
 			return -1
 		return self.lb[pos - 1]
+
+	def letter_indices_layout(self):
+		out_str = '''
+		__________________________
+		|__1_|__2_|__3_|__4_|__5_|
+		|__6_|__7_|__8_|__9_|_10_|
+		|_11_|_12_|_13_|_14_|_15_|	<-- board index layout
+		|_16_|_17_|_18_|_19_|_20_|
+		|_21_|_22_|_23_|_24_|_25_|'''
+		return out_str
+
+	def board_letters_layout(self):
+		out_str = ""
+		for ind, letter in enumerate(self.lb):
+			out_str += f"{letter.char} "
+			if ind % 5 == 4:
+				# on right side, go to next line
+				out_str += "\n"
+		return out_str
+
+	def build_diagram(self, positions, word, word_num):
+		squares = populate_diagram_squares(25, positions)
+		out_str = "__________________________\n"
+		for row_start in [0, 5, 10, 15, 20]:
+			row_str = "|"
+			for i in range(row_start, row_start + 5):
+				row_str += f"{squares[i]}|"
+			if row_start == 10:
+				# if on third output row, print the word info
+				row_str += f"    {word_num}:   {word}"
+			out_str += row_str + "\n"
+		return out_str
