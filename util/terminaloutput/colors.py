@@ -10,3 +10,8 @@ ORANGE_COLOR = '\033[38;5;208m'   # orange (may not work on all systems)
 
 # Background colors
 DARK_GREY_BACKGROUND = '\u001b[48;5;238m'  # dark grey; to make lighter, increase 238 to anything 255 or below
+
+
+def color_text(text: str, color: str) -> str:
+	"""Returns the text in the specified color."""
+	return f"{color}{text}{NO_COLOR}"
