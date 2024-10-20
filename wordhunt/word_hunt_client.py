@@ -235,7 +235,7 @@ def get_board_class():
 	Returns the board class
 	"""
 	board_class = get_board_class_from_args()
-	if not board_class:
+	if board_class is None:
 		print(dedent("""
 		               . . .  
 		. . . .      . . . . .
@@ -284,7 +284,7 @@ def get_display_mode_from_args():
 
 def get_display_mode():
 	display_mode = get_display_mode_from_args()
-	if not display_mode:
+	if display_mode is None:
 		mode_select = input("\nUse Diagram Mode (d) or List Mode (l)? Type 'i' for more info:\t").strip().lower()
 		erasePreviousLines(2)
 		if mode_select == 'i':
