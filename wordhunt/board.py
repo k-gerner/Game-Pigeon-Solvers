@@ -1,5 +1,6 @@
 # Kyle Gerner
 # 2.24.2021
+from util.terminaloutput.colors import YELLOW_COLOR, color_text
 
 class Board(object):
 	""" Parent class different representations of a Word Hunt board """
@@ -97,5 +98,9 @@ def populate_diagram_squares(size, positions):
 	squares = ["____"] * size
 	for letter_count, letter_pos in enumerate(positions, 1):
 		left_underscores = "__" if letter_count < 10 else "_"
-		squares[letter_pos] = f"{left_underscores}{letter_count}_"
+		if letter_count == 1:
+			colored_count = color_text(str(letter_count), YELLOW_COLOR)
+			squares[letter_pos] = f"{left_underscores}{colored_count}_"
+		else:
+			squares[letter_pos] = f"{left_underscores}{letter_count}_"
 	return squares
