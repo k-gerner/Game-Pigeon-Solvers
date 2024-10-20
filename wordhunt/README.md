@@ -3,7 +3,7 @@
 <img src="/images/Word%20Hunt/sampleWordHuntBoard.jpeg" alt = "sample board" width="40%" align = "right">     
 
 ### The Basics  
-In Word Hunt, players are presented with a 4x4 board of letter tiles. 
+In Word Hunt, players are presented with a board of letter tiles. 
 In order to earn points, players must connect adjacent tiles on the 
 board to form English words. The longer the word, the more points 
 the player earns. Whoever scores more points in 80 seconds wins.
@@ -53,7 +53,7 @@ tile indices will also be displayed.
   a length different than the default (10), you can specify it with the 
   `--maxWordLength` flag (range 3-10).
 
-<img src="/images/Word%20Hunt/sample_4x4_diagram.png" alt = "4x4 board" width = "40%">  
-<img src="/images/Word%20Hunt/sample_5x5_diagram.png" alt = "5x5 board" width = "40%"> 
-<img src="/images/Word%20Hunt/sample_donut_diagram.png" alt = "donut board" width = "40%">  
-<img src="/images/Word%20Hunt/sample_cross_diagram.png" alt = "cross board" width = "40%">  
+<img src="/images/Word%20Hunt/sample_4x4_diagram.png" alt = "4x4 board" width = "40%" align="left">
+<img src="/images/Word%20Hunt/sample_5x5_diagram.png" alt = "5x5 board" width = "40%" align="left">  
+<img src="/images/Word%20Hunt/sample_donut_diagram.png" alt = "donut board" width = "40%" align="left">
+<img src="/images/Word%20Hunt/sample_cross_diagram.png" alt = "cross board" width = "40%" align="left">  
