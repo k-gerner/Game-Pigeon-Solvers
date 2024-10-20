@@ -68,8 +68,7 @@ class Board(object):
 
 	def letter_indices_layout(self):
 		"""
-		returns the string representation the indices of letters on the board;
-		only available for square boards
+		returns the string representation the indices of letters on the board
 		"""
 		raise NotImplementedError
 
