@@ -17,10 +17,10 @@ class CrossBoard(Board):
 	row_sizes = [4, 5, 3, 5, 4]
 	name = "Cross"
 
-	def __init__(self, lettersArr):
-		super().__init__(lettersArr)
+	def __init__(self, letters_arr):
+		super().__init__(letters_arr)
 
-	def peekUpperLeft(self, pos):
+	def peek_upper_left(self, pos):
 		if pos <= 4 or pos in {7, 12, 13, 17}:
 			return -1
 		elif pos in {8, 18}:
@@ -28,7 +28,7 @@ class CrossBoard(Board):
 		else:
 			return self.lb[pos - 5]
 
-	def peekUp(self, pos):
+	def peek_up(self, pos):
 		if pos <= 3 or pos in {6, 12, 16}:
 			return -1
 		elif pos in {7, 8, 17, 18}:
@@ -36,7 +36,7 @@ class CrossBoard(Board):
 		else:
 			return self.lb[pos - 4]
 
-	def peekUpperRight(self, pos):
+	def peek_upper_right(self, pos):
 		if pos <= 3 or pos in {5, 8, 15, 16, 20}:
 			return -1
 		elif pos in {6, 7, 17, 18}:
@@ -44,13 +44,13 @@ class CrossBoard(Board):
 		else:
 			return self.lb[pos - 3]
 
-	def peekRight(self, pos):
+	def peek_right(self, pos):
 		if pos in {1, 3, 8, 11, 16, 18, 20}:
 			return -1
 		else:
 			return self.lb[pos + 1]
 
-	def peekLowerRight(self, pos):
+	def peek_lower_right(self, pos):
 		if pos >= 16 or pos in {3, 7, 8, 13}:
 			return -1
 		elif pos in {2, 12}:
@@ -58,7 +58,7 @@ class CrossBoard(Board):
 		else:
 			return self.lb[pos + 5]
 
-	def peekDown(self, pos):
+	def peek_down(self, pos):
 		if pos >= 17 or pos in {4, 8, 14}:
 			return -1
 		elif pos in {2, 3, 12, 13}:
@@ -66,7 +66,7 @@ class CrossBoard(Board):
 		else:
 			return self.lb[pos + 4]
 
-	def peekLowerLeft(self, pos):
+	def peek_lower_left(self, pos):
 		if pos >= 17 or pos in {0, 4, 5, 12, 15}:
 			return -1
 		elif pos in {2, 3, 13, 14}:
@@ -74,7 +74,7 @@ class CrossBoard(Board):
 		else:
 			return self.lb[pos + 3]
 
-	def peekLeft(self, pos):
+	def peek_left(self, pos):
 		if pos in {0, 2, 4, 9, 12, 17, 19}:
 			return -1
 		else:

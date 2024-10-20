@@ -2,6 +2,7 @@
 # 2.24.2021
 from util.terminaloutput.colors import YELLOW_COLOR, color_text
 
+
 class Board(object):
 	""" Parent class different representations of a Word Hunt board """
 	diagram_output_height = 0
@@ -12,52 +13,52 @@ class Board(object):
 		""" takes in an array of Letter objects and sets lb """
 		self.lb = letters_arr  # lb = letter board
 		self.directionDict = {
-			0: self.peekUpperLeft,
-			1: self.peekUp,
-			2: self.peekUpperRight,
-			3: self.peekRight,
-			4: self.peekLowerRight,
-			5: self.peekDown,
-			6: self.peekLowerLeft,
-			7: self.peekLeft
+			0: self.peek_upper_left,
+			1: self.peek_up,
+			2: self.peek_upper_right,
+			3: self.peek_right,
+			4: self.peek_lower_right,
+			5: self.peek_down,
+			6: self.peek_lower_left,
+			7: self.peek_left
 		}
 
-	def copyBoard(self):
+	def copy_board(self):
 		""" return a copy of the board as is """
 		new_arr = []
 		for i in self.lb:
 			new_arr.append(i.copyLetter())
 		return self.__class__(new_arr)
 
-	def peekUpperLeft(self, pos):
+	def peek_upper_left(self, pos):
 		""" look at letter to the upper left but do not mark as visited """
 		raise NotImplementedError
 
-	def peekUp(self, pos):
+	def peek_up(self, pos):
 		""" look at letter above but do not mark as visited """
 		raise NotImplementedError
 
-	def peekUpperRight(self, pos):
+	def peek_upper_right(self, pos):
 		""" look at letter to the upper right but do not mark as visited """
 		raise NotImplementedError
 
-	def peekRight(self, pos):
+	def peek_right(self, pos):
 		""" look at letter to the right but do not mark as visited"""
 		raise NotImplementedError
 
-	def peekLowerRight(self, pos):
+	def peek_lower_right(self, pos):
 		""" look at letter to the lower right but do not mark as visited """
 		raise NotImplementedError
 
-	def peekDown(self, pos):
+	def peek_down(self, pos):
 		""" look at letter below but do not mark as visited """
 		raise NotImplementedError
 
-	def peekLowerLeft(self, pos):
+	def peek_lower_left(self, pos):
 		""" look at letter to lower left but do not mark as visited """
 		raise NotImplementedError
 
-	def peekLeft(self, pos):
+	def peek_left(self, pos):
 		""" look at letter to the left but do not mark as visited"""
 		raise NotImplementedError
 

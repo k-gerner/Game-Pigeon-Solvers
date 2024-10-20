@@ -18,10 +18,10 @@ class DonutBoard(Board):
 	row_sizes = [3, 5, 4, 5, 3]
 	name = "Donut"
 
-	def __init__(self, lettersArr):
-		super().__init__(lettersArr)
+	def __init__(self, letters_arr):
+		super().__init__(letters_arr)
 
-	def peekUpperLeft(self, pos):
+	def peek_upper_left(self, pos):
 		if pos <= 4 or pos in {8, 12, 15}:
 			return -1
 		elif pos in {9, 16}:
@@ -29,7 +29,7 @@ class DonutBoard(Board):
 		else:
 			return self.lb[pos - 5]
 
-	def peekUp(self, pos):
+	def peek_up(self, pos):
 		if pos <= 3 or pos in {7, 14}:
 			return -1
 		elif pos in {8, 9, 15, 16}:
@@ -37,7 +37,7 @@ class DonutBoard(Board):
 		else:
 			return self.lb[pos - 4]
 
-	def peekUpperRight(self, pos):
+	def peek_upper_right(self, pos):
 		if pos <= 2 or pos in {6, 7, 11, 13, 16}:
 			return -1
 		elif pos in {8, 9, 14, 15}:
@@ -45,13 +45,13 @@ class DonutBoard(Board):
 		else:
 			return self.lb[pos - 3]
 
-	def peekRight(self, pos):
+	def peek_right(self, pos):
 		if pos in {2, 7, 9, 11, 16, 19}:
 			return -1
 		else:
 			return self.lb[pos + 1]
 
-	def peekLowerRight(self, pos):
+	def peek_lower_right(self, pos):
 		if pos >= 15 or pos in {4, 7, 11}:
 			return -1
 		elif pos in {3, 10}:
@@ -59,7 +59,7 @@ class DonutBoard(Board):
 		else:
 			return self.lb[pos + 5]
 
-	def peekDown(self, pos):
+	def peek_down(self, pos):
 		if pos >= 16 or pos in {5, 12}:
 			return -1
 		elif pos in {3, 4, 10, 11}:
@@ -67,7 +67,7 @@ class DonutBoard(Board):
 		else:
 			return self.lb[pos + 4]
 
-	def peekLowerLeft(self, pos):
+	def peek_lower_left(self, pos):
 		if pos >= 17 or pos in {3, 6, 8, 12, 13}:
 			return -1
 		elif pos in {4, 5, 10, 11}:
@@ -75,7 +75,7 @@ class DonutBoard(Board):
 		else:
 			return self.lb[pos + 3]
 
-	def peekLeft(self, pos):
+	def peek_left(self, pos):
 		if pos in {0, 3, 8, 10, 12, 17}:
 			return -1
 		else:

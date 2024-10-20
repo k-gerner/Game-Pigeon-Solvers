@@ -14,52 +14,52 @@ class SmallSquareBoard(Board):
 	row_sizes = [4, 4, 4, 4]
 	name = "4x4"
 
-	def __init__(self, lettersArr):
-		super().__init__(lettersArr)
+	def __init__(self, letters_arr):
+		super().__init__(letters_arr)
 
-	def peekUpperLeft(self, pos):
+	def peek_upper_left(self, pos):
 		if pos % 4 == 0 or pos <= 3:
 			# if on left edge or on upper edge
 			return -1
 		return self.lb[pos - 5]
 
-	def peekUp(self, pos):
+	def peek_up(self, pos):
 		if pos <= 3:
 			# if on upper edge
 			return -1
 		return self.lb[pos - 4]
 
-	def peekUpperRight(self, pos):
+	def peek_upper_right(self, pos):
 		if pos <= 3 or pos % 4 == 3:
 			# if on upper edge or on right edge
 			return -1
 		return self.lb[pos - 3]
 
-	def peekRight(self, pos):
+	def peek_right(self, pos):
 		if pos % 4 == 3:
 			# if on right edge
 			return -1
 		return self.lb[pos + 1]
 
-	def peekLowerRight(self, pos):
+	def peek_lower_right(self, pos):
 		if pos >= 12 or pos % 4 == 3:
 			# if on lower edge or on right edge
 			return -1
 		return self.lb[pos + 5]
 
-	def peekDown(self, pos):
+	def peek_down(self, pos):
 		if pos >= 12:
 			# if on lower edge
 			return -1
 		return self.lb[pos + 4]
 
-	def peekLowerLeft(self, pos):
+	def peek_lower_left(self, pos):
 		if pos % 4 == 0 or pos >= 12:
 			# if on left edge or on lower edge
 			return -1
 		return self.lb[pos + 3]
 
-	def peekLeft(self, pos):
+	def peek_left(self, pos):
 		if pos % 4 == 0:
 			# if on left edge
 			return -1
