@@ -169,7 +169,7 @@ preserved
 ---
 
 ## 🎮 Word Hunt
-You are given a 4x4 grid of letters. To earn points, you connect 
+You are given a grid of letters. To earn points, you connect 
 adjacent letters together. This can be in any direction (horizontal, 
 vertical, diagonal, and combinations of all three). You can't use 
 the same tile on the grid more than once per word though!
@@ -181,6 +181,8 @@ words with higher values first
 - Diagram mode will display the output as a grid with numbers to 
 show the order and locations on the board for which you should drag 
 your finger to create the word
+- Four different board layouts to choose from: 4x4, 5x5, Donut, and 
+  Cross
 - Output to the terminal will be updated in place instead of 
 printing lines and lines of output across turns. This can be 
 disabled if you would like to have all output to the terminal 
