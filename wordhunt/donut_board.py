@@ -81,6 +81,16 @@ class DonutBoard(Board):
 		else:
 			return self.lb[pos - 1]
 
+	def letter_indices_layout(self):
+		out_str = '''
+		 ________________
+	 ____|__1_|__2_|__3_|____
+	|__4_|__5_|__6_|__7_|__8_|
+	|__9_|_10_|    |_11_|_12_|
+	|_13_|_14_|_15_|_16_|_17_|
+		 |_18_|_19_|_20_|'''
+		return out_str
+
 	def board_letters_layout(self):
 		out_str = f"  {self.lb[0].char} {self.lb[1].char} {self.lb[2].char}\n"
 		out_str += ''.join(f" {self.lb[i].char}" for i in range(3, 8))[1:] + '\n'

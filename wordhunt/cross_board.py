@@ -80,6 +80,16 @@ class CrossBoard(Board):
 		else:
 			return self.lb[pos - 1]
 
+	def letter_indices_layout(self):
+		out_str = '''
+	___________    ___________
+	|__1_|__2_|____|__3_|__4_|
+	|__5_|__6_|__7_|__8_|__9_|
+	 ____|__10_|_11_|_12_|____
+	|_13_|_14_|_15_|_16_|_17_|
+	|_18_|_19_|    |_20_|_21_|'''
+		return out_str
+
 	def board_letters_layout(self):
 		out_str = f"{self.lb[0].char} {self.lb[1].char}   {self.lb[2].char} {self.lb[3].char}\n"
 		out_str += ''.join(f" {self.lb[i].char}" for i in range(4, 9))[1:] + '\n'
