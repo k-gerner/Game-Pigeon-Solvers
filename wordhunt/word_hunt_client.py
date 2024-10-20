@@ -309,7 +309,6 @@ def get_max_word_length():
 			max_length = int(val)
 			info(f"Using max word length of {max_length}.")
 			return max_length
-	info(f"Using default max word length of 10.")
 	return 10
 
 
