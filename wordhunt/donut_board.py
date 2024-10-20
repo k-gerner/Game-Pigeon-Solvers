@@ -96,7 +96,7 @@ class DonutBoard(Board):
 		out_str += ''.join(f" {self.lb[i].char}" for i in range(3, 8))[1:] + '\n'
 		out_str += f"{self.lb[8].char} {self.lb[9].char}   {self.lb[10].char} {self.lb[11].char}\n"
 		out_str += ''.join(f" {self.lb[i].char}" for i in range(12, 17))[1:] + '\n'
-		out_str += f"  {self.lb[17].char} {self.lb[18].char} {self.lb[19].char}"
+		out_str += f"  {self.lb[17].char} {self.lb[18].char} {self.lb[19].char}\n"
 		return out_str
 
 	def build_diagram(self, positions, word, word_num):
