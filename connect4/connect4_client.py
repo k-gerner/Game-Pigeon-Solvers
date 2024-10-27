@@ -154,17 +154,17 @@ def save_game(turn):
     """Saves the given board state to a save file"""
     if not allow_save(SAVE_FILENAME):
         return
-    with open(SAVE_FILENAME, 'w') as saveFile:
-        saveFile.write("This file contains the save state of a previously played game.\n")
-        saveFile.write("Modifying this file may cause issues with loading the save state.\n\n")
+    with open(SAVE_FILENAME, 'w') as save_file:
+        save_file.write("This file contains the save state of a previously played game.\n")
+        save_file.write("Modifying this file may cause issues with loading the save state.\n\n")
         time_of_save = datetime.now().strftime("%m/%d/%Y at %I:%M:%S %p")
-        saveFile.write(time_of_save + "\n\n")
-        saveFile.write("SAVE STATE:\n")
+        save_file.write(time_of_save + "\n\n")
+        save_file.write("SAVE STATE:\n")
         for row in game_board:
-            saveFile.write(" ".join(row) + "\n")
-        saveFile.write("User piece: " + str(user_piece) + "\n")
-        saveFile.write("Opponent piece: " + opponent_of(user_piece) + "\n")
-        saveFile.write("Turn: " + turn)
+            save_file.write(" ".join(row) + "\n")
+        save_file.write("User piece: " + str(user_piece) + "\n")
+        save_file.write("Opponent piece: " + opponent_of(user_piece) + "\n")
+        save_file.write("Turn: " + turn)
     info("The game has been saved!")
 
 
