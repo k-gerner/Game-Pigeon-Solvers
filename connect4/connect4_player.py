@@ -1,15 +1,16 @@
 # The super class that player objects will inherit from
 
-from typing import List, Tuple
+from typing import List
+
 
 class Connect4Player:
 
-    def __init__(self, color:str, isAI:bool=True):
+    def __init__(self, color: str, is_ai: bool = True):
         """Sets the color for this player, and indicates whether it is an AI"""
         self.color = color
-        self.isAI = isAI
+        self.is_ai = is_ai
 
-    def getMove(self, board:List[List[str]]) -> int:
+    def get_move(self, board: List[List[str]]) -> int:
         """Returns the chosen move for a given board, in [rowIndex, columnIndex] format"""
         print("\n<!> Function 'getMove' has not been implemented.\n"+
               "The program has been terminated.\n" +
