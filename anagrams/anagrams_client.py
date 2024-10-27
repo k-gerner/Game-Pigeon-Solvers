@@ -3,30 +3,29 @@
 # Anagrams Game Pigeon tool
 
 from functools import cmp_to_key
-from util.terminaloutput.symbols import ERROR_SYMBOL
+from util.terminaloutput.symbols import error, warn, ERROR_SYMBOL
 from util.terminaloutput.erasing import erasePreviousLines
-import os
 
-englishWords = set()
-wordStarts = set()
-foundWords = set()
+english_words = set()
+word_starts = set()
+found_words = set()
 
 INPUT_FILEPATH = "anagrams/letters7.txt"
 
 
-def findWords(remainingLetters, currStr=""):
-	"""Finds all the words that can be made with the given letters. Populates the foundWords set"""
-	if len(currStr) >= 3 and currStr not in wordStarts:
+def find_words(remaining_letters, curr_str=""):
+	"""Finds all the words that can be made with the given letters. Populates the found_words set"""
+	if len(curr_str) >= 3 and curr_str not in word_starts:
 		return
-	if currStr in englishWords:
-		foundWords.add(currStr)
-	if len(remainingLetters) == 0:
+	if curr_str in english_words:
+		found_words.add(curr_str)
+	if len(remaining_letters) == 0:
 		return
-	for i in range(len(remainingLetters)):
-		findWords(remainingLetters[:i] + remainingLetters[i+1:], currStr + remainingLetters[i])
+	for i in range(len(remaining_letters)):
+		find_words(remaining_letters[:i] + remaining_letters[i+1:], curr_str + remaining_letters[i])
 
 
-def wordCompare(a, b):
+def compare_words(a, b):
 	"""The comparison function used for sorting words. Sorts by length, then alphabetically"""
 	if len(a) < len(b):
 		return 1
@@ -35,10 +34,10 @@ def wordCompare(a, b):
 	return -1
 
 
-def printFoundWords(words):
+def print_found_words(words):
 	"""Prints the valid words that were found, according to user input"""
 	count = 1
-	print("\n%d word%s found.\n" % (len(words), '' if len(words) == 1 else 's'))
+	print("\n%d %s found.\n" % (len(words), 'word' if len(words) == 1 else 'words'))
 	cmd = ''
 	while cmd != 'q':
 		if cmd == 'a':
@@ -57,59 +56,61 @@ def printFoundWords(words):
 		if count + 8 < len(words):
 			grammar = "next 10 words"
 		else:
-			wordsLeft = len(words) - count + 1
-			if wordsLeft > 1:
-				grammar = "final %d words" % wordsLeft
+			words_remaining = len(words) - count + 1
+			if words_remaining > 1:
+				grammar = "final %d words" % words_remaining
 			else:
 				grammar = "final word"
 		cmd = input("Press enter for %s, or 'q' to quit, or 'a' for all remaining words:\t" % grammar).strip().lower()
 		erasePreviousLines(11)
 
 
-def populateWordSets(numLetters):
+def populate_word_sets(num_letters):
 	"""Fills the sets that will contain words we can search for"""
-	try :
-		inputFile = open(INPUT_FILEPATH, 'r')
-		for word in inputFile:
-			strippedWord = word.rstrip() #removes newline char
-			if len(strippedWord) > numLetters:
+	try:
+		input_file = open(INPUT_FILEPATH, 'r')
+		for word in input_file:
+			stripped_word = word.rstrip()  # removes newline char
+			if len(stripped_word) > num_letters:
 				continue
-			englishWords.add(strippedWord)
+			english_words.add(stripped_word)
 			# add each word start to the set of word starts
-			for i in range(3, len(strippedWord) + 1):
-				wordStarts.add(strippedWord[:i])
-		inputFile.close()
+			for i in range(3, len(stripped_word) + 1):
+				word_starts.add(stripped_word[:i])
+		input_file.close()
 	except FileNotFoundError:
-		print(f"\n{ERROR_SYMBOL} Could not open the words file. Please make sure {INPUT_FILEPATH.split('/')[-1]} is in the Anagrams directory.\n")
+		err_text = f"Could not open the words file. Please make sure {INPUT_FILEPATH.split('/')[-1]} is in the Anagrams directory.\n"
+		print()
+		error(err_text)
 		exit(0)
 
 
 def run():
 	# initial setup
 	print("\nWelcome to Kyle's Anagrams Solver Tool!\n")
-	numLetters = input("How many letters are on the board? (6 or 7):\t").strip()
-	if numLetters.isdigit() and (int(numLetters) == 6 or int(numLetters) == 7):
-		numLetters = int(numLetters)
+	num_letters = input("How many letters are on the board? (6 or 7):\t").strip()
+	if num_letters.isdigit() and int(num_letters) in {6, 7}:
+		num_letters = int(num_letters)
 	else:
 		erasePreviousLines(1)
-		print(f"{ERROR_SYMBOL} Invalid input. Using default value of 6 instead.")
-		numLetters = 6
-	populateWordSets(numLetters)
+		warn("Invalid input. Using default value of 6.")
+		num_letters = 6
+	populate_word_sets(num_letters)
 
 	# read in user input
 	letters = input("Enter the letters on the board, with no spaces in between:  ").strip().lower()
-	while len(letters) != numLetters:
+	while len(letters) != num_letters:
 		erasePreviousLines(1)
 		letters = input(f"{ERROR_SYMBOL} The number of letters did not match the specified max length. Try again:\t").strip().lower()
 	erasePreviousLines(1)
 	print("The letters are: %s" % " ".join(letters.upper()))
 
 	# call function to find words
-	findWords(letters)
-	word_cmp_key = cmp_to_key(wordCompare)
-	validWords = sorted(list(foundWords), key=word_cmp_key)
-	if len(validWords) == 0:
-		print(f"{ERROR_SYMBOL} There were no valid words for the board.")
+	find_words(letters)
+	word_cmp_key = cmp_to_key(compare_words)
+	valid_words = sorted(list(found_words), key=word_cmp_key)
+	if len(valid_words) == 0:
+		error("There were no valid words for the board.")
 	else:
-		printFoundWords(validWords)
+		print_found_words(valid_words)
 	print("Thanks for using my Anagrams Solver Tool!\n")
