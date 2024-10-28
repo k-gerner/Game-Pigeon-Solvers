@@ -14,4 +14,4 @@ DARK_GREY_BACKGROUND = '\u001b[48;5;238m'  # dark grey; to make lighter, increas
 
 def color_text(text: str, color: str) -> str:
 	"""Returns the text in the specified color."""
-	return f"{color}{text}{NO_COLOR}"
+	return f"{color}{str(text)}{NO_COLOR}"
