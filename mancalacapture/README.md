@@ -82,7 +82,7 @@ your AI was located in `external/aiduel/myAiFile.py`, you would run:
 In order for your AI to be eligible, it must meet a few requirements:
 * AI logic must be contained in a class named `MancalaStrategy`
 * AI must be a subclass of `MancalaPlayer`, found in `mancala_player.py`
-* AI must have a function named `getMove` that accepts a game board
+* AI must have a function named `get_move` that accepts a game board
   as a parameter, and returns the chosen move coordinates in the form of
   the index of the corresponding pocket on the board.
 

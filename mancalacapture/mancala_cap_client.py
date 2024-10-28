@@ -5,14 +5,14 @@ import os
 import sys
 import time
 from datetime import datetime
-from util.terminaloutput.colors import RED_COLOR, GREEN_COLOR, NO_COLOR
-from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL
+from util.terminaloutput.colors import RED_COLOR, GREEN_COLOR, NO_COLOR, color_text
+from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL, info
 from util.terminaloutput.erasing import erasePreviousLines
 from util.save.saving import path_to_save_file, allow_save
 from util.aiduel.dueling import get_dueling_ai_class
 from mancalacapture.mancala_player import MancalaPlayer
-from mancalacapture.board_functions import getIndexOfOppositeHole, pushAllPebblesToBank, winningPlayerBankIndex, \
-	isBoardTerminal, performMove
+from mancalacapture.board_functions import get_index_of_opposite_hole, push_all_pebbles_to_bank, winning_player_bank_index, \
+	is_board_terminal, perform_move
 from mancalacapture.constants import POCKETS_PER_SIDE, BOARD_OUTPUT_HEIGHT, PLAYER1_BANK_INDEX, PLAYER2_BANK_INDEX, \
 	SIDE_INDENT_STR, LEFT_SIDE_ARROW, RIGHT_SIDE_ARROW, BOARD_SIZE
 from mancalacapture.mancala_cap_strategy import MancalaStrategy
@@ -28,10 +28,10 @@ BOARD_HISTORY = []  # [highlightPocketIndex, playerId, board]
 # class for the Human player
 class HumanPlayer(MancalaPlayer):
 
-	def __init__(self, bankIndex=6):
-		super().__init__(bankIndex, isAI=False)
+	def __init__(self, bank_index=6):
+		super().__init__(bank_index, is_ai=False)
 
-	def getMove(self, board):
+	def get_move(self, board):
 		"""Takes in the user's input and returns the index on the board for the selected move"""
 		spot = input(f"It's your turn, which spot would you like to play? (1 - {POCKETS_PER_SIDE}):\t").strip().upper()
 		erasePreviousLines(1)
@@ -43,17 +43,17 @@ class HumanPlayer(MancalaPlayer):
 				global USE_REVERSED_PRINT_LAYOUT
 				USE_REVERSED_PRINT_LAYOUT = not USE_REVERSED_PRINT_LAYOUT
 				erasePreviousLines(BOARD_OUTPUT_HEIGHT + 2)
-				printBoard(board)
+				print_board(board)
 				print("\n")
 				spot = input(
 					f"Board print layout changed. Which spot would you like to play? (1 - {POCKETS_PER_SIDE}):\t").strip().upper()
 				erasePreviousLines(1)
 			elif spot == 'S':
-				saveGame(board, PLAYER1_ID)
+				save_game(board, PLAYER1_ID)
 				spot = input("Enter a coordinates for a move, or press 'q' to quit:\t").strip().upper()
 				erasePreviousLines(2)
 			elif spot == 'H':
-				spot = getBoardHistoryInputFromUser(isAi=False)
+				spot = get_board_history_input_from_user(is_ai=False)
 			elif not spot.isdigit() or int(spot) < 1 or int(spot) > 6:
 				spot = input(f"{ERROR_SYMBOL} Please enter a number 1 - {POCKETS_PER_SIDE}:\t").strip().upper()
 				erasePreviousLines(1)
@@ -66,68 +66,68 @@ class HumanPlayer(MancalaPlayer):
 		return int(spot) - 1
 
 
-def printBoard(board, playerId=None, move=None):
+def print_board(board, player_id=None, move=None):
 	"""Prints the game board"""
 	# orientation
-	arrowIndex = -1
+	arrow_index = -1
 	if USE_REVERSED_PRINT_LAYOUT:
-		topBankIndex = PLAYER1_BANK_INDEX
-		bottomBankIndex = PLAYER2_BANK_INDEX
-		leftSidePlayerId = PLAYER2_ID
-		topLeftPocketIndex = POCKETS_PER_SIDE + 1  # which index is printed in the top left corner of the printed board
-		leftSideColor = RED_COLOR
-		rightSideColor = GREEN_COLOR
+		top_bank_index = PLAYER1_BANK_INDEX
+		bottom_bank_index = PLAYER2_BANK_INDEX
+		left_side_player_id = PLAYER2_ID
+		top_left_pocket_index = POCKETS_PER_SIDE + 1  # which index is printed in the top left corner of the printed board
+		left_side_color = RED_COLOR
+		right_side_color = GREEN_COLOR
 		if move is not None:
-			arrowIndex = move if move > POCKETS_PER_SIDE else getIndexOfOppositeHole(move)
+			arrow_index = move if move > POCKETS_PER_SIDE else get_index_of_opposite_hole(move)
 	else:
-		topBankIndex = PLAYER2_BANK_INDEX
-		bottomBankIndex = PLAYER1_BANK_INDEX
-		leftSidePlayerId = PLAYER1_ID
-		topLeftPocketIndex = 0
-		leftSideColor = GREEN_COLOR
-		rightSideColor = RED_COLOR
+		top_bank_index = PLAYER2_BANK_INDEX
+		bottom_bank_index = PLAYER1_BANK_INDEX
+		left_side_player_id = PLAYER1_ID
+		top_left_pocket_index = 0
+		left_side_color = GREEN_COLOR
+		right_side_color = RED_COLOR
 		if move is not None:
-			arrowIndex = move if move < POCKETS_PER_SIDE else getIndexOfOppositeHole(move)
+			arrow_index = move if move < POCKETS_PER_SIDE else get_index_of_opposite_hole(move)
 
 	print()
-	print(SIDE_INDENT_STR + " " * 5 + f"{rightSideColor}{board[topBankIndex]}{NO_COLOR}")  # top bank
+	print(SIDE_INDENT_STR + " " * 5 + f"{right_side_color}{board[top_bank_index]}{NO_COLOR}")  # top bank
 	print(SIDE_INDENT_STR + "___________")
-	for index in range(topLeftPocketIndex, topLeftPocketIndex + POCKETS_PER_SIDE):
-		leftSideStrPrefix = SIDE_INDENT_STR  # may change to arrow
-		rightSideStrSuffix = ""  # may change to arrow
-		if index == arrowIndex:
-			if playerId == leftSidePlayerId:
-				leftSideStrPrefix = LEFT_SIDE_ARROW
+	for index in range(top_left_pocket_index, top_left_pocket_index + POCKETS_PER_SIDE):
+		left_side_str_prefix = SIDE_INDENT_STR  # may change to arrow
+		right_side_str_suffix = ""  # may change to arrow
+		if index == arrow_index:
+			if player_id == left_side_player_id:
+				left_side_str_prefix = LEFT_SIDE_ARROW
 			else:
-				rightSideStrSuffix = RIGHT_SIDE_ARROW
+				right_side_str_suffix = RIGHT_SIDE_ARROW
 
-		leftSideStr = leftSideStrPrefix + " " * 2 \
-					  + f"{leftSideColor}{board[index]}{NO_COLOR}" \
+		left_side_str = left_side_str_prefix + " " * 2 \
+					  + f"{left_side_color}{board[index]}{NO_COLOR}" \
 					  + (" " if board[index] >= 10 else "  ")
-		rightSideStr = (" " if board[getIndexOfOppositeHole(index)] >= 10 else "  ") \
-					   + f"{rightSideColor}{board[getIndexOfOppositeHole(index)]}{NO_COLOR}" \
-					   + rightSideStrSuffix
+		right_side_str = (" " if board[get_index_of_opposite_hole(index)] >= 10 else "  ") \
+					   + f"{right_side_color}{board[get_index_of_opposite_hole(index)]}{NO_COLOR}" \
+					   + right_side_str_suffix
 		print(SIDE_INDENT_STR + "     |     ")
-		print(leftSideStr + str(min(index, getIndexOfOppositeHole(index)) + 1) + rightSideStr)
+		print(left_side_str + str(min(index, get_index_of_opposite_hole(index)) + 1) + right_side_str)
 		print(SIDE_INDENT_STR + "_____|_____")
-	print("\n" + SIDE_INDENT_STR + " " * 5 + f"{leftSideColor}{board[bottomBankIndex]}{NO_COLOR}\n")  # bottom bank
+	print("\n" + SIDE_INDENT_STR + " " * 5 + f"{left_side_color}{board[bottom_bank_index]}{NO_COLOR}\n")  # bottom bank
 
 
-def opponentOf(playerId):
+def opponent_of(player_id):
 	"""Gets the id opponent of the given id"""
-	return PLAYER1_ID if playerId == PLAYER2_ID else PLAYER2_ID
+	return PLAYER1_ID if player_id == PLAYER2_ID else PLAYER2_ID
 
 
-def printAverageTimeTakenByPlayers(timeTakenPerPlayer):
+def print_average_time_taken_by_players(time_taken_per_player):
 	"""Prints out the average time taken per move for each player"""
-	userTimeTaken = round(timeTakenPerPlayer[PLAYER1_ID][1] / max(1, timeTakenPerPlayer[PLAYER1_ID][2]), 2)
-	aiTimeTaken = round(timeTakenPerPlayer[PLAYER2_ID][1] / max(1, timeTakenPerPlayer[PLAYER2_ID][2]), 2)
+	user_time_taken = round(time_taken_per_player[PLAYER1_ID][1] / max(1, time_taken_per_player[PLAYER1_ID][2]), 2)
+	ai_time_taken = round(time_taken_per_player[PLAYER2_ID][1] / max(1, time_taken_per_player[PLAYER2_ID][2]), 2)
 	print("Average time taken per move:")
-	print(f"{GREEN_COLOR}{timeTakenPerPlayer[PLAYER1_ID][0]}{NO_COLOR}: {userTimeTaken}s")
-	print(f"{RED_COLOR}{timeTakenPerPlayer[PLAYER2_ID][0]}{NO_COLOR}: {aiTimeTaken}s")
+	print(f"{color_text(str(time_taken_per_player[PLAYER1_ID][0]), GREEN_COLOR)}: {user_time_taken}s")
+	print(f"{color_text(str(time_taken_per_player[PLAYER2_ID][0]), RED_COLOR)}: {ai_time_taken}s")
 
 
-def printAsciiArt():
+def print_ascii_art():
 	"""Prints the Mancala Capture Ascii Art"""
 	print("""
   __  __                       _       
@@ -146,26 +146,26 @@ def printAsciiArt():
     """)
 
 
-def saveGame(board, turn):
+def save_game(board, turn):
 	"""Saves the given board state to a save file"""
 	if not allow_save(SAVE_FILENAME):
 		return
-	with open(SAVE_FILENAME, 'w') as saveFile:
-		saveFile.write("This file contains the save state of a previously played game.\n")
-		saveFile.write("Modifying this file may cause issues with loading the save state.\n\n")
-		timeOfSave = datetime.now().strftime("%m/%d/%Y at %I:%M:%S %p")
-		saveFile.write(timeOfSave + "\n\n")
-		saveFile.write("SAVE STATE:\n")
-		saveFile.write(f"   {board[PLAYER2_BANK_INDEX]}\n")  # opponent bank
+	with open(SAVE_FILENAME, 'w') as save_file:
+		save_file.write("This file contains the save state of a previously played game.\n")
+		save_file.write("Modifying this file may cause issues with loading the save state.\n\n")
+		time_of_save = datetime.now().strftime("%m/%d/%Y at %I:%M:%S %p")
+		save_file.write(time_of_save + "\n\n")
+		save_file.write("SAVE STATE:\n")
+		save_file.write(f"   {board[PLAYER2_BANK_INDEX]}\n")  # opponent bank
 		for row in range(len(board) // 2 - 1):  # playable caves; default 1 - 6
-			saveFile.write(
+			save_file.write(
 				str(board[row]) + (" | " if board[row] >= 10 else "  | ") + str(board[-1 * (row + 2)]) + "\n")
-		saveFile.write(f"   {str(board[PLAYER1_BANK_INDEX])}\n")  # player bank
-		saveFile.write(f"Turn: {turn}")
-	print(f"{INFO_SYMBOL} The game has been saved!")
+		save_file.write(f"   {str(board[PLAYER1_BANK_INDEX])}\n")  # player bank
+		save_file.write(f"Turn: {turn}")
+	info("The game has been saved!")
 
 
-def validateLoadedSaveState(board, turn):
+def validate_loaded_save_state(board, turn):
 	"""Make sure the state loaded from the save file is valid. Returns a boolean"""
 	if turn not in [PLAYER1_ID, PLAYER2_ID]:
 		print(f"{ERROR_SYMBOL} Invalid player turn!")
@@ -184,223 +184,223 @@ def validateLoadedSaveState(board, turn):
 	return True
 
 
-def loadSavedGame():
+def load_saved_game():
 	"""Try to load the saved game data"""
 	global BOARD
-	with open(SAVE_FILENAME, 'r') as saveFile:
+	with open(SAVE_FILENAME, 'r') as save_file:
 		try:
-			linesFromSaveFile = saveFile.readlines()
-			timeOfPreviousSave = linesFromSaveFile[3].strip()
-			useExistingSave = input(
-				f"{INFO_SYMBOL} Would you like to load the saved game from {timeOfPreviousSave}? (y/n)\t").strip().lower()
+			lines_from_save_file = save_file.readlines()
+			time_of_previous_save = lines_from_save_file[3].strip()
+			use_existing_save = input(
+				f"{INFO_SYMBOL} Would you like to load the saved game from {time_of_previous_save}? (y/n)\t").strip().lower()
 			erasePreviousLines(1)
-			if useExistingSave != 'y':
-				print(f"{INFO_SYMBOL} Starting a new game...")
+			if use_existing_save != 'y':
+				info("Starting a new game...")
 				return
-			lineNum = 0
-			currentLine = linesFromSaveFile[lineNum].strip()
-			while currentLine != "SAVE STATE:":
-				lineNum += 1
-				currentLine = linesFromSaveFile[lineNum].strip()
-			lineNum += 1
-			currentLine = linesFromSaveFile[lineNum].strip()
+			line_num = 0
+			current_line = lines_from_save_file[line_num].strip()
+			while current_line != "SAVE STATE:":
+				line_num += 1
+				current_line = lines_from_save_file[line_num].strip()
+			line_num += 1
+			current_line = lines_from_save_file[line_num].strip()
 
-			opponent_bank = [int(currentLine.strip())]
-			lineNum += 1
-			currentLine = linesFromSaveFile[lineNum].strip()
+			opponent_bank = [int(current_line.strip())]
+			line_num += 1
+			current_line = lines_from_save_file[line_num].strip()
 
 			user_pockets = []
 			opponent_pockets = []
-			while "|" in currentLine:
-				user_pockets.append(int(currentLine.split("|")[0].strip()))
-				opponent_pockets.append(int(currentLine.split("|")[1].strip()))
-				lineNum += 1
-				currentLine = linesFromSaveFile[lineNum].strip()
-			user_bank = [int(currentLine.strip())]
+			while "|" in current_line:
+				user_pockets.append(int(current_line.split("|")[0].strip()))
+				opponent_pockets.append(int(current_line.split("|")[1].strip()))
+				line_num += 1
+				current_line = lines_from_save_file[line_num].strip()
+			user_bank = [int(current_line.strip())]
 			board = user_pockets + user_bank + opponent_pockets + opponent_bank
 
-			while not currentLine.startswith("Turn:"):
-				lineNum += 1
-				currentLine = linesFromSaveFile[lineNum].strip()
-			turn = int(currentLine.split()[1])
+			while not current_line.startswith("Turn:"):
+				line_num += 1
+				current_line = lines_from_save_file[line_num].strip()
+			turn = int(current_line.split()[1])
 
-			if not validateLoadedSaveState(board, turn):
+			if not validate_loaded_save_state(board, turn):
 				raise ValueError
 			BOARD = board
-			deleteSaveFile = input(
+			delete_save_file = input(
 				f"{INFO_SYMBOL} Saved game was successfully loaded! Delete the save file? (y/n)\t").strip().lower()
 			erasePreviousLines(1)
-			fileDeletedText = ""
-			if deleteSaveFile == 'y':
+			file_deleted_text = ""
+			if delete_save_file == 'y':
 				os.remove(SAVE_FILENAME)
-				fileDeletedText = "Save file deleted."
-			print(f"{INFO_SYMBOL} {fileDeletedText} Resuming saved game...")
+				file_deleted_text = "Save file deleted."
+			info(f"{file_deleted_text} Resuming saved game...")
 			return turn
-		except:
+		except Exception:
 			print(f"{ERROR_SYMBOL} There was an issue reading from the save file. Starting a new game...")
 			return None
 
 
-def printMoveHistory(numMovesPrevious):
+def print_move_history(num_moves_previous):
 	"""Prints the move history of the current game"""
 	while True:
 		erasePreviousLines(2)
-		printBoard(BOARD_HISTORY[-(numMovesPrevious + 1)][2], BOARD_HISTORY[-(numMovesPrevious + 1)][1],
-				   BOARD_HISTORY[-(numMovesPrevious + 1)][0])
-		if numMovesPrevious == 0:
+		print_board(BOARD_HISTORY[-(num_moves_previous + 1)][2], BOARD_HISTORY[-(num_moves_previous + 1)][1],
+					BOARD_HISTORY[-(num_moves_previous + 1)][0])
+		if num_moves_previous == 0:
 			return
-		print("(%d move%s before current board state)\n" % (numMovesPrevious, "s" if numMovesPrevious != 1 else ""))
-		numMovesPrevious -= 1
-		userInput = input("Press enter for next move, or 'e' to return to game.  ").strip().lower()
+		print("(%d move%s before current board state)\n" % (num_moves_previous, "s" if num_moves_previous != 1 else ""))
+		num_moves_previous -= 1
+		user_input = input("Press enter for next move, or 'e' to return to game.  ").strip().lower()
 		erasePreviousLines(1)
-		if userInput == 'q':
+		if user_input == 'q':
 			erasePreviousLines(2)
-			printAverageTimeTakenByPlayers()
 			print("\nThanks for playing!\n")
 			exit(0)
-		elif userInput == 'e':
+		elif user_input == 'e':
 			erasePreviousLines(2)
 			return
 		else:
 			erasePreviousLines(BOARD_OUTPUT_HEIGHT)
 
 
-def getBoardHistoryInputFromUser(isAi):
+def get_board_history_input_from_user(is_ai):
 	"""
     Prompts the user for input for how far the board history function.
     Returns the user's input for the next move
     """
-	nextMovePrompt = "Press enter to continue." if isAi else "Enter a valid move to play:"
+	next_move_prompt = "Press enter to continue." if is_ai else "Enter a valid move to play:"
 	if len(BOARD_HISTORY) < 2:
-		userInput = input(f"{INFO_SYMBOL} No previous moves to see. {nextMovePrompt}   ").strip().upper()
+		user_input = input(f"{INFO_SYMBOL} No previous moves to see. {next_move_prompt}   ").strip().upper()
 		erasePreviousLines(1)
 	else:
-		numMovesPrevious = input(f"How many moves ago do you want to see? (1 to {len(BOARD_HISTORY) - 1})  ").strip()
+		num_moves_previous = input(f"How many moves ago do you want to see? (1 to {len(BOARD_HISTORY) - 1})  ").strip()
 		erasePreviousLines(1)
-		if numMovesPrevious.isdigit() and 1 <= int(numMovesPrevious) <= len(BOARD_HISTORY) - 1:
+		if num_moves_previous.isdigit() and 1 <= int(num_moves_previous) <= len(BOARD_HISTORY) - 1:
 			erasePreviousLines(BOARD_OUTPUT_HEIGHT)
-			printMoveHistory(int(numMovesPrevious))
+			print_move_history(int(num_moves_previous))
 			erasePreviousLines(BOARD_OUTPUT_HEIGHT)
-			printBoard(BOARD_HISTORY[-1][2], BOARD_HISTORY[-1][1], BOARD_HISTORY[-1][0])
-			userInput = input(f"{INFO_SYMBOL} You're back in play mode. {nextMovePrompt}   ").strip().upper()
+			print_board(BOARD_HISTORY[-1][2], BOARD_HISTORY[-1][1], BOARD_HISTORY[-1][0])
+			user_input = input(f"{INFO_SYMBOL} You're back in play mode. {next_move_prompt}   ").strip().upper()
 			erasePreviousLines(1)
 			print("\n")  # make this output the same height as the other options
 		else:
-			userInput = input(f"{ERROR_SYMBOL} Invalid input. {nextMovePrompt}   ").strip().upper()
+			user_input = input(f"{ERROR_SYMBOL} Invalid input. {next_move_prompt}   ").strip().upper()
 			erasePreviousLines(1)
-	return userInput
+	return user_input
 
 
 def run():
 	if "-d" in sys.argv or "-aiDuel" in sys.argv:
 		UserPlayerClass = get_dueling_ai_class(MancalaPlayer, "MancalaStrategy")
-		print(f"\n{INFO_SYMBOL} You are in AI Duel Mode!")
-		AI_DUEL_MODE = True
+		print()
+		info("You are in AI Duel Mode!")
+		ai_duel_mode = True
 	else:
 		UserPlayerClass = HumanPlayer
-		AI_DUEL_MODE = False
-	printAsciiArt()
+		ai_duel_mode = False
+	print_ascii_art()
 
 	players = {  # remove hardcode values later
 		PLAYER1_ID: UserPlayerClass(PLAYER1_BANK_INDEX),
 		PLAYER2_ID: MancalaStrategy(PLAYER2_BANK_INDEX)
 	}
-	nameOfPlayer1 = "Your AI" if AI_DUEL_MODE else "Human"
-	nameOfPlayer2 = "My AI" if AI_DUEL_MODE else "AI"
-	playerNames = {
-		PLAYER1_ID: nameOfPlayer1,
-		PLAYER2_ID: nameOfPlayer2
+	name_of_player1 = "Your AI" if ai_duel_mode else "Human"
+	name_of_player2 = "My AI" if ai_duel_mode else "AI"
+	player_names = {
+		PLAYER1_ID: name_of_player1,
+		PLAYER2_ID: name_of_player2
 	}
-	timeTakenPerPlayer = {
-		PLAYER1_ID: [nameOfPlayer1, 0, 0],  # [player name, total time, num moves]
-		PLAYER2_ID: [nameOfPlayer2, 0, 0]
+	time_taken_per_player = {
+		PLAYER1_ID: [name_of_player1, 0, 0],  # [player name, total time, num moves]
+		PLAYER2_ID: [name_of_player2, 0, 0]
 	}
 
 	turn = PLAYER1_ID
-	useSavedGame = False
+	use_saved_game = False
 	if os.path.exists(SAVE_FILENAME):
-		turnFromSaveFile = loadSavedGame()
-		if turnFromSaveFile is not None:
-			turn = turnFromSaveFile
-			useSavedGame = True
+		turn_from_save_file = load_saved_game()
+		if turn_from_save_file is not None:
+			turn = turn_from_save_file
+			use_saved_game = True
 			BOARD_HISTORY.append([-1, turn, BOARD.copy()])
 
-	if not useSavedGame:
-		userGoFirst = input("Would you like to go first? (y/n):\t").strip().upper()
+	if not use_saved_game:
+		user_go_first = input("Would you like to go first? (y/n):\t").strip().upper()
 		erasePreviousLines(1)
-		if userGoFirst == "Y":
+		if user_go_first == "Y":
 			turn = PLAYER1_ID
-			print("%s will go first!" % playerNames[turn])
+			print("%s will go first!" % player_names[turn])
 		else:
 			turn = PLAYER2_ID
-			print("%s will go first!" % playerNames[turn])
+			print("%s will go first!" % player_names[turn])
 
 	print("Type 'q' to quit.")
 	print("Type 'f' to flip the board orientation 180 degrees.")
 	print("Type 's' to save the game.")
 	print("Type 'h' to see previous moves.")
 
-	gameOver = False
-	printBoard(BOARD)
+	game_over = False
+	print_board(BOARD)
 	print("\n")
-	extraLinesPrinted = 2
-	while not gameOver:
-		nameOfCurrentPlayer = playerNames[turn]
-		currentPlayer = players[turn]
-		if currentPlayer.isAI:
-			userInput = input(f"{nameOfCurrentPlayer}'s turn, press enter for it to play.\t").strip().upper()
+	extra_lines_printed = 2
+	while not game_over:
+		name_of_current_player = player_names[turn]
+		current_player = players[turn]
+		if current_player.is_ai:
+			user_input = input(f"{name_of_current_player}'s turn, press enter for it to play.\t").strip().upper()
 			erasePreviousLines(1)
-			while userInput in ['Q', 'H', 'F', 'S']:
-				if userInput == 'Q':
-					printAverageTimeTakenByPlayers(timeTakenPerPlayer)
+			while user_input in ['Q', 'H', 'F', 'S']:
+				if user_input == 'Q':
+					print_average_time_taken_by_players(time_taken_per_player)
 					print("\nThanks for playing!\n")
 					exit(0)
-				elif userInput == 'H':
-					userInput = getBoardHistoryInputFromUser(isAi=True)
-				elif userInput == 'F':
+				elif user_input == 'H':
+					user_input = get_board_history_input_from_user(is_ai=True)
+				elif user_input == 'F':
 					global USE_REVERSED_PRINT_LAYOUT
 					USE_REVERSED_PRINT_LAYOUT = not USE_REVERSED_PRINT_LAYOUT
 					erasePreviousLines(BOARD_OUTPUT_HEIGHT + 2)
-					printBoard(BOARD)
+					print_board(BOARD)
 					print("\n")
-					userInput = input(f"Board print layout changed. Press enter to continue:\t").strip().upper()
+					user_input = input(f"Board print layout changed. Press enter to continue:\t").strip().upper()
 					erasePreviousLines(1)
 				else:
-					saveGame(BOARD, turn)
-					userInput = input(
-						f"Press enter for {nameOfCurrentPlayer} to play, or press 'q' to quit:\t").strip().upper()
+					save_game(BOARD, turn)
+					user_input = input(
+						f"Press enter for {name_of_current_player} to play, or press 'q' to quit:\t").strip().upper()
 					erasePreviousLines(2)
 
-		startTime = time.time()
-		chosenMove = currentPlayer.getMove(BOARD)
-		endTime = time.time()
-		totalTimeTakenForMove = endTime - startTime
-		timeTakenPerPlayer[turn][1] += totalTimeTakenForMove
-		timeTakenPerPlayer[turn][2] += 1
-		minutesTaken = int(totalTimeTakenForMove) // 60
-		secondsTaken = totalTimeTakenForMove % 60
-		timeTakenOutputStr = ("  (%dm " if minutesTaken > 0 else "  (") + (
-				"%.2fs)" % secondsTaken) if currentPlayer.isAI else ""
-		finalPebbleLocation = performMove(BOARD, chosenMove, currentPlayer.bankIndex)
-		BOARD_HISTORY.append([chosenMove, turn, BOARD.copy()])
-		erasePreviousLines(BOARD_OUTPUT_HEIGHT + extraLinesPrinted)
-		printBoard(BOARD, turn, chosenMove)
-		moveFormatted = str(min(BOARD_SIZE - 2 - chosenMove, chosenMove) + 1)
-		print("%s played in spot %s%s. " % (nameOfCurrentPlayer, moveFormatted, timeTakenOutputStr), end='')
-		if finalPebbleLocation != currentPlayer.bankIndex:
+		start_time = time.time()
+		chosen_move = current_player.get_move(BOARD)
+		end_time = time.time()
+		total_time_taken_for_move = end_time - start_time
+		time_taken_per_player[turn][1] += total_time_taken_for_move
+		time_taken_per_player[turn][2] += 1
+		minutes_taken = int(total_time_taken_for_move) // 60
+		seconds_taken = total_time_taken_for_move % 60
+		time_taken_output_str = ("  (%dm " if minutes_taken > 0 else "  (") + (
+				"%.2fs)" % seconds_taken) if current_player.is_ai else ""
+		final_pebble_location = perform_move(BOARD, chosen_move, current_player.bankIndex)
+		BOARD_HISTORY.append([chosen_move, turn, BOARD.copy()])
+		erasePreviousLines(BOARD_OUTPUT_HEIGHT + extra_lines_printed)
+		print_board(BOARD, turn, chosen_move)
+		move_formatted = str(min(BOARD_SIZE - 2 - chosen_move, chosen_move) + 1)
+		print("%s played in spot %s%s. " % (name_of_current_player, move_formatted, time_taken_output_str), end='')
+		if final_pebble_location != current_player.bankIndex:
 			print("\n")
-			turn = opponentOf(turn)
+			turn = opponent_of(turn)
 		else:
-			print("%s's move ended in their bank, so they get another turn.\n" % nameOfCurrentPlayer)
-		extraLinesPrinted = 2
-		gameOver = isBoardTerminal(BOARD)
+			print("%s's move ended in their bank, so they get another turn.\n" % name_of_current_player)
+		extra_lines_printed = 2
+		game_over = is_board_terminal(BOARD)
 
-	pushAllPebblesToBank(BOARD)
-	erasePreviousLines(BOARD_OUTPUT_HEIGHT + extraLinesPrinted)
-	printBoard(BOARD)
-	winnerId = PLAYER1_ID if winningPlayerBankIndex(BOARD) == PLAYER1_BANK_INDEX else PLAYER2_ID
-	if winnerId is None:
+	push_all_pebbles_to_bank(BOARD)
+	erasePreviousLines(BOARD_OUTPUT_HEIGHT + extra_lines_printed)
+	print_board(BOARD)
+	winner_id = PLAYER1_ID if winning_player_bank_index(BOARD) == PLAYER1_BANK_INDEX else PLAYER2_ID
+	if winner_id is None:
 		print("It's a tie!\n")
 	else:
-		print("%s wins!\n" % playerNames[winnerId])
-	printAverageTimeTakenByPlayers(timeTakenPerPlayer)
+		print("%s wins!\n" % player_names[winner_id])
+	print_average_time_taken_by_players(time_taken_per_player)
