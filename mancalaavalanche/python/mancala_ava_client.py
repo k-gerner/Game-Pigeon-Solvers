@@ -3,7 +3,7 @@
 from mancalaavalanche.python.classes import AvalancheBoard, AvalanchePlayer, AvalancheSolver
 from util.terminaloutput.colors import GREEN_COLOR, RED_COLOR, NO_COLOR
 from util.terminaloutput.symbols import ERROR_SYMBOL
-from util.terminaloutput.erasing import erasePreviousLines
+from util.terminaloutput.erasing import erase_previous_lines
 
 ONE_BY_ONE = 1
 ALL_AT_ONCE = 2
@@ -19,7 +19,7 @@ each spot on {GREEN_COLOR}your{NO_COLOR} side of the board, with a space separat
 
 	while True:
 		try:
-			erasePreviousLines(1)
+			erase_previous_lines(1)
 			player_vals = [int(item) for item in player_values_input]
 			if len(player_vals) != 6:
 				player_values_input = input(f"{ERROR_SYMBOL} There should be 6 values entered.\t").strip().split()
@@ -28,7 +28,7 @@ each spot on {GREEN_COLOR}your{NO_COLOR} side of the board, with a space separat
 		except ValueError:
 			player_values_input = input(
 				f"{ERROR_SYMBOL} There was an issue with your input. Please try again.\t").strip().split()
-	erasePreviousLines(4)
+	erase_previous_lines(4)
 
 	enemy_values_input = input(f"""
 From your left to your right (or top to bottom), enter the # of pebbles in 
@@ -36,7 +36,7 @@ each spot on the {RED_COLOR}enemy{NO_COLOR} side of the board, with a space sepa
 
     """).strip().split()
 	while True:
-		erasePreviousLines(1)
+		erase_previous_lines(1)
 		try:
 			enemy_vals = [int(item) for item in enemy_values_input]
 			if len(enemy_vals) != 6:
@@ -46,7 +46,7 @@ each spot on the {RED_COLOR}enemy{NO_COLOR} side of the board, with a space sepa
 		except ValueError:
 			enemy_values_input = input(
 				f"{ERROR_SYMBOL} There was an issue with your input. Please try again.\t").strip().split()
-	erasePreviousLines(4)
+	erase_previous_lines(4)
 	enemy_vals.reverse()
 	board_vals = player_vals + [0] + enemy_vals + [0]
 	return board_vals
@@ -87,7 +87,7 @@ def print_best_moves_one_by_one(points_gained, best_moves):
 			print("\nThanks for using my Mancala Avalanche solver!\n")
 			exit(0)
 		count += 1
-		erasePreviousLines(2)
+		erase_previous_lines(2)
 
 
 def print_sequence(mode, points_gained, best_moves):
@@ -102,11 +102,11 @@ def run():
 	print("\nWelcome to Kyle's Mancala Avalanche AI! Written on 7.9.2020")
 	if input(
 			"\nWould you like to receive your move set in a printed list (as opposed to one at a time)? (y/n):\t").strip().lower() == "y":
-		erasePreviousLines(1)
+		erase_previous_lines(1)
 		print_mode = ALL_AT_ONCE
 		print("Moves will be presented all at once.")
 	else:
-		erasePreviousLines(1)
+		erase_previous_lines(1)
 		print_mode = ONE_BY_ONE
 		print("Moves will be presented one at a time.")
 	board_vals = input_for_board()
@@ -116,23 +116,23 @@ def run():
 	first_iteration = True
 	while True:
 		user_input = input("Press enter to receive best move set, or 'q' to quit.\t").strip().lower()
-		erasePreviousLines(1)
+		erase_previous_lines(1)
 		if user_input == 'q':
 			print("Thanks for playing!")
 			exit(0)
 		points_gained, best_moves = solver.find_best_move(solver.board, 0)
 		solver.make_moves_on_moveset(best_moves, solver.board)
-		erasePreviousLines(5 if first_iteration else 11)
+		erase_previous_lines(5 if first_iteration else 11)
 		solver.board.print_board_horizontal()
 		print_sequence(print_mode, points_gained, best_moves)
 		print("%sThat's the end of the move set.\n" % ("\n" if print_mode == ALL_AT_ONCE else ""))
 		print("You will now be asked to input the new version of the board")
 		old_enemy_points = input("How many points does the enemy have after their turn?\t").strip()
-		erasePreviousLines(1)
+		erase_previous_lines(1)
 		while not old_enemy_points.isdigit():
 			old_enemy_points = input(f"{ERROR_SYMBOL} Please enter a number: ").strip()
-			erasePreviousLines(1)
-		erasePreviousLines(2)
+			erase_previous_lines(1)
+		erase_previous_lines(2)
 		old_enemy_points = int(old_enemy_points)
 		board_vals = input_for_board()
 		old_player_points = solver.board.p1.score

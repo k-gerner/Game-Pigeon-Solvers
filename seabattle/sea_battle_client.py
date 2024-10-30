@@ -9,7 +9,7 @@ from util.terminaloutput.colors import GREEN_COLOR as DESTROY_COLOR, \
 	DARK_PURPLE_COLOR as OPTIMAL_COLOR, \
 	NO_COLOR
 from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL, error, info
-from util.terminaloutput.erasing import erasePreviousLines
+from util.terminaloutput.erasing import erase_previous_lines
 from util.terminaloutput.colors import color_text
 from util.save.saving import path_to_save_file, allow_save
 import math
@@ -221,7 +221,7 @@ def load_saved_game():
 			lines_from_save_file = saveFile.readlines()
 			time_of_previous_save = lines_from_save_file[3].strip()
 			use_existing_save = input(f"{INFO_SYMBOL} Would you like to load the saved game from {time_of_previous_save}? (y/n)\t").strip().lower()
-			erasePreviousLines(1)
+			erase_previous_lines(1)
 			if use_existing_save != 'y':
 				info("Starting a new game...")
 				return
@@ -251,7 +251,7 @@ def load_saved_game():
 				raise ValueError
 			game_board = board_from_save_file
 			delete_save_file = input(f"{INFO_SYMBOL} Saved game was successfully loaded! Delete the save file? (y/n)\t").strip().lower()
-			erasePreviousLines(1)
+			erase_previous_lines(1)
 			file_deleted_text = ""
 			if delete_save_file == 'y':
 				os.remove(SAVE_FILENAME)
@@ -521,49 +521,49 @@ def sink_ship(row, col):
 def get_player_move():
 	"""Takes in the user's input and performs that move on the board, returns the coordinates of the move"""
 	spot = input("Which spot would you like to play? (A1 - %s%d):\t" % (COLUMN_LABELS[-1], SIZE)).strip().upper()
-	erasePreviousLines(1)
+	erase_previous_lines(1)
 	lines_to_erase = BOARD_OUTPUT_HEIGHT + 2
 	while True:
 		if spot == 'Q':
 			print("\nThanks for playing!\n")
 			exit(0)
 		elif spot == 'D':
-			erasePreviousLines(lines_to_erase)
+			erase_previous_lines(lines_to_erase)
 			print_space_densities()
 			lines_to_erase = SPACE_DENSITY_TABLE_OUTPUT_HEIGHT
 			print("The space densities table is shown above. To show the game board, type 'b'")
 			spot = input("Which spot would you like to play? (A1 - %s%d):\t" % (COLUMN_LABELS[-1], SIZE)).strip().upper()
-			erasePreviousLines(2)
+			erase_previous_lines(2)
 		elif spot == "B":
-			erasePreviousLines(lines_to_erase)
+			erase_previous_lines(lines_to_erase)
 			print_board(optimal_locations=get_optimal_moves())
 			print("\nThe current game board is shown above.")
 			lines_to_erase = BOARD_OUTPUT_HEIGHT + 2
 			spot = input("Which spot would you like to play? (A1 - %s%d):\t" % (COLUMN_LABELS[-1], SIZE)).strip().upper()
-			erasePreviousLines(1)
+			erase_previous_lines(1)
 		elif spot == 'S':
 			save_game()
 			spot = input("Which spot would you like to play? (A1 - %s%d):\t" % (COLUMN_LABELS[-1], SIZE)).strip().upper()
-			erasePreviousLines(2)
+			erase_previous_lines(2)
 		elif len(spot) >= 4 or len(spot) == 0 or spot[0] not in COLUMN_LABELS or not spot[1:].isdigit() or int(spot[1:]) > SIZE or int(spot[1:]) < 1:
 			spot = input(f"{ERROR_SYMBOL} Invalid input. Please try again.\t").strip().upper()
-			erasePreviousLines(1)
+			erase_previous_lines(1)
 		elif game_board[int(spot[1:]) - 1][COLUMN_LABELS.index(spot[0])] != EMPTY:
 			spot = input(f"{ERROR_SYMBOL} That spot is already taken, please choose another:\t").strip().upper()
-			erasePreviousLines(1)
+			erase_previous_lines(1)
 		else:
 			optimal_locations = get_optimal_moves()
 			row = int(spot[1:]) - 1
 			col = COLUMN_LABELS.index(spot[0])
 			if [row, col] not in optimal_locations:
 				fail_safe = input(f"{ERROR_SYMBOL} {spot} is not in the list of optimal moves. Are you sure you want to make that move? (y/n)\t").strip().upper()
-				erasePreviousLines(1)
+				erase_previous_lines(1)
 				while fail_safe not in ["Y", "N"]:
 					fail_safe = input(f"{ERROR_SYMBOL} Please enter 'y' or 'n':\t").strip().upper()
-					erasePreviousLines(1)
+					erase_previous_lines(1)
 				if fail_safe == "N":
 					spot = input("Phew! Okay, where would you like to play? (A1 - %s%d):\t" % (COLUMN_LABELS[-1], SIZE)).strip().upper()
-					erasePreviousLines(1)
+					erase_previous_lines(1)
 				else:
 					break
 			else:
@@ -599,7 +599,7 @@ def run():
 
 	if not use_saved_game:
 		board_dimension = input("What is the dimension of the board (8, 9, or 10)? (Default is 10x10)\nEnter a single number:\t").strip()
-		erasePreviousLines(2)
+		erase_previous_lines(2)
 		if board_dimension.isdigit() and int(board_dimension) in [8, 9, 10]:
 			print("The board will be %sx%s!" % (board_dimension, board_dimension))
 		else:
@@ -622,14 +622,14 @@ def run():
 		print(f"\nThe %s that %s most likely to contain a ship %s been colored {OPTIMAL_COLOR}blue{NO_COLOR}." % (words[0], words[1], words[2]))
 		most_recent_move = get_player_move()
 		row, col = most_recent_move
-		erasePreviousLines(BOARD_OUTPUT_HEIGHT + 2)
+		erase_previous_lines(BOARD_OUTPUT_HEIGHT + 2)
 		print_board([row, col], best_move_coordinates_list)
 		print("\nThe selected move has been highlighted.")
 		outcome = input(f"Was that shot a miss (M), a partial-hit (H), or a sink (S)?\t").strip().upper()
-		erasePreviousLines(1)
+		erase_previous_lines(1)
 		while outcome not in ['Q', 'H', 'S', 'M']:
 			outcome = input(f"{ERROR_SYMBOL} Invalid input. Try again:\t").strip().upper()
-			erasePreviousLines(1)
+			erase_previous_lines(1)
 		if outcome == 'M':
 			game_board[row][col] = MISS
 		elif outcome == "H":
@@ -643,9 +643,9 @@ def run():
 		if game_over():
 			break
 		best_move_coordinates_list = get_optimal_moves()
-		erasePreviousLines(BOARD_OUTPUT_HEIGHT + 2)
+		erase_previous_lines(BOARD_OUTPUT_HEIGHT + 2)
 		print_board([row, col], best_move_coordinates_list)
 
-	erasePreviousLines(BOARD_OUTPUT_HEIGHT + 2)
+	erase_previous_lines(BOARD_OUTPUT_HEIGHT + 2)
 	print_board(most_recent_move)
 	print("\nGood job, you won!\n")

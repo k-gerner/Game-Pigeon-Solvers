@@ -2,7 +2,7 @@ import sys
 import os
 from collections import OrderedDict
 from util.terminaloutput.symbols import ERROR_SYMBOL
-from util.terminaloutput.erasing import erase, erasePreviousLines, set_erase_mode
+from util.terminaloutput.erasing import erase, erase_previous_lines, set_erase_mode
 from seabattle import sea_battle_client
 from anagrams import anagrams_client
 from connect4 import connect4_client
@@ -75,12 +75,12 @@ def get_client_from_user():
 	"""
 	print("Please choose one of the options by typing the corresponding number.")
 	mode = input(mode_select_str).strip()
-	erasePreviousLines(1)
+	erase_previous_lines(1)
 	while not (mode.isnumeric() and 1 <= int(mode) <= 10):
 		if mode.lower() == 'q':
 			exit(0)
 		mode = input(f"{ERROR_SYMBOL} Please choose a valid number:  ").strip()
-		erasePreviousLines(1)
+		erase_previous_lines(1)
 	erase(mode_select_str)  # clear client list
 	return list(clients.values())[int(mode) - 1]
 

@@ -8,7 +8,7 @@ from wordhunt.donut_board import DonutBoard
 from wordhunt.cross_board import CrossBoard
 from wordhunt.letter import Letter
 from util.terminaloutput.symbols import info, error
-from util.terminaloutput.erasing import erasePreviousLines
+from util.terminaloutput.erasing import erase_previous_lines
 from util.terminaloutput.colors import color_text
 from functools import cmp_to_key
 from textwrap import dedent
@@ -58,7 +58,7 @@ def read_in_board(board_clazz):
 				if all(len(letter) == 1 for letter in letters_split):
 					# if all single characters
 					break
-			erasePreviousLines(1)
+			erase_previous_lines(1)
 			letters = input(f"Invalid input. Please try again ({row_size}):\t").lower()
 		for letter in letters_split:
 			input_letters.append(letter)
@@ -66,7 +66,7 @@ def read_in_board(board_clazz):
 	for i in range(len(input_letters)):
 		letter_objs.append(Letter(input_letters[i], i))
 	board = board_clazz(letter_objs)
-	erasePreviousLines(5)
+	erase_previous_lines(5)
 	return board
 
 
@@ -187,10 +187,10 @@ def print_output(valid_words, mode, board):
 				break
 			user_input = input("\nPress enter to see the next %d words, or 'q' to quit.\t").strip().lower()
 			if user_input == 'q':
-				erasePreviousLines(1)
+				erase_previous_lines(1)
 				print("Thanks for using my Word Hunt Tool!\n")
 				exit(0)
-			erasePreviousLines(12)
+			erase_previous_lines(12)
 		print()
 
 	else:
@@ -201,11 +201,11 @@ def print_output(valid_words, mode, board):
 			if word_num > 1:
 				# if not first time through
 				user_input = input("Press enter for next word, or 'q' to quit\t").strip().lower()
-				erasePreviousLines(1)
+				erase_previous_lines(1)
 				if user_input == 'q':
 					print("Thanks for using my Word Hunt Tool!\n")
 					exit(0)
-				erasePreviousLines(board.diagram_output_height)
+				erase_previous_lines(board.diagram_output_height)
 			positions = positions_list[pair[0]]
 			word = pair[1]
 			print(board.build_diagram(positions, word, word_num) + "\n")
@@ -252,7 +252,7 @@ def get_board_class():
 		[3] - Cross  [4] - 5x5
 		"""))
 		layout_num = input("Which board layout would you like to use? [1 - 4]\n").strip()
-		erasePreviousLines(17)
+		erase_previous_lines(17)
 		if not layout_num.isdigit() or not (1 <= int(layout_num) <= 4):
 			info(f"Using default {SmallSquareBoard.name} board layout.")
 			return SmallSquareBoard
@@ -286,11 +286,11 @@ def get_display_mode():
 	display_mode = get_display_mode_from_args()
 	if display_mode is None:
 		mode_select = input("\nUse Diagram Mode (d) or List Mode (l)? Type 'i' for more info:\t").strip().lower()
-		erasePreviousLines(2)
+		erase_previous_lines(2)
 		if mode_select == 'i':
 			print_mode_info()
 			mode_select = input("\nUse Diagram Mode (d) or List Mode (l)?\t").strip().lower()
-			erasePreviousLines(MORE_INFO_OUTPUT_HEIGHT + 2)
+			erase_previous_lines(MORE_INFO_OUTPUT_HEIGHT + 2)
 		if mode_select == 'l':
 			display_mode = LIST
 		else:

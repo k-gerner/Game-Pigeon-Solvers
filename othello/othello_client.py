@@ -8,7 +8,7 @@ from datetime import datetime
 from util.terminaloutput.colors import NO_COLOR, YELLOW_COLOR, GREEN_COLOR, BLUE_COLOR, RED_COLOR, ORANGE_COLOR, \
     DARK_GREY_BACKGROUND as HIGHLIGHT
 from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL, error, info
-from util.terminaloutput.erasing import erasePreviousLines
+from util.terminaloutput.erasing import erase_previous_lines
 from util.save.saving import path_to_save_file, allow_save
 from util.aiduel.dueling import get_dueling_ai_class
 
@@ -46,7 +46,7 @@ class HumanPlayer(OthelloPlayer):
         """Takes in the user's input and returns the move"""
         coord = input("It's your turn, which spot would you like to play? (A1 - %s%d):\t" % (
             COLUMN_LABELS[-1], BOARD_DIMENSION)).strip().upper()
-        erasePreviousLines(1)
+        erase_previous_lines(1)
         lines_written_to_console = BOARD_DIMENSION + 6
         while True:
             if coord == 'Q':
@@ -55,7 +55,7 @@ class HumanPlayer(OthelloPlayer):
                 save_game(board, self.color)
                 coord = input("It's your turn, which spot would you like to play? (A1 - %s%d):\t" % (
                     COLUMN_LABELS[-1], BOARD_DIMENSION)).strip().upper()
-                erasePreviousLines(2)
+                erase_previous_lines(2)
             elif coord == 'QS' or coord == 'SQ':
                 save_game(board, self.color)
                 end_game()
@@ -65,21 +65,21 @@ class HumanPlayer(OthelloPlayer):
                     coord[1:].isdigit() and int(coord[1:]) in range(1, BOARD_DIMENSION + 1):
                 row, col = int(coord[1]) - 1, COLUMN_LABELS.index(coord[0])
                 if is_move_valid(self.color, row, col, board):
-                    erasePreviousLines(lines_written_to_console)
+                    erase_previous_lines(lines_written_to_console)
                     print_board()
                     print("\n")
                     return row, col
                 elif is_move_in_range(row, col) and piece_at(row, col, board) != EMPTY:
                     coord = input(
                         f"{ERROR_SYMBOL} That spot is already taken! Please choose a different spot:   ").strip().upper()
-                    erasePreviousLines(1)
+                    erase_previous_lines(1)
                 else:
                     coord = input(f"{ERROR_SYMBOL} Please choose one of the highlighted spaces:   ").strip().upper()
-                    erasePreviousLines(1)
+                    erase_previous_lines(1)
             else:
                 coord = input(f"{ERROR_SYMBOL} Please enter a valid move (A1 - %s%d):   " % (
                     COLUMN_LABELS[-1], BOARD_DIMENSION)).strip().upper()
-                erasePreviousLines(1)
+                erase_previous_lines(1)
 
 
 def print_board(highlighted_coordinates=None, board=None):
@@ -123,10 +123,10 @@ def print_move_history(num_moves_previous):
         if user_input == 'q':
             end_game()
         elif user_input == 'e':
-            erasePreviousLines(2)
+            erase_previous_lines(2)
             return
         else:
-            erasePreviousLines(BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 2)
+            erase_previous_lines(BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT + 2)
 
 
 def get_board_history_input_from_user(board, turn, is_ai, lines_written_to_console):
@@ -137,21 +137,21 @@ def get_board_history_input_from_user(board, turn, is_ai, lines_written_to_conso
     next_move_prompt = "Press enter to continue." if is_ai else "Enter a valid move to play:"
     if len(BOARD_HISTORY) < 2:
         user_input = input(f"No previous moves to see. {next_move_prompt}   ").strip().upper()
-        erasePreviousLines(1)
+        erase_previous_lines(1)
     else:
         num_moves_previous = input(f"How many moves ago do you want to see? (1 to {len(BOARD_HISTORY) - 1})  ").strip()
         if num_moves_previous.isdigit() and 1 <= int(num_moves_previous) <= len(BOARD_HISTORY) - 1:
             lines_written_to_console += 1
-            erasePreviousLines(lines_written_to_console)
+            erase_previous_lines(lines_written_to_console)
             print_move_history(int(num_moves_previous))
-            erasePreviousLines(BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT)
+            erase_previous_lines(BOARD_DIMENSION + BOARD_OUTLINE_HEIGHT)
             print_board(get_valid_moves(turn, board))
             user_input = input(f"{INFO_SYMBOL} You're back in play mode. {next_move_prompt}   ").strip().upper()
-            erasePreviousLines(1)
+            erase_previous_lines(1)
             lines_written_to_console = BOARD_DIMENSION + 4
         else:
             user_input = input(f"{ERROR_SYMBOL} Invalid input. {next_move_prompt}   ").strip().upper()
-            erasePreviousLines(2)
+            erase_previous_lines(2)
     return user_input, lines_written_to_console
 
 
@@ -217,7 +217,7 @@ def print_game_rules():
     print("Type 'h' to see previous moves.")
     print("AI constants are modifiable in the othello_strategy.py file.")
     show_rules = input("Would you like to see the rules? (y/n)   ").strip().lower()
-    erasePreviousLines(1)
+    erase_previous_lines(1)
     if show_rules == 'q':
         print("\nThanks for playing!")
         exit(0)
@@ -254,7 +254,7 @@ def load_saved_game():
             lines_from_save_file = saveFile.readlines()
             time_of_previous_save = lines_from_save_file[3].strip()
             use_existing_save = input(f"{INFO_SYMBOL} Would you like to load the saved game from {time_of_previous_save}? (y/n)\t").strip().lower()
-            erasePreviousLines(1)
+            erase_previous_lines(1)
             if use_existing_save != 'y':
                 info(f"Starting a new game...")
                 return None, None, None
@@ -277,7 +277,7 @@ def load_saved_game():
             if not validate_loaded_save_state(board, user_piece, turn):
                 raise ValueError
             delete_save_file = input(f"{INFO_SYMBOL} Saved game was successfully loaded! Delete the save file? (y/n)\t").strip().lower()
-            erasePreviousLines(1)
+            erase_previous_lines(1)
             file_deleted_text = ""
             if delete_save_file == 'y':
                 os.remove(SAVE_FILENAME)
@@ -314,7 +314,7 @@ def validate_loaded_save_state(board, piece, turn):
 def get_user_piece_color_input():
     """Gets input from the user to determine which color they will be"""
     color_input = input("Would you like to be BLACK ('b') or WHITE ('w')?   ").strip().lower()
-    erasePreviousLines(1)
+    erase_previous_lines(1)
     color = BLACK if color_input == 'b' else WHITE
     if color == BLACK:
         print(f"You will be BLACK {USER_COLOR}{BLACK}{NO_COLOR}!")
@@ -391,14 +391,14 @@ def run():
             current_player = players[turn]
             if current_player.is_ai:
                 user_input = input(f"{name_of_current_player}'s turn, press enter for it to play.\t").strip().upper()
-                erasePreviousLines(1)
+                erase_previous_lines(1)
                 while user_input in ['Q', 'S', 'QS', 'SQ', 'H']:
                     if user_input == 'Q':
                         end_game()
                     elif user_input == 'S':
                         save_game(BOARD, turn)
                         user_input = input("Press enter to continue. ").strip().upper()
-                        erasePreviousLines(2)
+                        erase_previous_lines(2)
                     elif user_input == 'QS' or user_input == 'SQ':
                         save_game(BOARD, turn)
                         end_game()
@@ -413,7 +413,7 @@ def run():
             time_to_play_move = round(time_to_play_move, 2)
             play_move(turn, row, col, BOARD)
             BOARD_HISTORY.append([[[row, col]], copy_of_board(BOARD)])
-            erasePreviousLines(lines_written_to_console)
+            erase_previous_lines(lines_written_to_console)
             print_board([[row, col]] + get_valid_moves(opponent_of(turn), BOARD))
             if current_player.is_ai:
                 additional_output = "  (%0.2f sec" % time_to_play_move
@@ -439,7 +439,7 @@ def run():
                     end_game()
             no_valid_moves_color = text_color_of(turn)
             play_again_color = text_color_of(opponent_of(turn))
-            erasePreviousLines(2)
+            erase_previous_lines(2)
             info_text = f"{no_valid_moves_color}{name_of_piece_color(turn)}{NO_COLOR} " \
                         f"has no valid moves this turn! " \
                         f"{play_again_color}{name_of_piece_color(opponent_of(turn))}{NO_COLOR} will play again.\n"

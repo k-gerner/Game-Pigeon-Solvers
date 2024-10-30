@@ -7,7 +7,7 @@ import time
 from datetime import datetime
 from util.terminaloutput.colors import RED_COLOR, GREEN_COLOR, NO_COLOR, color_text
 from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL, info
-from util.terminaloutput.erasing import erasePreviousLines
+from util.terminaloutput.erasing import erase_previous_lines
 from util.save.saving import path_to_save_file, allow_save
 from util.aiduel.dueling import get_dueling_ai_class
 from mancalacapture.mancala_player import MancalaPlayer
@@ -34,7 +34,7 @@ class HumanPlayer(MancalaPlayer):
 	def get_move(self, board):
 		"""Takes in the user's input and returns the index on the board for the selected move"""
 		spot = input(f"It's your turn, which spot would you like to play? (1 - {POCKETS_PER_SIDE}):\t").strip().upper()
-		erasePreviousLines(1)
+		erase_previous_lines(1)
 		while True:
 			if spot == 'Q':
 				print("\nThanks for playing!\n")
@@ -42,24 +42,24 @@ class HumanPlayer(MancalaPlayer):
 			elif spot == 'F':
 				global USE_REVERSED_PRINT_LAYOUT
 				USE_REVERSED_PRINT_LAYOUT = not USE_REVERSED_PRINT_LAYOUT
-				erasePreviousLines(BOARD_OUTPUT_HEIGHT + 2)
+				erase_previous_lines(BOARD_OUTPUT_HEIGHT + 2)
 				print_board(board)
 				print("\n")
 				spot = input(
 					f"Board print layout changed. Which spot would you like to play? (1 - {POCKETS_PER_SIDE}):\t").strip().upper()
-				erasePreviousLines(1)
+				erase_previous_lines(1)
 			elif spot == 'S':
 				save_game(board, PLAYER1_ID)
 				spot = input("Enter a coordinates for a move, or press 'q' to quit:\t").strip().upper()
-				erasePreviousLines(2)
+				erase_previous_lines(2)
 			elif spot == 'H':
 				spot = get_board_history_input_from_user(is_ai=False)
 			elif not spot.isdigit() or int(spot) < 1 or int(spot) > 6:
 				spot = input(f"{ERROR_SYMBOL} Please enter a number 1 - {POCKETS_PER_SIDE}:\t").strip().upper()
-				erasePreviousLines(1)
+				erase_previous_lines(1)
 			elif board[int(spot) - 1] == 0:
 				spot = input(f"{ERROR_SYMBOL} That pocket is empty! Please try again:\t").strip().upper()
-				erasePreviousLines(1)
+				erase_previous_lines(1)
 			else:
 				break
 
@@ -193,7 +193,7 @@ def load_saved_game():
 			time_of_previous_save = lines_from_save_file[3].strip()
 			use_existing_save = input(
 				f"{INFO_SYMBOL} Would you like to load the saved game from {time_of_previous_save}? (y/n)\t").strip().lower()
-			erasePreviousLines(1)
+			erase_previous_lines(1)
 			if use_existing_save != 'y':
 				info("Starting a new game...")
 				return
@@ -229,7 +229,7 @@ def load_saved_game():
 			BOARD = board
 			delete_save_file = input(
 				f"{INFO_SYMBOL} Saved game was successfully loaded! Delete the save file? (y/n)\t").strip().lower()
-			erasePreviousLines(1)
+			erase_previous_lines(1)
 			file_deleted_text = ""
 			if delete_save_file == 'y':
 				os.remove(SAVE_FILENAME)
@@ -244,7 +244,7 @@ def load_saved_game():
 def print_move_history(num_moves_previous):
 	"""Prints the move history of the current game"""
 	while True:
-		erasePreviousLines(2)
+		erase_previous_lines(2)
 		print_board(BOARD_HISTORY[-(num_moves_previous + 1)][2], BOARD_HISTORY[-(num_moves_previous + 1)][1],
 					BOARD_HISTORY[-(num_moves_previous + 1)][0])
 		if num_moves_previous == 0:
@@ -252,16 +252,16 @@ def print_move_history(num_moves_previous):
 		print("(%d move%s before current board state)\n" % (num_moves_previous, "s" if num_moves_previous != 1 else ""))
 		num_moves_previous -= 1
 		user_input = input("Press enter for next move, or 'e' to return to game.  ").strip().lower()
-		erasePreviousLines(1)
+		erase_previous_lines(1)
 		if user_input == 'q':
-			erasePreviousLines(2)
+			erase_previous_lines(2)
 			print("\nThanks for playing!\n")
 			exit(0)
 		elif user_input == 'e':
-			erasePreviousLines(2)
+			erase_previous_lines(2)
 			return
 		else:
-			erasePreviousLines(BOARD_OUTPUT_HEIGHT)
+			erase_previous_lines(BOARD_OUTPUT_HEIGHT)
 
 
 def get_board_history_input_from_user(is_ai):
@@ -272,21 +272,21 @@ def get_board_history_input_from_user(is_ai):
 	next_move_prompt = "Press enter to continue." if is_ai else "Enter a valid move to play:"
 	if len(BOARD_HISTORY) < 2:
 		user_input = input(f"{INFO_SYMBOL} No previous moves to see. {next_move_prompt}   ").strip().upper()
-		erasePreviousLines(1)
+		erase_previous_lines(1)
 	else:
 		num_moves_previous = input(f"How many moves ago do you want to see? (1 to {len(BOARD_HISTORY) - 1})  ").strip()
-		erasePreviousLines(1)
+		erase_previous_lines(1)
 		if num_moves_previous.isdigit() and 1 <= int(num_moves_previous) <= len(BOARD_HISTORY) - 1:
-			erasePreviousLines(BOARD_OUTPUT_HEIGHT)
+			erase_previous_lines(BOARD_OUTPUT_HEIGHT)
 			print_move_history(int(num_moves_previous))
-			erasePreviousLines(BOARD_OUTPUT_HEIGHT)
+			erase_previous_lines(BOARD_OUTPUT_HEIGHT)
 			print_board(BOARD_HISTORY[-1][2], BOARD_HISTORY[-1][1], BOARD_HISTORY[-1][0])
 			user_input = input(f"{INFO_SYMBOL} You're back in play mode. {next_move_prompt}   ").strip().upper()
-			erasePreviousLines(1)
+			erase_previous_lines(1)
 			print("\n")  # make this output the same height as the other options
 		else:
 			user_input = input(f"{ERROR_SYMBOL} Invalid input. {next_move_prompt}   ").strip().upper()
-			erasePreviousLines(1)
+			erase_previous_lines(1)
 	return user_input
 
 
@@ -327,7 +327,7 @@ def run():
 
 	if not use_saved_game:
 		user_go_first = input("Would you like to go first? (y/n):\t").strip().upper()
-		erasePreviousLines(1)
+		erase_previous_lines(1)
 		if user_go_first == "Y":
 			turn = PLAYER1_ID
 			print("%s will go first!" % player_names[turn])
@@ -349,7 +349,7 @@ def run():
 		current_player = players[turn]
 		if current_player.is_ai:
 			user_input = input(f"{name_of_current_player}'s turn, press enter for it to play.\t").strip().upper()
-			erasePreviousLines(1)
+			erase_previous_lines(1)
 			while user_input in ['Q', 'H', 'F', 'S']:
 				if user_input == 'Q':
 					print_average_time_taken_by_players(time_taken_per_player)
@@ -360,16 +360,16 @@ def run():
 				elif user_input == 'F':
 					global USE_REVERSED_PRINT_LAYOUT
 					USE_REVERSED_PRINT_LAYOUT = not USE_REVERSED_PRINT_LAYOUT
-					erasePreviousLines(BOARD_OUTPUT_HEIGHT + 2)
+					erase_previous_lines(BOARD_OUTPUT_HEIGHT + 2)
 					print_board(BOARD)
 					print("\n")
 					user_input = input(f"Board print layout changed. Press enter to continue:\t").strip().upper()
-					erasePreviousLines(1)
+					erase_previous_lines(1)
 				else:
 					save_game(BOARD, turn)
 					user_input = input(
 						f"Press enter for {name_of_current_player} to play, or press 'q' to quit:\t").strip().upper()
-					erasePreviousLines(2)
+					erase_previous_lines(2)
 
 		start_time = time.time()
 		chosen_move = current_player.get_move(BOARD)
@@ -383,7 +383,7 @@ def run():
 				"%.2fs)" % seconds_taken) if current_player.is_ai else ""
 		final_pebble_location = perform_move(BOARD, chosen_move, current_player.bankIndex)
 		BOARD_HISTORY.append([chosen_move, turn, BOARD.copy()])
-		erasePreviousLines(BOARD_OUTPUT_HEIGHT + extra_lines_printed)
+		erase_previous_lines(BOARD_OUTPUT_HEIGHT + extra_lines_printed)
 		print_board(BOARD, turn, chosen_move)
 		move_formatted = str(min(BOARD_SIZE - 2 - chosen_move, chosen_move) + 1)
 		print("%s played in spot %s%s. " % (name_of_current_player, move_formatted, time_taken_output_str), end='')
@@ -396,7 +396,7 @@ def run():
 		game_over = is_board_terminal(BOARD)
 
 	push_all_pebbles_to_bank(BOARD)
-	erasePreviousLines(BOARD_OUTPUT_HEIGHT + extra_lines_printed)
+	erase_previous_lines(BOARD_OUTPUT_HEIGHT + extra_lines_printed)
 	print_board(BOARD)
 	winner_id = PLAYER1_ID if winning_player_bank_index(BOARD) == PLAYER1_BANK_INDEX else PLAYER2_ID
 	if winner_id is None:

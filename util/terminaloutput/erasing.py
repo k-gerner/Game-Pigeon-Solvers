@@ -12,7 +12,7 @@ def set_erase_mode(is_enabled: bool):
 	ENABLED = is_enabled
 
 
-def erasePreviousLines(num_lines:int):
+def erase_previous_lines(num_lines:int):
 	"""Erases the specified previous number of lines from the terminal"""
 	if ENABLED:
 		print(f"{CURSOR_UP_ONE}{ERASE_LINE}" * max(num_lines, 0), end='')
@@ -20,4 +20,4 @@ def erasePreviousLines(num_lines:int):
 
 def erase(output_str:str):
 	"""Erases the number of lines printed by the given string"""
-	erasePreviousLines(output_str.count("\n") + 1)
+	erase_previous_lines(output_str.count("\n") + 1)

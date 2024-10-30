@@ -5,7 +5,7 @@ from tictactoe.tictactoe_player import TicTacToePlayer
 from tictactoe.tictactoe_strategy import TicTacToeStrategy, opponent_of, is_terminal, perform_move, copy_of_board
 from util.terminaloutput.colors import GREEN_COLOR, RED_COLOR, NO_COLOR
 from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL, error, info
-from util.terminaloutput.erasing import erasePreviousLines
+from util.terminaloutput.erasing import erase_previous_lines
 from util.terminaloutput.colors import color_text
 from util.save.saving import path_to_save_file, allow_save
 from util.aiduel.dueling import get_dueling_ai_class
@@ -34,7 +34,7 @@ class HumanPlayer(TicTacToePlayer):
 	def get_move(self, board):
 		"""Takes in the user's input and returns the move"""
 		spot = input("It's your turn, which spot would you like to play? (A1 - %s%d):\t" % (ROW_LABELS[-1], len(board))).strip().upper()
-		erasePreviousLines(1)
+		erase_previous_lines(1)
 		while True:
 			if spot == 'Q':
 				print("\nThanks for playing!\n")
@@ -44,13 +44,13 @@ class HumanPlayer(TicTacToePlayer):
 			elif spot == 'S':
 				save_game(self.color)
 				spot = input("Which spot would you like to play? (A1 - %s%d):\t" % (ROW_LABELS[-1], len(board))).strip().upper()
-				erasePreviousLines(2)
+				erase_previous_lines(2)
 			elif len(spot) >= 3 or len(spot) == 0 or spot[0] not in ROW_LABELS or not spot[1:].isdigit() or int(spot[1:]) > len(board) or int(spot[1:]) < 1:
 				spot = input(f"{ERROR_SYMBOL} Invalid input. Please try again.\t").strip().upper()
-				erasePreviousLines(1)
+				erase_previous_lines(1)
 			elif board[ROW_LABELS.index(spot[0])][int(spot[1:]) - 1] != EMPTY:
 				spot = input(f"{ERROR_SYMBOL} That spot is already taken, please choose another:\t").strip().upper()
-				erasePreviousLines(1)
+				erase_previous_lines(1)
 			else:
 				break
 		row = ROW_LABELS.index(spot[0])
@@ -89,16 +89,16 @@ def print_move_history(num_moves_previous):
 		print("(%d move%s before current board state)\n" % (num_moves_previous, "s" if num_moves_previous != 1 else ""))
 		num_moves_previous -= 1
 		user_input = input("Press enter for next move, or 'e' to return to game.  ").strip().lower()
-		erasePreviousLines(1)
+		erase_previous_lines(1)
 		if user_input == 'q':
-			erasePreviousLines(2)
+			erase_previous_lines(2)
 			print("Thanks for playing!\n")
 			exit(0)
 		elif user_input == 'e':
-			erasePreviousLines(2)
+			erase_previous_lines(2)
 			return
 		else:
-			erasePreviousLines(BOARD_OUTPUT_HEIGHT + 3)
+			erase_previous_lines(BOARD_OUTPUT_HEIGHT + 3)
 
 
 def get_board_history_input_from_user(is_ai):
@@ -109,21 +109,21 @@ def get_board_history_input_from_user(is_ai):
 	next_move_prompt = "Press enter to continue." if is_ai else "Enter a valid move to play:"
 	if len(BOARD_HISTORY) < 2:
 		user_input = input(f"{INFO_SYMBOL} No previous moves to see. {next_move_prompt}   ").strip().upper()
-		erasePreviousLines(1)
+		erase_previous_lines(1)
 	else:
 		num_moves_previous = input(f"How many moves ago do you want to see? (1 to {len(BOARD_HISTORY) - 1})  ").strip()
-		erasePreviousLines(1)
+		erase_previous_lines(1)
 		if num_moves_previous.isdigit() and 1 <= int(num_moves_previous) <= len(BOARD_HISTORY) - 1:
-			erasePreviousLines(BOARD_OUTPUT_HEIGHT + 2)
+			erase_previous_lines(BOARD_OUTPUT_HEIGHT + 2)
 			print_move_history(int(num_moves_previous))
-			erasePreviousLines(BOARD_OUTPUT_HEIGHT + 1)
+			erase_previous_lines(BOARD_OUTPUT_HEIGHT + 1)
 			print_game_board(BOARD_HISTORY[-1])
 			user_input = input(f"{INFO_SYMBOL} You're back in play mode. {next_move_prompt}   ").strip().upper()
-			erasePreviousLines(2)
+			erase_previous_lines(2)
 			print("\n")  # make this output the same height as the other options
 		else:
 			user_input = input(f"{ERROR_SYMBOL} Invalid input. {next_move_prompt}   ").strip().upper()
-			erasePreviousLines(1)
+			erase_previous_lines(1)
 	return user_input
 
 
@@ -176,7 +176,7 @@ def load_saved_game():
 			lines_from_save_file = saveFile.readlines()
 			time_of_previous_save = lines_from_save_file[3].strip()
 			use_existing_save = input(f"{INFO_SYMBOL} Would you like to load the saved game from {time_of_previous_save}? (y/n)\t").strip().lower()
-			erasePreviousLines(1)
+			erase_previous_lines(1)
 			if use_existing_save != 'y':
 				info("Starting a new game...\n")
 				return None, None
@@ -204,7 +204,7 @@ def load_saved_game():
 				raise ValueError
 			gameBoard = board_from_save_file
 			delete_save_file = input(f"{INFO_SYMBOL} Saved game was successfully loaded! Delete the save file? (y/n)\t").strip().lower()
-			erasePreviousLines(1)
+			erase_previous_lines(1)
 			file_deleted_text = ""
 			if delete_save_file == 'y':
 				os.remove(SAVE_FILENAME)
@@ -252,13 +252,13 @@ def run():
 			BOARD_HISTORY.append(copy_of_board(gameBoard))
 	if not use_saved_game:
 		user_piece_select = input("\nDo you want to be X or O? (X goes first)\t").strip().lower()
-		erasePreviousLines(1)
+		erase_previous_lines(1)
 		while user_piece_select not in ['x', 'o']:
 			if user_piece_select == 'q':
 				print("Thanks for playing!\n")
 				exit(0)
 			user_piece_select = input(f"{ERROR_SYMBOL} Invalid input. Please choose either X or O:\t").strip().lower()
-			erasePreviousLines(1)
+			erase_previous_lines(1)
 		if user_piece_select == 'x':
 			USER_PIECE = X_PIECE
 			opponent_piece = O_PIECE
@@ -283,7 +283,7 @@ def run():
 		current_player = players[turn]
 		if current_player.is_ai:
 			user_input = input(f"{name_of_player}'s turn, press enter for it to play.\t").strip().upper()
-			erasePreviousLines(1)
+			erase_previous_lines(1)
 			while user_input in ['Q', 'S', 'H']:
 				if user_input == 'Q':
 					print("\nThanks for playing!\n")
@@ -293,11 +293,11 @@ def run():
 				else:
 					save_game(turn)
 					user_input = input(f"{name_of_player}'s turn, press enter for it to play.\t").strip().upper()
-					erasePreviousLines(2)
+					erase_previous_lines(2)
 		row_played, col_played = current_player.get_move(gameBoard)
 		perform_move(gameBoard, row_played, col_played, turn)
 		BOARD_HISTORY.append(copy_of_board(gameBoard))
-		erasePreviousLines(BOARD_OUTPUT_HEIGHT + (1 if first_turn else 2))
+		erase_previous_lines(BOARD_OUTPUT_HEIGHT + (1 if first_turn else 2))
 		first_turn = False
 		print_game_board()
 		move_formatted = ROW_LABELS[row_played] + str(col_played + 1)

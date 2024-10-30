@@ -5,7 +5,7 @@ from datetime import datetime
 from util.terminaloutput.colors import GREEN_COLOR, RED_COLOR, NO_COLOR, \
 	DARK_GREY_BACKGROUND as MOST_RECENT_HIGHLIGHT_COLOR, color_text
 from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL, error, info
-from util.terminaloutput.erasing import erasePreviousLines
+from util.terminaloutput.erasing import erase_previous_lines
 from util.save.saving import path_to_save_file, allow_save
 from util.aiduel.dueling import get_dueling_ai_class
 
@@ -36,7 +36,7 @@ class HumanPlayer(GomokuPlayer):
 	def get_move(self, board):
 		"""Takes in the user's input and returns the move"""
 		spot = input("It's your turn, which spot would you like to play? (A1 - %s%d):\t" % (COLUMN_LABELS[-1], len(board))).strip().upper()
-		erasePreviousLines(1)
+		erase_previous_lines(1)
 		while True:
 			if spot == 'Q':
 				print_average_time_taken_by_players()
@@ -45,15 +45,15 @@ class HumanPlayer(GomokuPlayer):
 			elif spot == 'S':
 				save_game(board, self.color)
 				spot = input("Enter a coordinates for a move, or press 'q' to quit:\t").strip().upper()
-				erasePreviousLines(2)
+				erase_previous_lines(2)
 			elif spot == 'H':
 				spot = get_board_history_input_from_user(is_ai=False)
 			elif len(spot) >= 4 or len(spot) == 0 or spot[0] not in COLUMN_LABELS or not spot[1:].isdigit() or int(spot[1:]) > len(board) or int(spot[1:]) < 1:
 				spot = input(f"{ERROR_SYMBOL} Invalid input. Please try again.\t").strip().upper()
-				erasePreviousLines(1)
+				erase_previous_lines(1)
 			elif board[int(spot[1:]) - 1][COLUMN_LABELS.index(spot[0])] != EMPTY:
 				spot = input(f"{ERROR_SYMBOL} That spot is already taken, please choose another:\t").strip().upper()
-				erasePreviousLines(1)
+				erase_previous_lines(1)
 			else:
 				break
 		row = int(spot[1:]) - 1
@@ -100,17 +100,17 @@ def print_move_history(num_moves_previous):
 		print("(%d move%s before current board state)\n" % (num_moves_previous, "s" if num_moves_previous != 1 else ""))
 		num_moves_previous -= 1
 		user_input = input("Press enter for next move, or 'e' to return to game.  ").strip().lower()
-		erasePreviousLines(1)
+		erase_previous_lines(1)
 		if user_input == 'q':
-			erasePreviousLines(2)
+			erase_previous_lines(2)
 			print_average_time_taken_by_players()
 			print("\nThanks for playing!\n")
 			exit(0)
 		elif user_input == 'e':
-			erasePreviousLines(2)
+			erase_previous_lines(2)
 			return
 		else:
-			erasePreviousLines(BOARD_OUTPUT_HEIGHT)
+			erase_previous_lines(BOARD_OUTPUT_HEIGHT)
 
 
 def get_board_history_input_from_user(is_ai):
@@ -121,21 +121,21 @@ def get_board_history_input_from_user(is_ai):
 	next_move_prompt = "Press enter to continue." if is_ai else "Enter a valid move to play:"
 	if len(BOARD_HISTORY) < 2:
 		user_input = input(f"{INFO_SYMBOL} No previous moves to see. {next_move_prompt}   ").strip().upper()
-		erasePreviousLines(1)
+		erase_previous_lines(1)
 	else:
 		num_moves_previous = input(f"How many moves ago do you want to see? (1 to {len(BOARD_HISTORY) - 1})  ").strip()
-		erasePreviousLines(1)
+		erase_previous_lines(1)
 		if num_moves_previous.isdigit() and 1 <= int(num_moves_previous) <= len(BOARD_HISTORY) - 1:
-			erasePreviousLines(BOARD_OUTPUT_HEIGHT)
+			erase_previous_lines(BOARD_OUTPUT_HEIGHT)
 			print_move_history(int(num_moves_previous))
-			erasePreviousLines(BOARD_DIMENSION + 3)
+			erase_previous_lines(BOARD_DIMENSION + 3)
 			print_game_board(BOARD_HISTORY[-1][0])
 			user_input = input(f"{INFO_SYMBOL} You're back in play mode. {next_move_prompt}   ").strip().upper()
-			erasePreviousLines(1)
+			erase_previous_lines(1)
 			print("\n")  # make this output the same height as the other options
 		else:
 			user_input = input(f"{ERROR_SYMBOL} Invalid input. {next_move_prompt}   ").strip().upper()
-			erasePreviousLines(1)
+			erase_previous_lines(1)
 	return user_input
 
 
@@ -211,7 +211,7 @@ def load_saved_game():
 			lines_from_save_file = saveFile.readlines()
 			time_of_previous_save = lines_from_save_file[3].strip()
 			use_existing_save = input(f"{INFO_SYMBOL} Would you like to load the saved game from {time_of_previous_save}? (y/n)\t").strip().lower()
-			erasePreviousLines(1)
+			erase_previous_lines(1)
 			if use_existing_save != 'y':
 				info("Starting a new game...")
 				return
@@ -235,7 +235,7 @@ def load_saved_game():
 				raise ValueError
 			game_board = board
 			delete_save_file = input(f"{INFO_SYMBOL} Saved game was successfully loaded! Delete the save file? (y/n)\t").strip().lower()
-			erasePreviousLines(1)
+			erase_previous_lines(1)
 			file_deleted_text = ""
 			if delete_save_file == 'y':
 				os.remove(SAVE_FILENAME)
@@ -277,7 +277,7 @@ def run():
 		board_dimension = len(game_board)
 	else:
 		board_dimension = input("What is the dimension of the board? (Default is 13x13)\nEnter a single odd number:\t").strip()
-		erasePreviousLines(2)
+		erase_previous_lines(2)
 		if board_dimension.isdigit() and int(board_dimension) % 2 == 1 and 6 < int(board_dimension) < 100:
 			board_dimension = int(board_dimension)
 			print("The board will be %dx%d!" % (board_dimension, board_dimension))
@@ -287,7 +287,7 @@ def run():
 		create_empty_game_board(int(board_dimension))
 
 		player_color_input = input("Would you like to be BLACK ('b') or WHITE ('w')? (black goes first!):\t").strip().lower()
-		erasePreviousLines(2)
+		erase_previous_lines(2)
 		if player_color_input == 'b':
 			user_piece = BLACK
 			opponent_piece = WHITE
@@ -324,7 +324,7 @@ def run():
 		current_player = players[turn]
 		if current_player.is_ai:
 			user_input = input(f"{name_of_current_player}'s turn, press enter for it to play.\t").strip().upper()
-			erasePreviousLines(1)
+			erase_previous_lines(1)
 			while user_input in ['Q', 'S', 'H']:
 				if user_input == 'Q':
 					print_average_time_taken_by_players()
@@ -335,7 +335,7 @@ def run():
 				else:
 					save_game(game_board, turn)
 					user_input = input(f"Press enter for {name_of_current_player} to play, or press 'q' to quit:\t").strip().upper()
-					erasePreviousLines(2)
+					erase_previous_lines(2)
 		start_time = time.time()
 		row_played, col_played = current_player.get_move(game_board)
 		end_time = time.time()
@@ -347,7 +347,7 @@ def run():
 		time_taken_output_str = ("  (%dm " % minutes_taken if minutes_taken > 0 else "  (") + ("%.2fs)" % seconds_taken) if current_player.is_ai else ""
 		perform_move(game_board, row_played, col_played, turn)
 		BOARD_HISTORY.append([[[row_played, col_played]], copy_of_board(game_board)])
-		erasePreviousLines(BOARD_OUTPUT_HEIGHT)
+		erase_previous_lines(BOARD_OUTPUT_HEIGHT)
 		print_game_board([[row_played, col_played]])
 		move_formatted = COLUMN_LABELS[col_played] + str(row_played + 1)
 		print("%s played in spot %s%s\n" % (name_of_current_player, move_formatted, time_taken_output_str))

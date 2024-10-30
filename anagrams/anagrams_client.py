@@ -4,7 +4,7 @@
 
 from functools import cmp_to_key
 from util.terminaloutput.symbols import error, warn, ERROR_SYMBOL
-from util.terminaloutput.erasing import erasePreviousLines
+from util.terminaloutput.erasing import erase_previous_lines
 
 english_words = set()
 word_starts = set()
@@ -62,7 +62,7 @@ def print_found_words(words):
 			else:
 				grammar = "final word"
 		cmd = input("Press enter for %s, or 'q' to quit, or 'a' for all remaining words:\t" % grammar).strip().lower()
-		erasePreviousLines(11)
+		erase_previous_lines(11)
 
 
 def populate_word_sets(num_letters):
@@ -92,7 +92,7 @@ def run():
 	if num_letters.isdigit() and int(num_letters) in {6, 7}:
 		num_letters = int(num_letters)
 	else:
-		erasePreviousLines(1)
+		erase_previous_lines(1)
 		warn("Invalid input. Using default value of 6.")
 		num_letters = 6
 	populate_word_sets(num_letters)
@@ -100,9 +100,9 @@ def run():
 	# read in user input
 	letters = input("Enter the letters on the board, with no spaces in between:  ").strip().lower()
 	while len(letters) != num_letters:
-		erasePreviousLines(1)
+		erase_previous_lines(1)
 		letters = input(f"{ERROR_SYMBOL} The number of letters did not match the specified max length. Try again:\t").strip().lower()
-	erasePreviousLines(1)
+	erase_previous_lines(1)
 	print("The letters are: %s" % " ".join(letters.upper()))
 
 	# call function to find words

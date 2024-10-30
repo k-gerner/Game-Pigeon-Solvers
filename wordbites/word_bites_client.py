@@ -5,7 +5,7 @@
 from functools import cmp_to_key
 from util.terminaloutput.colors import NO_COLOR, BLUE_COLOR, YELLOW_COLOR
 from util.terminaloutput.symbols import ERROR_SYMBOL, error
-from util.terminaloutput.erasing import erasePreviousLines
+from util.terminaloutput.erasing import erase_previous_lines
 
 # directional constants
 HORIZONTAL = 'H'
@@ -50,21 +50,21 @@ def read_in_board():
 		piece_str = input("%s piece #1:\t" % pair[0]).strip().lower()
 		while len(piece_str) != 0:
 			if not piece_str.isalpha():
-				erasePreviousLines(1)
+				erase_previous_lines(1)
 				piece_str = input(f"{ERROR_SYMBOL} Please make sure your input only contains letters.\t").strip().lower()
 			else:
 				if len(piece_str) != 2 and pair[0] != 'Single Letter':
-					erasePreviousLines(1)
+					erase_previous_lines(1)
 					piece_str = input(f"{ERROR_SYMBOL} All %s pieces should be 2 letters long.\t" % pair[0]).strip().lower()
 				elif pair[0] == 'Single Letter' and len(piece_str) > 1:
-					erasePreviousLines(1)
+					erase_previous_lines(1)
 					piece_str = input(f"{ERROR_SYMBOL} You should be entering a single letter right now.\t").strip().lower()
 				else:
 					pair[1].append(piece_str)
 					count += 1
 					piece_str = input("%s piece #%d:\t" % (pair[0], count)).strip().lower()
-		erasePreviousLines(6)
-		erasePreviousLines(len(pair[1]))
+		erase_previous_lines(6)
+		erase_previous_lines(len(pair[1]))
 		piece_list_output = ", ".join(pair[1])
 		print(f"{pair[0]} pieces: {piece_list_output}")
 
@@ -149,7 +149,7 @@ def print_output(words):
 		while cmd != 'q':
 			if count > 1:
 				# if not the first time printing words to output
-				erasePreviousLines(12)
+				erase_previous_lines(12)
 			if cmd == 'a':
 				while count <= len(words):
 					dir_spacing = " "*5 + " "*(9-len(words[count - 1][0]))
@@ -178,7 +178,7 @@ def print_output(words):
 				else:
 					grammar = "final word"
 			cmd = input("\nPress enter for %s, or 'q' to quit, or 'a' for all:\t" % grammar).strip().lower()
-		erasePreviousLines(1)
+		erase_previous_lines(1)
 		print("Thanks for using my Word Bites Tool!\n")
 	else:
 		# DISPLAY_MODE = DIAGRAM
@@ -190,10 +190,10 @@ def print_output(words):
 			if word_num > 1:
 				# if not first time through
 				if input("\nPress enter for next word, or 'q' to quit:\t").strip().lower() == 'q':
-					erasePreviousLines(1)
+					erase_previous_lines(1)
 					print("Thanks for using my Word Bites Tool!\n")
 					exit(0)
-			erasePreviousLines(lines_to_erase_from_previous_output)
+			erase_previous_lines(lines_to_erase_from_previous_output)
 			lines_to_erase_from_previous_output = 3
 			# create copies of the pieces lists because they will be edited in the next part
 			singe_pieces_copy, horiz_pieces_copy, vert_pieces_copy = singleLetterPieces.copy(), horizPieces.copy(), vertPieces.copy()
@@ -321,11 +321,11 @@ def run():
 
 	# display mode select
 	mode_select = input("\nUse Diagram Mode (d) or List Mode (l)? Type 'i' for more info:\t").strip().lower()
-	erasePreviousLines(2)
+	erase_previous_lines(2)
 	if mode_select == 'i':
 		print_mode_info()
 		mode_select = input("\nUse Diagram Mode (d) or List Mode (l)?\n").strip().lower()
-		erasePreviousLines(MORE_INFO_OUTPUT_HEIGHT + 2)
+		erase_previous_lines(MORE_INFO_OUTPUT_HEIGHT + 2)
 	if mode_select == 'l':
 		DISPLAY_MODE = LIST
 		print("\nWords will be displayed in List Mode.")
