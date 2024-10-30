@@ -4,7 +4,7 @@
 
 from functools import cmp_to_key
 from util.terminaloutput.colors import NO_COLOR, BLUE_COLOR, YELLOW_COLOR
-from util.terminaloutput.symbols import ERROR_SYMBOL
+from util.terminaloutput.symbols import ERROR_SYMBOL, error
 from util.terminaloutput.erasing import erasePreviousLines
 
 # directional constants
@@ -33,96 +33,96 @@ MORE_INFO_OUTPUT_HEIGHT = 30
 WORD_LIST_FILEPATH = 'wordbites/letters9.txt'
 
 
-def readInBoard():
+def read_in_board():
 	"""Read in the user's input for the board pieces"""
 	versions = [('Single Letter', singleLetterPieces), 
 				('Horizontal', horizPieces), 
 				('Vertical', vertPieces)]
 	for pair in versions:
 		if versions.index(pair) + 1 < len(versions):
-			nextInput = "start inputting %s pieces." % versions[versions.index(pair) + 1][0]
-		else :
-			nextInput ="calculate best piece combinations."
-		print("\nPlease enter each %s piece, with each piece on its own line.\n" % pair[0]+ 
-			  "When you are done with %s pieces, press 'enter' on an empty line\n" % pair[0]+ 
-			  "to %s\n" % nextInput)
+			next_input = "start inputting %s pieces." % versions[versions.index(pair) + 1][0]
+		else:
+			next_input = "calculate best piece combinations."
+		print("\nPlease enter each %s piece, with each piece on its own line.\n" % pair[0] +
+			  "When you are done with %s pieces, press 'enter' on an empty line\n" % pair[0] +
+			  "to %s\n" % next_input)
 		count = 1
-		pieceStr = input("%s piece #1:\t" % pair[0]).strip().lower()
-		while len(pieceStr) != 0:
-			if not pieceStr.isalpha():
+		piece_str = input("%s piece #1:\t" % pair[0]).strip().lower()
+		while len(piece_str) != 0:
+			if not piece_str.isalpha():
 				erasePreviousLines(1)
-				pieceStr = input(f"{ERROR_SYMBOL} Please make sure your input only contains letters.\t").strip().lower()
+				piece_str = input(f"{ERROR_SYMBOL} Please make sure your input only contains letters.\t").strip().lower()
 			else:
-				if len(pieceStr) != 2 and pair[0] != 'Single Letter':
+				if len(piece_str) != 2 and pair[0] != 'Single Letter':
 					erasePreviousLines(1)
-					pieceStr = input(f"{ERROR_SYMBOL} All %s pieces should be 2 letters long.\t" % pair[0]).strip().lower()
-				elif pair[0] == 'Single Letter' and len(pieceStr) > 1:
+					piece_str = input(f"{ERROR_SYMBOL} All %s pieces should be 2 letters long.\t" % pair[0]).strip().lower()
+				elif pair[0] == 'Single Letter' and len(piece_str) > 1:
 					erasePreviousLines(1)
-					pieceStr = input(f"{ERROR_SYMBOL} You should be entering a single letter right now.\t").strip().lower()
+					piece_str = input(f"{ERROR_SYMBOL} You should be entering a single letter right now.\t").strip().lower()
 				else:
-					pair[1].append(pieceStr)
+					pair[1].append(piece_str)
 					count += 1
-					pieceStr = input("%s piece #%d:\t" % (pair[0], count)).strip().lower()
+					piece_str = input("%s piece #%d:\t" % (pair[0], count)).strip().lower()
 		erasePreviousLines(6)
 		erasePreviousLines(len(pair[1]))
-		pieceListOutput = ", ".join(pair[1])
-		print(f"{pair[0]} pieces: {pieceListOutput}")
+		piece_list_output = ", ".join(pair[1])
+		print(f"{pair[0]} pieces: {piece_list_output}")
 
 
-def findWords():
-	"""Calls the recursive findWordsInDirection method for each direction (H and V)"""
-	findWordsInDirection(singleLetterPieces, horizPieces, vertPieces, "", HORIZONTAL, [])
-	findWordsInDirection(singleLetterPieces, horizPieces, vertPieces, "", VERTICAL, [])
+def find_words():
+	"""Calls the recursive find_words_in_direction method for each direction (H and V)"""
+	find_words_in_direction(singleLetterPieces, horizPieces, vertPieces, "", HORIZONTAL, [])
+	find_words_in_direction(singleLetterPieces, horizPieces, vertPieces, "", VERTICAL, [])
 
 
-def findWordsInDirection(singles, horiz, vert, currStr, direction, currTuples):
+def find_words_in_direction(singles, horiz, vert, curr_str, direction, curr_tuples):
 	"""Find all the valid words for a board in a certain direction"""
-	if len(currStr) > MAX_LENGTHS[direction]:
+	if len(curr_str) > MAX_LENGTHS[direction]:
 		# word too long
 		return
-	if len(currStr) >= 3 and currStr not in wordStarts:
+	if len(curr_str) >= 3 and curr_str not in wordStarts:
 		# not the beginning of a word so stop searching this expansion
 		return
-	if currStr in englishWords and currStr not in validWordsOnly:
+	if curr_str in englishWords and curr_str not in validWordsOnly:
 		# valid word that hasn't been found yet
-		validWordsOnly.add(currStr)
+		validWordsOnly.add(curr_str)
 		if DISPLAY_MODE == DIAGRAM:
-			piecesListIndex = len(piecesList)
-			piecesList.append(currTuples)
-			tup = currStr, direction, piecesListIndex
+			pieces_list_index = len(piecesList)
+			piecesList.append(curr_tuples)
+			tup = curr_str, direction, pieces_list_index
 		else:
-			tup = currStr, direction
+			tup = curr_str, direction
 		validsWithDetails.add(tup)
 	for i in range(len(singles)):
-		# copyTuples will keep track of the pieces for a word in DIAGRAM mode, is unnecessary in LIST mode
+		# copy_tuples will keep track of the pieces for a word in DIAGRAM mode, is unnecessary in LIST mode
 		if DISPLAY_MODE == DIAGRAM:
-			copyTuples = currTuples.copy()
-			copyTuples.append(singles[i])
+			copy_tuples = curr_tuples.copy()
+			copy_tuples.append(singles[i])
 		else:
-			copyTuples = []
-		findWordsInDirection(singles[:i] + singles[i+1:], horiz, vert, currStr + singles[i], direction, copyTuples)
+			copy_tuples = []
+		find_words_in_direction(singles[:i] + singles[i + 1:], horiz, vert, curr_str + singles[i], direction, copy_tuples)
 	for j in range(len(horiz)):
 		if DISPLAY_MODE == DIAGRAM:
-			copyTuples = currTuples.copy()
-			copyTuples.append(horiz[j])
+			copy_tuples = curr_tuples.copy()
+			copy_tuples.append(horiz[j])
 		else:
-			copyTuples = []
+			copy_tuples = []
 		if direction == HORIZONTAL:
-			findWordsInDirection(singles, horiz[:j] + horiz[j+1:], vert, currStr + horiz[j], direction, copyTuples)
+			find_words_in_direction(singles, horiz[:j] + horiz[j + 1:], vert, curr_str + horiz[j], direction, copy_tuples)
 		else:
 			for horizLetter in horiz[j]:
-				findWordsInDirection(singles, horiz[:j] + horiz[j+1:], vert, currStr + horizLetter, direction, copyTuples)
+				find_words_in_direction(singles, horiz[:j] + horiz[j + 1:], vert, curr_str + horizLetter, direction, copy_tuples)
 	for k in range(len(vert)):
 		if DISPLAY_MODE == DIAGRAM:
-			copyTuples = currTuples.copy()
-			copyTuples.append(vert[k])
+			copy_tuples = curr_tuples.copy()
+			copy_tuples.append(vert[k])
 		else:
-			copyTuples = []
+			copy_tuples = []
 		if direction == HORIZONTAL:
 			for vertLetter in vert[k]:
-				findWordsInDirection(singles, horiz, vert[:k] + vert[k+1:], currStr + vertLetter, direction, copyTuples)
+				find_words_in_direction(singles, horiz, vert[:k] + vert[k + 1:], curr_str + vertLetter, direction, copy_tuples)
 		else:
-			findWordsInDirection(singles, horiz, vert[:k] + vert[k+1:], currStr + vert[k], direction, copyTuples)
+			find_words_in_direction(singles, horiz, vert[:k] + vert[k + 1:], curr_str + vert[k], direction, copy_tuples)
 
 
 def word_compare(a, b):
@@ -138,7 +138,7 @@ def word_compare(a, b):
 	return -1
 
 
-def printOutput(words):
+def print_output(words):
 	"""Print the valid words in whichever mode the user selected"""
 	count = 1
 	print("\n%d word%s found.\n" % (len(words), '' if len(words) == 1 else 's'))
@@ -152,18 +152,18 @@ def printOutput(words):
 				erasePreviousLines(12)
 			if cmd == 'a':
 				while count <= len(words):
-					dirSpacing = " "*5 + " "*(9-len(words[count - 1][0]))
+					dir_spacing = " "*5 + " "*(9-len(words[count - 1][0]))
 					direction = words[count - 1][1]
-					directionLetterOutput = LIST_MODE_DIRECTION_COLORS[direction] + direction + NO_COLOR
-					print("%d.\t%s%s%s" % (count, words[count - 1][0], dirSpacing, directionLetterOutput))
+					direction_letter_output = LIST_MODE_DIRECTION_COLORS[direction] + direction + NO_COLOR
+					print("%d.\t%s%s%s" % (count, words[count - 1][0], dir_spacing, direction_letter_output))
 					count += 1
 				print("\nThanks for using my Word Bites Tool!\n")
 				return
 			for i in range(10):
-				dirSpacing = " "*5 + " "*(9-len(words[count - 1][0]))
+				dir_spacing = " "*5 + " "*(9-len(words[count - 1][0]))
 				direction = words[count - 1][1]
-				directionLetterOutput = LIST_MODE_DIRECTION_COLORS[direction] + direction + NO_COLOR
-				print("%d.\t%s%s%s" % (count, words[count - 1][0], dirSpacing, directionLetterOutput))
+				direction_letter_output = LIST_MODE_DIRECTION_COLORS[direction] + direction + NO_COLOR
+				print("%d.\t%s%s%s" % (count, words[count - 1][0], dir_spacing, direction_letter_output))
 				count += 1
 				if count - 1 == len(words):
 					# if reached the end of the list
@@ -172,9 +172,9 @@ def printOutput(words):
 			if count + 8 < len(words):
 				grammar = "next 10 words"
 			else:
-				wordsLeft = len(words) - count + 1
-				if wordsLeft > 1:
-					grammar = "final %d words" % wordsLeft
+				words_left = len(words) - count + 1
+				if words_left > 1:
+					grammar = "final %d words" % words_left
 				else:
 					grammar = "final word"
 			cmd = input("\nPress enter for %s, or 'q' to quit, or 'a' for all:\t" % grammar).strip().lower()
@@ -184,103 +184,103 @@ def printOutput(words):
 		# DISPLAY_MODE = DIAGRAM
 		# NOTE: This display mode was written to conform with the Game Pigeon Word Bites 
 		# 		pieces standards, which means all pieces are either length 1 or 2
-		wordNum = 1
-		linesToEraseFromPreviousOutput = 0
+		word_num = 1
+		lines_to_erase_from_previous_output = 0
 		for wordItem in words:
-			if wordNum > 1:
+			if word_num > 1:
 				# if not first time through
 				if input("\nPress enter for next word, or 'q' to quit:\t").strip().lower() == 'q':
 					erasePreviousLines(1)
 					print("Thanks for using my Word Bites Tool!\n")
 					exit(0)
-			erasePreviousLines(linesToEraseFromPreviousOutput)
-			linesToEraseFromPreviousOutput = 3
+			erasePreviousLines(lines_to_erase_from_previous_output)
+			lines_to_erase_from_previous_output = 3
 			# create copies of the pieces lists because they will be edited in the next part
-			singePiecesCopy, horizPiecesCopy, vertPiecesCopy = singleLetterPieces.copy(), horizPieces.copy(), vertPieces.copy()
+			singe_pieces_copy, horiz_pieces_copy, vert_pieces_copy = singleLetterPieces.copy(), horizPieces.copy(), vertPieces.copy()
 			word, direction, pieces = wordItem[0], wordItem[1], piecesList[wordItem[2]]
-			wordWithNumber = "%d:   %s" % (wordNum, word)
+			word_with_number = "%d:   %s" % (word_num, word)
 			print()
 			if direction == HORIZONTAL:
 				# if word is horizontal
-				indexInWord = 0
-				lineAbove, line, lineBelow = "\t", "\t", "\t"
+				index_in_word = 0
+				line_above, line, line_below = "\t", "\t", "\t"
 				for piece in pieces:
-					if piece in vertPiecesCopy:
+					if piece in vert_pieces_copy:
 						# if the piece is a vertical piece
-						vertPiecesCopy.remove(piece)
-						if piece.index(word[indexInWord]) == 0:
+						vert_pieces_copy.remove(piece)
+						if piece.index(word[index_in_word]) == 0:
 							# if top letter is in word
 							above, cur, below = "  ", piece[0] + " ", piece[1] + " "
 						else:
 							# bottom letter in word
 							above, cur, below = piece[0] + " ", piece[1] + " ", " "
-						indexInWord += 1
-					elif piece in horizPiecesCopy:
+						index_in_word += 1
+					elif piece in horiz_pieces_copy:
 						# if the piece is a horizontal piece
-						horizPiecesCopy.remove(piece)
+						horiz_pieces_copy.remove(piece)
 						above, cur, below = "   ", piece + " ", "   "
-						indexInWord += 2
+						index_in_word += 2
 					else:
 						# piece is a single letter
-						singePiecesCopy.remove(piece)
-						above, cur, below = "  ", piece  + " ", "  "
-						indexInWord += 1
-					lineAbove += above
+						singe_pieces_copy.remove(piece)
+						above, cur, below = "  ", piece + " ", "  "
+						index_in_word += 1
+					line_above += above
 					line += cur 
-					lineBelow += below
-				afterWordTabs = "\t" * (3 - (len(line) - 1)//8)
-				print(f"{lineAbove}\n{line}{afterWordTabs}{wordWithNumber}\n{lineBelow}\n")
-				linesToEraseFromPreviousOutput += 4
+					line_below += below
+				after_word_tabs = "\t" * (3 - (len(line) - 1)//8)
+				print(f"{line_above}\n{line}{after_word_tabs}{word_with_number}\n{line_below}\n")
+				lines_to_erase_from_previous_output += 4
 			else:
 				# if word is vertical
-				indexInWord = 0
-				lineLeft, line, lineRight = "", "", ""
+				index_in_word = 0
+				line_left, line, line_right = "", "", ""
 				for piece in pieces:
-					if piece in horizPiecesCopy:
+					if piece in horiz_pieces_copy:
 						# if the piece is a horizonal piece
-						horizPiecesCopy.remove(piece)
-						if piece.index(word[indexInWord]) == 0:
+						horiz_pieces_copy.remove(piece)
+						if piece.index(word[index_in_word]) == 0:
 							# if left letter is in word
 							left, cur, right = " ", piece[0], piece[1]
 						else:
 							# right letter in word
 							left, cur, right = piece[0], piece[1], " "
-						indexInWord += 1
-					elif piece in vertPiecesCopy:
+						index_in_word += 1
+					elif piece in vert_pieces_copy:
 						# if the piece is a vertical piece
-						vertPiecesCopy.remove(piece)
+						vert_pieces_copy.remove(piece)
 						left, cur, right = "  ", piece, "  "
-						indexInWord += 2
+						index_in_word += 2
 					else:
 						# piece is a single letter
-						singePiecesCopy.remove(piece)
+						singe_pieces_copy.remove(piece)
 						left, cur, right = " ", piece, " "
-						indexInWord += 1
-					lineLeft += left
+						index_in_word += 1
+					line_left += left
 					line += cur 
-					lineRight += right
-				verticalOutputs = rotateStringsToVertical(lineLeft, line, lineRight)
-				indexOfFullWordOutput = max(int(len(verticalOutputs) / 2) - 1, 1)
+					line_right += right
+				vertical_outputs = rotate_strings_to_vertical(line_left, line, line_right)
+				index_of_full_word_output = max(int(len(vertical_outputs) / 2) - 1, 1)
 				count = 0
-				for line in verticalOutputs:
-					if count == indexOfFullWordOutput:
-						line += "\t\t\t%s" % wordWithNumber
-					print(line) # 3\t
+				for line in vertical_outputs:
+					if count == index_of_full_word_output:
+						line += "\t\t\t%s" % word_with_number
+					print(line)  # 3\t
 					count += 1
-				linesToEraseFromPreviousOutput += len(verticalOutputs)
-			wordNum += 1
+				lines_to_erase_from_previous_output += len(vertical_outputs)
+			word_num += 1
 
 
-def rotateStringsToVertical(leftStr, middleStr, rightStr):
+def rotate_strings_to_vertical(left_str, middle_str, right_str):
 	"""Takes in 3 strings and 'rotates' them so that they print vertically"""
-	horizStrings = []
-	for i in range(len(leftStr)):
-		horizStr = "\t%s %s %s" % (leftStr[i], middleStr[i], rightStr[i])
-		horizStrings.append(horizStr)
-	return horizStrings
+	horiz_strings = []
+	for i in range(len(left_str)):
+		horiz_str = "\t%s %s %s" % (left_str[i], middle_str[i], right_str[i])
+		horiz_strings.append(horiz_str)
+	return horiz_strings
 
 
-def printModeInfo():
+def print_mode_info():
 	"""Show the user further information about the different modes available for printing word list"""
 	print("------------------------------------------------------------\n" + 
 		  "------------------------------------------------------------")
@@ -304,39 +304,40 @@ def run():
 	# initial setup
 	print("\nWelcome to Kyle's Word Bites Solver!")
 	try:
-		inputFile = open(WORD_LIST_FILEPATH, 'r')
-		for word in inputFile:
-			strippedWord = word.strip()
-			if len(strippedWord) > max(MAX_LENGTHS.values()):
+		input_file = open(WORD_LIST_FILEPATH, 'r')
+		for word in input_file:
+			stripped_word = word.strip()
+			if len(stripped_word) > max(MAX_LENGTHS.values()):
 				continue
-			englishWords.add(strippedWord)
+			englishWords.add(stripped_word)
 			# add each word start to the set of word starts
-			for i in range(3, len(strippedWord) + 1):
-				wordStarts.add(strippedWord[:i])
-		inputFile.close()
+			for i in range(3, len(stripped_word) + 1):
+				wordStarts.add(stripped_word[:i])
+		input_file.close()
 	except FileNotFoundError:
-		print(f"\n{ERROR_SYMBOL} Could not open word list file. Please make sure {WORD_LIST_FILEPATH.split('/')[-1]} is in the Word Bites directory.\n")
+		print()
+		error(f"Could not open word list file. Please make sure {WORD_LIST_FILEPATH.split('/')[-1]} is in the Word Bites directory.\n")
 		exit(0)
 
 	# display mode select
-	modeSelect = input("\nUse Diagram Mode (d) or List Mode (l)? Type 'i' for more info:\t").strip().lower()
+	mode_select = input("\nUse Diagram Mode (d) or List Mode (l)? Type 'i' for more info:\t").strip().lower()
 	erasePreviousLines(2)
-	if modeSelect == 'i':
-		printModeInfo()
-		modeSelect = input("\nUse Diagram Mode (d) or List Mode (l)?\n").strip().lower()
+	if mode_select == 'i':
+		print_mode_info()
+		mode_select = input("\nUse Diagram Mode (d) or List Mode (l)?\n").strip().lower()
 		erasePreviousLines(MORE_INFO_OUTPUT_HEIGHT + 2)
-	if modeSelect == 'l':
+	if mode_select == 'l':
 		DISPLAY_MODE = LIST
 		print("\nWords will be displayed in List Mode.")
 	else:
 		print("\nWords will be displayed in Diagram Mode.")
 
 	# read in user input and use it to calculate best piece combinations
-	readInBoard()
-	findWords()
+	read_in_board()
+	find_words()
 	word_cmp_key = cmp_to_key(word_compare)
-	validWords = sorted(list(validsWithDetails), key=word_cmp_key)
-	if len(validWords) == 0:
-		print(f"{ERROR_SYMBOL} There were no valid words for the board.")
+	valid_words = sorted(list(validsWithDetails), key=word_cmp_key)
+	if len(valid_words) == 0:
+		error("There were no valid words for the board.")
 		exit(0)
-	printOutput(validWords)
+	print_output(valid_words)
