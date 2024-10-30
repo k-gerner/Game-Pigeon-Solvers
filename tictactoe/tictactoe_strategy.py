@@ -6,36 +6,36 @@ import math  # for infinities
 import random  # for randomizing valid moves list in minimax
 
 EMPTY, X_PIECE, O_PIECE = ' ', 'X', 'O'
-MAX, MIN = True, False # to be used in minimax
-WIN_SCORE = 1000000000 # large enough to always be the preferred outcome
+MAX, MIN = True, False  # to be used in minimax
+WIN_SCORE = 1000000000  # large enough to always be the preferred outcome
 
 
 # class for the A.I.
 class TicTacToeStrategy(TicTacToePlayer):
 
-	def __init__(self, aiColor):
+	def __init__(self, ai_color):
 		"""Initializes the board attributes"""
-		super().__init__(aiColor)
-		self.AI_COLOR = aiColor
-		self.HUMAN_COLOR = opponentOf(aiColor)
+		super().__init__(ai_color)
+		self.AI_COLOR = ai_color
+		self.HUMAN_COLOR = opponent_of(ai_color)
 
-	def getMove(self, board):
+	def get_move(self, board):
 		"""Calculates the best move for the AI for the given board"""
-		moveRow, moveCol = -1, -1
-		for depth_to_search in range(1, 10): # iterative deepening
+		move_row, move_col = -1, -1
+		for depth_to_search in range(1, 10):  # iterative deepening
 			# this will prioritize game winning movesets that occur with less total moves
-			moveRow, moveCol, score = self.minimax(board, 0, MAX, -math.inf, math.inf, depth_to_search)
+			move_row, move_col, score = self.minimax(board, 0, MAX, -math.inf, math.inf, depth_to_search)
 			if score == WIN_SCORE:
 				break
-		return moveRow, moveCol
+		return move_row, move_col
 
-	def minimax(self, board, depth, maxOrMin, alpha, beta, localMaxDepth):
+	def minimax(self, board, depth, max_or_min, alpha, beta, local_max_depth):
 		"""
 		Recursively finds the best move for a given board
 		Returns the row in [0], column in [1], and score of the board in [2]
 		"""
-		gameOver, winner = isTerminal(board)
-		if gameOver or depth == localMaxDepth:
+		game_over, winner = is_terminal(board)
+		if game_over or depth == local_max_depth:
 			if winner == self.AI_COLOR:
 				return None, None, WIN_SCORE
 			elif winner == self.HUMAN_COLOR:
@@ -43,80 +43,80 @@ class TicTacToeStrategy(TicTacToePlayer):
 			else:
 				return None, None, 0
 
-		validMoves = getValidMoves(board)
-		if len(validMoves) == 0:
+		valid_moves = get_valid_moves(board)
+		if len(valid_moves) == 0:
 			return -1, -1, 0
-		elif len(validMoves) == 9:
+		elif len(valid_moves) == 9:
 			# if start of the game, always go in the middle
 			return 1, 1, 0 
-		random.shuffle(validMoves)
-		if maxOrMin == MAX:
+		random.shuffle(valid_moves)
+		if max_or_min == MAX:
 			# want to maximize this move
 			score = -math.inf
-			bestMove = validMoves[0] # default best move
-			for move in validMoves:
-				boardCopy = copyOfBoard(board)
-				performMove(boardCopy, move[0], move[1], self.AI_COLOR)
-				gameOver, winner = isTerminal(boardCopy)
+			best_move = valid_moves[0]  # default best move
+			for move in valid_moves:
+				board_copy = copy_of_board(board)
+				perform_move(board_copy, move[0], move[1], self.AI_COLOR)
+				game_over, winner = is_terminal(board_copy)
 				if winner == self.AI_COLOR:
-					updatedScore = WIN_SCORE
+					updated_score = WIN_SCORE
 				elif winner == self.HUMAN_COLOR:
-					updatedScore = -1 * WIN_SCORE
+					updated_score = -1 * WIN_SCORE
 				else:
 					# no winner
-					if gameOver:
+					if game_over:
 						# if board filled
-						updatedScore = 0
+						updated_score = 0
 					else:
-						_, __, updatedScore = self.minimax(boardCopy, depth + 1, MIN, alpha, beta, localMaxDepth)
-				if updatedScore > score:
-					score = updatedScore
-					bestMove = move
+						_, __, updated_score = self.minimax(board_copy, depth + 1, MIN, alpha, beta, local_max_depth)
+				if updated_score > score:
+					score = updated_score
+					best_move = move
 				alpha = max(alpha, score)
 				if alpha >= beta:
-					break # pruning
-			return bestMove[0], bestMove[1], score
+					break  # pruning
+			return best_move[0], best_move[1], score
 
 		else: 
 			# maxOrMin == MIN
 			# want to minimize this move
 			score = math.inf
-			bestMoveForHuman = validMoves[0]
-			for move in validMoves:
-				boardCopy = copyOfBoard(board)
-				performMove(boardCopy, move[0], move[1], self.HUMAN_COLOR)
-				gameOver, winner = isTerminal(boardCopy)
+			best_move_for_human = valid_moves[0]
+			for move in valid_moves:
+				board_copy = copy_of_board(board)
+				perform_move(board_copy, move[0], move[1], self.HUMAN_COLOR)
+				game_over, winner = is_terminal(board_copy)
 				if winner == self.AI_COLOR:
-					updatedScore = WIN_SCORE
+					updated_score = WIN_SCORE
 				elif winner == self.HUMAN_COLOR:
-					updatedScore = -1 * WIN_SCORE
+					updated_score = -1 * WIN_SCORE
 				else:
 					# no winner
-					if gameOver:
+					if game_over:
 						# if board filled
-						updatedScore = 0
+						updated_score = 0
 					else:
-						_, __, updatedScore = self.minimax(boardCopy, depth + 1, MAX, alpha, beta, localMaxDepth)
-				if updatedScore < score:
-					score = updatedScore
-					bestMoveForHuman = move
+						_, __, updated_score = self.minimax(board_copy, depth + 1, MAX, alpha, beta, local_max_depth)
+				if updated_score < score:
+					score = updated_score
+					best_move_for_human = move
 				beta = min(beta, score)
 				if beta <= alpha:
-					break # pruning
-			return bestMoveForHuman[0], bestMoveForHuman[1], score
+					break  # pruning
+			return best_move_for_human[0], best_move_for_human[1], score
 
 
-def opponentOf(piece):
+def opponent_of(piece):
 	"""Get the opposing piece"""
 	return X_PIECE if piece == O_PIECE else O_PIECE
 
 
-def performMove(board, row, col, piece):
+def perform_move(board, row, col, piece):
 	"""Performs a given move on the board"""
 	board[row][col] = piece
 
 
-def findWinner(board):
+def find_winner(board):
 	"""
     Checks if there is a winner
     returns the color of the winner if there is one, otherwise None
@@ -142,13 +142,13 @@ def findWinner(board):
 	return None
 
 
-def isTerminal(board):
+def is_terminal(board):
 	"""
     Checks if the current board state is Game Over
     Returns a tuple, with [0] being the True or False value
     [1] being the winning color (None if neither color wins)
     """
-	winner = findWinner(board)
+	winner = find_winner(board)
 	if winner is not None:
 		return True, winner
 
@@ -160,16 +160,16 @@ def isTerminal(board):
 	return True, None
 
 
-def getValidMoves(board):
+def get_valid_moves(board):
 	"""Returns a list of valid moves (moves in the center area or near other pieces)"""
-	validLocations = []
+	valid_locations = []
 	for rowNum in range(3):
 		for colNum in range(3):
 			if board[rowNum][colNum] == EMPTY:
-				validLocations.append([rowNum, colNum])
-	return validLocations
+				valid_locations.append([rowNum, colNum])
+	return valid_locations
 
 
-def copyOfBoard(board):
+def copy_of_board(board):
 	"""Returns a copy of the given board"""
 	return list(map(list, board))

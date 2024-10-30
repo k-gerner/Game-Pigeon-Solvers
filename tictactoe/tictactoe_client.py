@@ -2,10 +2,11 @@
 # Kyle G 6.6.2021
 
 from tictactoe.tictactoe_player import TicTacToePlayer
-from tictactoe.tictactoe_strategy import TicTacToeStrategy, opponentOf, isTerminal, performMove, copyOfBoard
+from tictactoe.tictactoe_strategy import TicTacToeStrategy, opponent_of, is_terminal, perform_move, copy_of_board
 from util.terminaloutput.colors import GREEN_COLOR, RED_COLOR, NO_COLOR
-from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL
+from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL, error, info
 from util.terminaloutput.erasing import erasePreviousLines
+from util.terminaloutput.colors import color_text
 from util.save.saving import path_to_save_file, allow_save
 from util.aiduel.dueling import get_dueling_ai_class
 from datetime import datetime
@@ -28,10 +29,9 @@ BOARD_HISTORY = []
 class HumanPlayer(TicTacToePlayer):
 
 	def __init__(self, color):
-		super().__init__(color, isAI=False)
+		super().__init__(color, is_ai=False)
 
-
-	def getMove(self, board):
+	def get_move(self, board):
 		"""Takes in the user's input and returns the move"""
 		spot = input("It's your turn, which spot would you like to play? (A1 - %s%d):\t" % (ROW_LABELS[-1], len(board))).strip().upper()
 		erasePreviousLines(1)
@@ -40,9 +40,9 @@ class HumanPlayer(TicTacToePlayer):
 				print("\nThanks for playing!\n")
 				exit(0)
 			elif spot == 'H':
-				spot = getBoardHistoryInputFromUser(False)
+				spot = get_board_history_input_from_user(False)
 			elif spot == 'S':
-				saveGame(self.color)
+				save_game(self.color)
 				spot = input("Which spot would you like to play? (A1 - %s%d):\t" % (ROW_LABELS[-1], len(board))).strip().upper()
 				erasePreviousLines(2)
 			elif len(spot) >= 3 or len(spot) == 0 or spot[0] not in ROW_LABELS or not spot[1:].isdigit() or int(spot[1:]) > len(board) or int(spot[1:]) < 1:
@@ -58,161 +58,161 @@ class HumanPlayer(TicTacToePlayer):
 		return row, col
 
 
-def printGameBoard(board=None):
+def print_game_board(board=None):
 	"""Prints the gameBoard in a human-readable format"""
 	if board is None:
 		board = gameBoard
 	print()
 	for rowNum in range(len(board)):
 		row = board[rowNum]
-		print("\t%s  " % ROW_LABELS[rowNum], end = '')
+		print("\t%s  " % ROW_LABELS[rowNum], end='')
 		for colNum in range(len(row)):
 			piece = board[rowNum][colNum]
 			if piece == EMPTY:
-				pieceColor = NO_COLOR
+				piece_color = NO_COLOR
 			elif piece == USER_PIECE:
-				pieceColor = GREEN_COLOR
+				piece_color = GREEN_COLOR
 			else:
-				pieceColor = RED_COLOR
-			print(f" {pieceColor}%s{NO_COLOR} %s" % (piece, '|' if colNum < 2 else '\n'), end = '')
+				piece_color = RED_COLOR
+			print(f" {piece_color}%s{NO_COLOR} %s" % (piece, '|' if colNum < 2 else '\n'), end='')
 		if rowNum < 2:
 			print("\t   ---+---+---")
 	print("\t    1   2   3\n")
 
 
-def printMoveHistory(numMovesPrevious):
+def print_move_history(num_moves_previous):
 	"""Prints the move history of the current game"""
 	while True:
-		printGameBoard(BOARD_HISTORY[-(numMovesPrevious + 1)])
-		if numMovesPrevious == 0:
+		print_game_board(BOARD_HISTORY[-(num_moves_previous + 1)])
+		if num_moves_previous == 0:
 			return
-		print("(%d move%s before current board state)\n" % (numMovesPrevious, "s" if numMovesPrevious != 1 else ""))
-		numMovesPrevious -= 1
-		userInput = input("Press enter for next move, or 'e' to return to game.  ").strip().lower()
+		print("(%d move%s before current board state)\n" % (num_moves_previous, "s" if num_moves_previous != 1 else ""))
+		num_moves_previous -= 1
+		user_input = input("Press enter for next move, or 'e' to return to game.  ").strip().lower()
 		erasePreviousLines(1)
-		if userInput == 'q':
+		if user_input == 'q':
 			erasePreviousLines(2)
 			print("Thanks for playing!\n")
 			exit(0)
-		elif userInput == 'e':
+		elif user_input == 'e':
 			erasePreviousLines(2)
 			return
 		else:
 			erasePreviousLines(BOARD_OUTPUT_HEIGHT + 3)
 
 
-def getBoardHistoryInputFromUser(isAi):
+def get_board_history_input_from_user(is_ai):
 	"""
     Prompts the user for input for how far the board history function.
     Returns the user's input for the next move
     """
-	nextMovePrompt = "Press enter to continue." if isAi else "Enter a valid move to play:"
+	next_move_prompt = "Press enter to continue." if is_ai else "Enter a valid move to play:"
 	if len(BOARD_HISTORY) < 2:
-		userInput = input(f"{INFO_SYMBOL} No previous moves to see. {nextMovePrompt}   ").strip().upper()
+		user_input = input(f"{INFO_SYMBOL} No previous moves to see. {next_move_prompt}   ").strip().upper()
 		erasePreviousLines(1)
 	else:
-		numMovesPrevious = input(f"How many moves ago do you want to see? (1 to {len(BOARD_HISTORY) - 1})  ").strip()
+		num_moves_previous = input(f"How many moves ago do you want to see? (1 to {len(BOARD_HISTORY) - 1})  ").strip()
 		erasePreviousLines(1)
-		if numMovesPrevious.isdigit() and 1 <= int(numMovesPrevious) <= len(BOARD_HISTORY) - 1:
+		if num_moves_previous.isdigit() and 1 <= int(num_moves_previous) <= len(BOARD_HISTORY) - 1:
 			erasePreviousLines(BOARD_OUTPUT_HEIGHT + 2)
-			printMoveHistory(int(numMovesPrevious))
+			print_move_history(int(num_moves_previous))
 			erasePreviousLines(BOARD_OUTPUT_HEIGHT + 1)
-			printGameBoard(BOARD_HISTORY[-1])
-			userInput = input(f"{INFO_SYMBOL} You're back in play mode. {nextMovePrompt}   ").strip().upper()
+			print_game_board(BOARD_HISTORY[-1])
+			user_input = input(f"{INFO_SYMBOL} You're back in play mode. {next_move_prompt}   ").strip().upper()
 			erasePreviousLines(2)
-			print("\n") # make this output the same height as the other options
+			print("\n")  # make this output the same height as the other options
 		else:
-			userInput = input(f"{ERROR_SYMBOL} Invalid input. {nextMovePrompt}   ").strip().upper()
+			user_input = input(f"{ERROR_SYMBOL} Invalid input. {next_move_prompt}   ").strip().upper()
 			erasePreviousLines(1)
-	return userInput
+	return user_input
 
 
-def saveGame(turn):
+def save_game(turn):
 	"""Saves the given board state to a save file"""
 	if not allow_save(SAVE_FILENAME):
 		return
-	with open(SAVE_FILENAME, 'w') as saveFile:
-		saveFile.write("This file contains the save state of a previously played game.\n")
-		saveFile.write("Modifying this file may cause issues with loading the save state.\n\n")
-		timeOfSave = datetime.now().strftime("%m/%d/%Y at %I:%M:%S %p")
-		saveFile.write(timeOfSave + "\n\n")
-		saveFile.write("SAVE STATE:\n")
+	with open(SAVE_FILENAME, 'w') as save_file:
+		save_file.write("This file contains the save state of a previously played game.\n")
+		save_file.write("Modifying this file may cause issues with loading the save state.\n\n")
+		time_of_save = datetime.now().strftime("%m/%d/%Y at %I:%M:%S %p")
+		save_file.write(time_of_save + "\n\n")
+		save_file.write("SAVE STATE:\n")
 		for row in gameBoard:
-			rowWithDifferentEmptyCharacter = row.copy()
-			for index, piece in enumerate(rowWithDifferentEmptyCharacter):
+			row_with_different_empty_character = row.copy()
+			for index, piece in enumerate(row_with_different_empty_character):
 				if piece == EMPTY:
 					# replace EMPTY character with '-' so it can be parsed correctly when loading save
-					rowWithDifferentEmptyCharacter[index] = "-"
-			saveFile.write(" ".join(rowWithDifferentEmptyCharacter) + "\n")
-		saveFile.write("User piece: " + str(USER_PIECE)  +"\n")
-		saveFile.write("Opponent piece: " + opponentOf(USER_PIECE)  +"\n")
-		saveFile.write("Turn: " + turn)
-	print(f"{INFO_SYMBOL} The game has been saved!")
+					row_with_different_empty_character[index] = "-"
+			save_file.write(" ".join(row_with_different_empty_character) + "\n")
+		save_file.write("User piece: " + str(USER_PIECE) + "\n")
+		save_file.write("Opponent piece: " + opponent_of(USER_PIECE) + "\n")
+		save_file.write("Turn: " + turn)
+	info("The game has been saved!")
 
 
-def validateLoadedSaveState(board, piece, turn):
+def validate_loaded_save_state(board, piece, turn):
 	"""Make sure the state loaded from the save file is valid. Returns a boolean"""
 	if piece not in [X_PIECE, O_PIECE]:
-		print(f"{ERROR_SYMBOL} Invalid user piece!")
+		error("Invalid user piece!")
 		return False
 	if turn not in [X_PIECE, O_PIECE]:
-		print(f"{ERROR_SYMBOL} Invalid player turn!")
+		error("Invalid player turn!")
 		return False
 	for row in board:
 		if len(row) != 3:
-			print(f"{ERROR_SYMBOL} Invalid board!")
+			error("Invalid board!")
 			return False
 		if row.count(EMPTY) + row.count(X_PIECE) + row.count(O_PIECE) != 3:
-			print(f"{ERROR_SYMBOL} Board contains invalid pieces!")
+			error("Board contains invalid pieces!")
 			return False
 	return True
 
 
-def loadSavedGame():
+def load_saved_game():
 	"""Try to load the saved game data"""
 	global gameBoard
 	with open(SAVE_FILENAME, 'r') as saveFile:
 		try:
-			linesFromSaveFile = saveFile.readlines()
-			timeOfPreviousSave = linesFromSaveFile[3].strip()
-			useExistingSave = input(f"{INFO_SYMBOL} Would you like to load the saved game from {timeOfPreviousSave}? (y/n)\t").strip().lower()
+			lines_from_save_file = saveFile.readlines()
+			time_of_previous_save = lines_from_save_file[3].strip()
+			use_existing_save = input(f"{INFO_SYMBOL} Would you like to load the saved game from {time_of_previous_save}? (y/n)\t").strip().lower()
 			erasePreviousLines(1)
-			if useExistingSave != 'y':
-				print(f"{INFO_SYMBOL} Starting a new game...\n")
+			if use_existing_save != 'y':
+				info("Starting a new game...\n")
 				return None, None
-			lineNum = 0
-			currentLine = linesFromSaveFile[lineNum].strip()
-			while currentLine != "SAVE STATE:":
-				lineNum += 1
-				currentLine = linesFromSaveFile[lineNum].strip()
-			lineNum += 1
-			currentLine = linesFromSaveFile[lineNum].strip()
-			boardFromSaveFile = []
-			while not currentLine.startswith("User piece"):
-				piecesInRow = currentLine.split()
-				for index, piece in enumerate(piecesInRow):
+			line_num = 0
+			current_line = lines_from_save_file[line_num].strip()
+			while current_line != "SAVE STATE:":
+				line_num += 1
+				current_line = lines_from_save_file[line_num].strip()
+			line_num += 1
+			current_line = lines_from_save_file[line_num].strip()
+			board_from_save_file = []
+			while not current_line.startswith("User piece"):
+				pieces_in_row = current_line.split()
+				for index, piece in enumerate(pieces_in_row):
 					if piece == "-":
-						piecesInRow[index] = EMPTY
-				boardFromSaveFile.append(piecesInRow)
-				lineNum += 1
-				currentLine = linesFromSaveFile[lineNum].strip()
-			userPiece = currentLine.split(": ")[1].strip()
-			lineNum += 2
-			currentLine = linesFromSaveFile[lineNum].strip()
-			turn = currentLine.split(": ")[1].strip()
-			if not validateLoadedSaveState(boardFromSaveFile, userPiece, turn):
+						pieces_in_row[index] = EMPTY
+				board_from_save_file.append(pieces_in_row)
+				line_num += 1
+				current_line = lines_from_save_file[line_num].strip()
+			user_piece = current_line.split(": ")[1].strip()
+			line_num += 2
+			current_line = lines_from_save_file[line_num].strip()
+			turn = current_line.split(": ")[1].strip()
+			if not validate_loaded_save_state(board_from_save_file, user_piece, turn):
 				raise ValueError
-			gameBoard = boardFromSaveFile
-			deleteSaveFile = input(f"{INFO_SYMBOL} Saved game was successfully loaded! Delete the save file? (y/n)\t").strip().lower()
+			gameBoard = board_from_save_file
+			delete_save_file = input(f"{INFO_SYMBOL} Saved game was successfully loaded! Delete the save file? (y/n)\t").strip().lower()
 			erasePreviousLines(1)
-			fileDeletedText = ""
-			if deleteSaveFile == 'y':
+			file_deleted_text = ""
+			if delete_save_file == 'y':
 				os.remove(SAVE_FILENAME)
-				fileDeletedText = "Save file deleted. "
-			print(f"{INFO_SYMBOL} {fileDeletedText}Resuming saved game...\n")
-			return turn, userPiece
+				file_deleted_text = "Save file deleted. "
+			info(f"{file_deleted_text}Resuming saved game...\n")
+			return turn, user_piece
 		except Exception:
-			print(f"{ERROR_SYMBOL} There was an issue reading from the save file. Starting a new game...\n")
+			error("There was an issue reading from the save file. Starting a new game...\n")
 			return None, None
 
 
@@ -223,10 +223,10 @@ def run():
 	if "-d" in sys.argv or "-aiDuel" in sys.argv:
 		UserPlayerClass = get_dueling_ai_class(TicTacToePlayer, "TicTacToeStrategy")
 		print(f"\n{INFO_SYMBOL} You are in AI Duel Mode!")
-		AI_DUEL_MODE = True
+		ai_duel_mode = True
 	else:
 		UserPlayerClass = HumanPlayer
-		AI_DUEL_MODE = False
+		ai_duel_mode = False
 	print("""
   _______ _        _______           _______                    _____ 
  |__   __(_)      |__   __|         |__   __|             /\\   |_   _|
@@ -242,71 +242,71 @@ def run():
 	print("Press 'q' at any point to quit.")
 
 	turn = X_PIECE
-	useSavedGame = False
+	use_saved_game = False
 	if os.path.exists(SAVE_FILENAME):
-		turnFromSaveFile, USER_PIECE = loadSavedGame()
-		if turnFromSaveFile is not None:
-			turn = turnFromSaveFile
-			opponentPiece = opponentOf(USER_PIECE)
-			useSavedGame = True
-			BOARD_HISTORY.append(copyOfBoard(gameBoard))
-	if not useSavedGame:
-		userPieceSelect = input("\nDo you want to be X or O? (X goes first)\t").strip().lower()
+		turn_from_save_file, USER_PIECE = load_saved_game()
+		if turn_from_save_file is not None:
+			turn = turn_from_save_file
+			opponent_piece = opponent_of(USER_PIECE)
+			use_saved_game = True
+			BOARD_HISTORY.append(copy_of_board(gameBoard))
+	if not use_saved_game:
+		user_piece_select = input("\nDo you want to be X or O? (X goes first)\t").strip().lower()
 		erasePreviousLines(1)
-		while userPieceSelect not in ['x', 'o']:
-			if userPieceSelect == 'q':
+		while user_piece_select not in ['x', 'o']:
+			if user_piece_select == 'q':
 				print("Thanks for playing!\n")
 				exit(0)
-			userPieceSelect = input(f"{ERROR_SYMBOL} Invalid input. Please choose either X or O:\t").strip().lower()
+			user_piece_select = input(f"{ERROR_SYMBOL} Invalid input. Please choose either X or O:\t").strip().lower()
 			erasePreviousLines(1)
-		if userPieceSelect == 'x':
+		if user_piece_select == 'x':
 			USER_PIECE = X_PIECE
-			opponentPiece = O_PIECE
+			opponent_piece = O_PIECE
 		else:
 			USER_PIECE = O_PIECE
-			opponentPiece = X_PIECE
-	print(f"{'Your AI' if AI_DUEL_MODE else 'Human'}: {GREEN_COLOR}{USER_PIECE}{NO_COLOR}")
-	print(f"{'My AI' if AI_DUEL_MODE else 'AI'}: {RED_COLOR}{opponentPiece}{NO_COLOR}")
+			opponent_piece = X_PIECE
+	print(f"{'Your AI' if ai_duel_mode else 'Human'}: {color_text(USER_PIECE, GREEN_COLOR)}")
+	print(f"{'My AI' if ai_duel_mode else 'AI'}: {color_text(opponent_piece, RED_COLOR)}")
 
-	players[opponentPiece] = TicTacToeStrategy(opponentPiece)
+	players[opponent_piece] = TicTacToeStrategy(opponent_piece)
 	players[USER_PIECE] = UserPlayerClass(USER_PIECE)
 
-	printGameBoard()
+	print_game_board()
 
 	first_turn = True
-	gameOver, winner = False, None
-	while not gameOver:
-		if AI_DUEL_MODE:
-			nameOfPlayer = "My AI" if turn == opponentPiece else "Your AI"
+	game_over, winner = False, None
+	while not game_over:
+		if ai_duel_mode:
+			name_of_player = "My AI" if turn == opponent_piece else "Your AI"
 		else:
-			nameOfPlayer = "AI" if turn == opponentPiece else "You"
-		currentPlayer = players[turn]
-		if currentPlayer.isAI:
-			userInput = input(f"{nameOfPlayer}'s turn, press enter for it to play.\t").strip().upper()
+			name_of_player = "AI" if turn == opponent_piece else "You"
+		current_player = players[turn]
+		if current_player.is_ai:
+			user_input = input(f"{name_of_player}'s turn, press enter for it to play.\t").strip().upper()
 			erasePreviousLines(1)
-			while userInput in ['Q', 'S', 'H']:
-				if userInput == 'Q':
+			while user_input in ['Q', 'S', 'H']:
+				if user_input == 'Q':
 					print("\nThanks for playing!\n")
 					exit(0)
-				elif userInput == 'H':
-					userInput = getBoardHistoryInputFromUser(True)
+				elif user_input == 'H':
+					user_input = get_board_history_input_from_user(True)
 				else:
-					saveGame(turn)
-					userInput = input(f"{nameOfPlayer}'s turn, press enter for it to play.\t").strip().upper()
+					save_game(turn)
+					user_input = input(f"{name_of_player}'s turn, press enter for it to play.\t").strip().upper()
 					erasePreviousLines(2)
-		rowPlayed, colPlayed = currentPlayer.getMove(gameBoard)
-		performMove(gameBoard, rowPlayed, colPlayed, turn)
-		BOARD_HISTORY.append(copyOfBoard(gameBoard))
+		row_played, col_played = current_player.get_move(gameBoard)
+		perform_move(gameBoard, row_played, col_played, turn)
+		BOARD_HISTORY.append(copy_of_board(gameBoard))
 		erasePreviousLines(BOARD_OUTPUT_HEIGHT + (1 if first_turn else 2))
 		first_turn = False
-		printGameBoard()
-		move_formatted = ROW_LABELS[rowPlayed] + str(colPlayed + 1)
-		print(f"{nameOfPlayer} played in spot {move_formatted}")
-		turn = opponentOf(turn)
-		gameOver, winner = isTerminal(gameBoard)
+		print_game_board()
+		move_formatted = ROW_LABELS[row_played] + str(col_played + 1)
+		print(f"{name_of_player} played in spot {move_formatted}")
+		turn = opponent_of(turn)
+		game_over, winner = is_terminal(gameBoard)
 
 	if winner is None:
 		print("Nobody wins, it's a tie!\n")
 	else:
-		highlightColor = GREEN_COLOR if winner == USER_PIECE else RED_COLOR
-		print(f"{highlightColor}{winner}{NO_COLOR} player wins!\n")
+		highlight_color = GREEN_COLOR if winner == USER_PIECE else RED_COLOR
+		print(f"{color_text(winner, highlight_color)} player wins!\n")
