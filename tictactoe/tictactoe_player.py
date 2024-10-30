@@ -10,7 +10,7 @@ class TicTacToePlayer:
         self.is_ai = is_ai
 
     def get_move(self, board: List[List[str]]) -> Tuple[int, int]:
-        """Returns the chosen move for a given board, in [rowIndex, columnIndex] format"""
+        """Returns the chosen move for a given board, in [row_index, column_index] format"""
         print("\n<!> Function 'get_move' has not been implemented.\n"+
               "The program has been terminated.\n" +
               "Please make sure that you have implemented 'get_move' from the Player super class.\n")
