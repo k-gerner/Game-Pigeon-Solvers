@@ -110,9 +110,9 @@ your AI was located in `external/aiduel/myAiFile.py`, you would run:
 In order for your AI to be eligible, it must meet a few requirements:
 * AI logic must be contained in a class named `OthelloStrategy`
 * AI must be a subclass of `OthelloPlayer`, found in `othello_player.py`
-* AI must have a function named `getMove` that accepts a game board
+* AI must have a function named `get_move` that accepts a game board
   as a parameter, and returns the chosen move coordinates in the form of
-  a tuple in the format `(rowNumber, columnNumber)`
+  a tuple in the format `(row_number, column_number)`.
 
 ### Optional Command Line Arguments
 
