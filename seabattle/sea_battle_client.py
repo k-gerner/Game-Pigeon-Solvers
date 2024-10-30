@@ -8,8 +8,9 @@ from util.terminaloutput.colors import GREEN_COLOR as DESTROY_COLOR, \
 	DARK_GREY_BACKGROUND as MOST_RECENT_HIGHLIGHT_COLOR, \
 	DARK_PURPLE_COLOR as OPTIMAL_COLOR, \
 	NO_COLOR
-from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL
+from util.terminaloutput.symbols import ERROR_SYMBOL, INFO_SYMBOL, error, info
 from util.terminaloutput.erasing import erasePreviousLines
+from util.terminaloutput.colors import color_text
 from util.save.saving import path_to_save_file, allow_save
 import math
 import os
@@ -57,7 +58,7 @@ def create_game_board(dimension):
 			4: 1
 		}
 	else:
-		print(f"{ERROR_SYMBOL} Board can only be 8x8, 9x9, or 10x10.")
+		error("Board can only be 8x8, 9x9, or 10x10.")
 		print("Terminating session.")
 		exit(0)
 
@@ -73,21 +74,21 @@ def print_board(most_recent_move=None, optimal_locations=None):
 	for length in list(reversed(sorted(REMAINING_SHIPS.keys()))):
 		ships_remain.append([length, REMAINING_SHIPS[length]])
 	for rowNum in range(SIZE):
-		print("\t%d%s| " % (rowNum+1, "" if rowNum > 8 else " "), end = '')
+		print("\t%d%s| " % (rowNum+1, "" if rowNum > 8 else " "), end='')
 		for colNum in range(SIZE):
 			spot = game_board[rowNum][colNum]
-			pieceColor = MOST_RECENT_HIGHLIGHT_COLOR if [rowNum, colNum] == most_recent_move else ''
+			piece_color = MOST_RECENT_HIGHLIGHT_COLOR if [rowNum, colNum] == most_recent_move else ''
 			if spot == HIT:
-				pieceColor += HIT_COLOR
+				piece_color += HIT_COLOR
 			elif spot == MISS:
-				pieceColor += MISS_COLOR
+				piece_color += MISS_COLOR
 			elif spot == DESTROY:
-				pieceColor += DESTROY_COLOR
+				piece_color += DESTROY_COLOR
 			elif [rowNum, colNum] in optimal_locations:
-				pieceColor += OPTIMAL_COLOR
+				piece_color += OPTIMAL_COLOR
 			else:
-				pieceColor += NO_COLOR
-			print(f"{pieceColor}%s{NO_COLOR} " % spot, end = '')
+				piece_color += NO_COLOR
+			print(f"{piece_color}%s{NO_COLOR} " % spot, end='')
 		if rowNum == 0:
 			print("\tRemaining ships:")
 		elif rowNum == 2:
@@ -118,9 +119,9 @@ def print_space_densities(color_mode=True):
 		total_range = max(max_val - min_val, 1)
 		percentage = 100 * ((value - min_val) / total_range)
 		if percentage > 75:
-			return DESTROY_COLOR # green
+			return DESTROY_COLOR  # green
 		elif percentage > 40:
-			return HIT_COLOR # yellow
+			return HIT_COLOR  # yellow
 		else:
 			return "\u001b[38;5;208m"  # orange
 
@@ -142,13 +143,14 @@ def print_space_densities(color_mode=True):
 		print("%s%d |   " % (" " if row_index < 9 else "", row_index + 1), end='')
 		for value in row:
 			if color_mode:
-				COLOR = get_color(value, max_score, min_score)
+				color = get_color(value, max_score, min_score)
 			else:
-				COLOR = NO_COLOR
+				color = NO_COLOR
 			if value == 0:
-				print(f"{COLOR}0{NO_COLOR}    ", end='')
+				print(color_text("0    ", color), end='')
 			else:
-				print(f"{COLOR}%s{NO_COLOR}" % (str(int(value)) + (4-int(math.log10(value)))*" "), end='')
+				colored_output = color_text((str(int(value)) + (4-int(math.log10(value)))*" "), color)
+				print(colored_output, end='')
 		print("|")
 	print("   %s\n" % ("-"*55))
 
@@ -169,95 +171,95 @@ def save_game():
 	"""Saves the given board state to a save file"""
 	if not allow_save(SAVE_FILENAME):
 		return
-	with open(SAVE_FILENAME, 'w') as saveFile:
-		saveFile.write("This file contains the save state of a previously played game.\n")
-		saveFile.write("Modifying this file may cause issues with loading the save state.\n\n")
-		timeOfSave = datetime.now().strftime("%m/%d/%Y at %I:%M:%S %p")
-		saveFile.write(timeOfSave + "\n\n")
-		saveFile.write("SAVE STATE:\n")
+	with open(SAVE_FILENAME, 'w') as save_file:
+		save_file.write("This file contains the save state of a previously played game.\n")
+		save_file.write("Modifying this file may cause issues with loading the save state.\n\n")
+		time_of_save = datetime.now().strftime("%m/%d/%Y at %I:%M:%S %p")
+		save_file.write(time_of_save + "\n\n")
+		save_file.write("SAVE STATE:\n")
 		for row in game_board:
-			saveFile.write(" ".join(row) + "\n")
-		saveFile.write("Ships remaining:\n")
-		for shipSize, numShips in REMAINING_SHIPS.items():
-			saveFile.write(f"{shipSize}: {numShips}\n")
-		saveFile.write("END")
-	print(f"{INFO_SYMBOL} The game has been saved!")
+			save_file.write(" ".join(row) + "\n")
+		save_file.write("Ships remaining:\n")
+		for ship_size, num_ships in REMAINING_SHIPS.items():
+			save_file.write(f"{ship_size}: {num_ships}\n")
+		save_file.write("END")
+	info("The game has been saved!")
 
 
-def validateLoadedSaveState(board):
+def validate_loaded_save_state(board):
 	"""Make sure the state loaded from the save file is valid. Returns a boolean"""
 	board_dimension = len(board)
 	if board_dimension not in [8, 9, 10]:
-		print(f"{ERROR_SYMBOL} Invalid board size!")
+		error("Invalid board size!")
 		return False
 	for row in board:
 		if len(row) != board_dimension:
-			print(f"{ERROR_SYMBOL} Board is not square!")
+			error("Board is not square!")
 			return False
 		for spot in row:
 			if spot not in [DESTROY, HIT, MISS, EMPTY]:
-				print(f"{ERROR_SYMBOL} Board contains invalid pieces!")
+				error("Board contains invalid pieces!")
 				return False
 	for ship_size, num_ships in REMAINING_SHIPS.items():
 		if not 1 <= ship_size <= 4:
-			print(f"{ERROR_SYMBOL} Invalid ship size: {ship_size}")
+			error(f"Invalid ship size: {ship_size}")
 			return False
 		if not num_ships >= 0:
-			print(f"{ERROR_SYMBOL} Invalid number of ships remaining for size {ship_size}: {num_ships}")
+			error(f"Invalid number of ships remaining for size {ship_size}: {num_ships}")
 			return False
 	if sum(REMAINING_SHIPS.values()) == 0:
-		print(f"{ERROR_SYMBOL} Every ship size has 0 remaining ships!")
+		error("Every ship size has 0 remaining ships!")
 		return False
 	return True
 
 
-def loadSavedGame():
+def load_saved_game():
 	"""Try to load the saved game data. Returns boolean for if the save was successful."""
 	global game_board
 	with open(SAVE_FILENAME, 'r') as saveFile:
 		try:
-			linesFromSaveFile = saveFile.readlines()
-			timeOfPreviousSave = linesFromSaveFile[3].strip()
-			useExistingSave = input(f"{INFO_SYMBOL} Would you like to load the saved game from {timeOfPreviousSave}? (y/n)\t").strip().lower()
+			lines_from_save_file = saveFile.readlines()
+			time_of_previous_save = lines_from_save_file[3].strip()
+			use_existing_save = input(f"{INFO_SYMBOL} Would you like to load the saved game from {time_of_previous_save}? (y/n)\t").strip().lower()
 			erasePreviousLines(1)
-			if useExistingSave != 'y':
-				print(f"{INFO_SYMBOL} Starting a new game...")
+			if use_existing_save != 'y':
+				info("Starting a new game...")
 				return
-			lineNum = 0
-			currentLine = linesFromSaveFile[lineNum].strip()
-			while currentLine != "SAVE STATE:":
-				lineNum += 1
-				currentLine = linesFromSaveFile[lineNum].strip()
-			lineNum += 1
+			line_num = 0
+			current_line = lines_from_save_file[line_num].strip()
+			while current_line != "SAVE STATE:":
+				line_num += 1
+				current_line = lines_from_save_file[line_num].strip()
+			line_num += 1
 
-			currentLine = linesFromSaveFile[lineNum].strip()
+			current_line = lines_from_save_file[line_num].strip()
 			board_from_save_file = []
-			while not currentLine.startswith("Ships remaining:"):
-				board_from_save_file.append(currentLine.split())
-				lineNum += 1
-				currentLine = linesFromSaveFile[lineNum].strip()
-			lineNum += 1
+			while not current_line.startswith("Ships remaining:"):
+				board_from_save_file.append(current_line.split())
+				line_num += 1
+				current_line = lines_from_save_file[line_num].strip()
+			line_num += 1
 
-			currentLine = linesFromSaveFile[lineNum].strip()
-			while not currentLine.startswith("END"):
-				ship_size, num_ships = currentLine.split(":")[:2]
+			current_line = lines_from_save_file[line_num].strip()
+			while not current_line.startswith("END"):
+				ship_size, num_ships = current_line.split(":")[:2]
 				REMAINING_SHIPS[int(ship_size.strip())] = int(num_ships.strip())
-				lineNum += 1
-				currentLine = linesFromSaveFile[lineNum].strip()
+				line_num += 1
+				current_line = lines_from_save_file[line_num].strip()
 
-			if not validateLoadedSaveState(board_from_save_file):
+			if not validate_loaded_save_state(board_from_save_file):
 				raise ValueError
 			game_board = board_from_save_file
-			deleteSaveFile = input(f"{INFO_SYMBOL} Saved game was successfully loaded! Delete the save file? (y/n)\t").strip().lower()
+			delete_save_file = input(f"{INFO_SYMBOL} Saved game was successfully loaded! Delete the save file? (y/n)\t").strip().lower()
 			erasePreviousLines(1)
-			fileDeletedText = ""
-			if deleteSaveFile == 'y':
+			file_deleted_text = ""
+			if delete_save_file == 'y':
 				os.remove(SAVE_FILENAME)
-				fileDeletedText = "Save file deleted. "
-			print(f"{INFO_SYMBOL} {fileDeletedText}Resuming saved game...")
+				file_deleted_text = "Save file deleted. "
+			info(f"{file_deleted_text}Resuming saved game...")
 			return True
-		except:
-			print(f"{ERROR_SYMBOL} There was an issue reading from the save file. Starting a new game...")
+		except Exception:
+			error("There was an issue reading from the save file. Starting a new game...")
 			return False
 
 
@@ -337,7 +339,6 @@ def generate_space_densities():
 				if 0 <= row + row_add < SIZE and 0 <= col + col_add < SIZE and game_board[row+row_add][col+col_add] == EMPTY:
 					num_open += 1
 		return num_open
-
 
 	space_densities = []
 	for i in range(SIZE):
@@ -456,7 +457,7 @@ def get_optimal_moves():
 		for col_index in range(SIZE):
 			density_score = space_densities[row_index][col_index]
 			if density_score == max_score:
-				best_move_coordinates.append([row_index,col_index])
+				best_move_coordinates.append([row_index, col_index])
 			elif density_score > max_score:
 				max_score = density_score
 				best_move_coordinates = [[row_index, col_index]]
@@ -471,10 +472,10 @@ def sink_ship(row, col):
     """
 	game_board[row][col] = DESTROY
 	dir_increments = [
-		[0, -1], # left
-		[0, 1],  # right
-		[-1, 0], # down
-		[1, 0] 	 # up
+		[0, -1],  # left
+		[0, 1],   # right
+		[-1, 0],  # down
+		[1, 0] 	  # up
 	]
 	sunken_coordinates = [[row, col]]
 	for direction_pair in dir_increments:
@@ -501,14 +502,14 @@ def sink_ship(row, col):
 		exit(0)
 
 	sunken_neighbor_distances = [
-		[0, -1],  # left
-		[0, 1],   # right
-		[-1, 0],  # down
-		[1, 0],   # up
-		[-1, -1], # lower left
-		[-1, 1],  # lower right
-		[1, -1],  # upper left
-		[1, 1]    # upper right
+		[0, -1],   # left
+		[0, 1],    # right
+		[-1, 0],   # down
+		[1, 0],    # up
+		[-1, -1],  # lower left
+		[-1, 1],   # lower right
+		[1, -1],   # upper left
+		[1, 1]     # upper right
 	]
 	for coord in sunken_coordinates:
 		for increment in sunken_neighbor_distances:
@@ -521,23 +522,23 @@ def get_player_move():
 	"""Takes in the user's input and performs that move on the board, returns the coordinates of the move"""
 	spot = input("Which spot would you like to play? (A1 - %s%d):\t" % (COLUMN_LABELS[-1], SIZE)).strip().upper()
 	erasePreviousLines(1)
-	linesToErase = BOARD_OUTPUT_HEIGHT + 2
+	lines_to_erase = BOARD_OUTPUT_HEIGHT + 2
 	while True:
 		if spot == 'Q':
 			print("\nThanks for playing!\n")
 			exit(0)
 		elif spot == 'D':
-			erasePreviousLines(linesToErase)
+			erasePreviousLines(lines_to_erase)
 			print_space_densities()
-			linesToErase = SPACE_DENSITY_TABLE_OUTPUT_HEIGHT
+			lines_to_erase = SPACE_DENSITY_TABLE_OUTPUT_HEIGHT
 			print("The space densities table is shown above. To show the game board, type 'b'")
 			spot = input("Which spot would you like to play? (A1 - %s%d):\t" % (COLUMN_LABELS[-1], SIZE)).strip().upper()
 			erasePreviousLines(2)
 		elif spot == "B":
-			erasePreviousLines(linesToErase)
+			erasePreviousLines(lines_to_erase)
 			print_board(optimal_locations=get_optimal_moves())
 			print("\nThe current game board is shown above.")
-			linesToErase = BOARD_OUTPUT_HEIGHT + 2
+			lines_to_erase = BOARD_OUTPUT_HEIGHT + 2
 			spot = input("Which spot would you like to play? (A1 - %s%d):\t" % (COLUMN_LABELS[-1], SIZE)).strip().upper()
 			erasePreviousLines(1)
 		elif spot == 'S':
@@ -560,14 +561,14 @@ def get_player_move():
 				while fail_safe not in ["Y", "N"]:
 					fail_safe = input(f"{ERROR_SYMBOL} Please enter 'y' or 'n':\t").strip().upper()
 					erasePreviousLines(1)
-				if  fail_safe == "N":
+				if fail_safe == "N":
 					spot = input("Phew! Okay, where would you like to play? (A1 - %s%d):\t" % (COLUMN_LABELS[-1], SIZE)).strip().upper()
 					erasePreviousLines(1)
 				else:
 					break
 			else:
 				break
-	if linesToErase == SPACE_DENSITY_TABLE_OUTPUT_HEIGHT:
+	if lines_to_erase == SPACE_DENSITY_TABLE_OUTPUT_HEIGHT:
 		print()
 	return [row, col]
 
@@ -591,19 +592,19 @@ def run():
 	print("To save the game, type 's' at the move selection prompt.")
 	print("To quit, type 'q' at any prompt.\n")
 
-	useSavedGame = False
+	use_saved_game = False
 	if os.path.exists(SAVE_FILENAME):
-		useSavedGame = loadSavedGame()
+		use_saved_game = load_saved_game()
 	board_dimension = len(game_board)
 
-	if not useSavedGame:
+	if not use_saved_game:
 		board_dimension = input("What is the dimension of the board (8, 9, or 10)? (Default is 10x10)\nEnter a single number:\t").strip()
 		erasePreviousLines(2)
 		if board_dimension.isdigit() and int(board_dimension) in [8, 9, 10]:
 			print("The board will be %sx%s!" % (board_dimension, board_dimension))
 		else:
 			board_dimension = 10
-			print(f"{ERROR_SYMBOL} Invalid input. The board will be 10x10!")
+			error("Invalid input. The board will be 10x10!")
 		create_game_board(int(board_dimension))
 	SIZE = int(board_dimension)
 	BOARD_OUTPUT_HEIGHT = SIZE + 4
@@ -635,7 +636,7 @@ def run():
 			game_board[row][col] = HIT
 		elif outcome == "S":
 			sink_ship(row, col)
-		else: # outcome = Q
+		else:  # outcome = Q
 			print("\nThanks for playing!\n")
 			exit(0)
 
