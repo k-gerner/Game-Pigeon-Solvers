@@ -78,12 +78,12 @@ class Board(object):
 		"""
 		raise NotImplementedError
 
-	def visit_direction(self, pos, dir):
+	def visit_direction(self, pos, direction):
 		"""
 		look at letter in specified direction and mark as visited
 		returns -1 on fail
 		"""
-		visited_letter = self.directionDict[dir](pos)  # calls the correct function depending on value of dir
+		visited_letter = self.directionDict[direction](pos)  # calls the correct function depending on value of dir
 		if visited_letter == -1 or visited_letter.visited:
 			# if unable to look that direction or the letter was already visited
 			return -1

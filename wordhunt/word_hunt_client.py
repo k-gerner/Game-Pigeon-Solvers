@@ -177,7 +177,7 @@ def print_output(valid_words, mode, board):
 		      "----------------------------------------------")
 		word_index = 0
 		while True:
-			for pair in valid_words[word_index : word_index + 10]:
+			for pair in valid_words[word_index: word_index + 10]:
 				# pair[0] = start pos
 				# pair[1] = word
 				num_spaces_to_indent_index = 14 - len(pair[1])
